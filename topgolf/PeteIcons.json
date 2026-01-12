@@ -120,6 +120,10 @@
       "name": "calendar-day-bold",
       "color": "yellow"
     },
+    "AuthFail": {
+      "name": "external-user-bold",
+      "color": "red"
+    },
     "Facebook": {
       "name": "social-facebook-color",
       "color": "grey",
