@@ -70,7 +70,7 @@
     },
     "Login": {
       "name": "sign-in-bold",
-      "color": "gold"
+      "color": "green"
     },
     "Page Visit": {
       "name": "mouse-cursor-bold",
