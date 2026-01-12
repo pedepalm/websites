@@ -12,11 +12,6 @@
       "color": "cobalt",
       "iconSet": "momentumUI"
     },
-    "Facebook": {
-      "name": "social-facebook-color",
-      "color": "grey",
-      "iconSet": "momentumBrandVisuals"
-    },
     "Apple": {
       "name": "apple-filled",
       "color": "black"
@@ -124,6 +119,41 @@
     "multi events single day": {
       "name": "calendar-day-bold",
       "color": "yellow"
+    },
+    "Facebook": {
+      "name": "social-facebook-color",
+      "color": "grey",
+      "iconSet": "momentumBrandVisuals"
+    },
+     "MSTeams": {
+      "name": "ms-teams-color",
+      "color": "grey",
+      "iconSet": "momentumBrandVisuals"
+    },
+     "CiscoDark": {
+      "name": "cisco-logo-dark-bw",
+      "color": "grey",
+      "iconSet": "momentumBrandVisuals"
+    },
+     "CiscoLight": {
+      "name": "cisco-logo-light-bw",
+      "color": "grey",
+      "iconSet": "momentumBrandVisuals"
+    },
+     "CiscoColor": {
+      "name": "cisco-logo-light-color",
+      "color": "grey",
+      "iconSet": "momentumBrandVisuals"
+    },
+    "WebexApp": {
+      "name": "webex-app-icon-color-container",
+      "color": "grey",
+      "iconSet": "momentumBrandVisuals"
+    },
+    "WebexSymbolCommon": {
+      "name": "webex-symbol-common-color-gradient",
+      "color": "grey",
+      "iconSet": "momentumBrandVisuals"
     }
-  }
+}
   
