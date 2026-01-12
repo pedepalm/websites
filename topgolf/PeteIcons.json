@@ -122,7 +122,7 @@
     },
     "LoginFail": {
       "name": "sign-in-bold",
-      "color": "gold"
+      "color": "red"
     },
     "Facebook": {
       "name": "social-facebook-color",
