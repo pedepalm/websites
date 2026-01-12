@@ -70,7 +70,7 @@
     },
     "Login": {
       "name": "sign-in-bold",
-      "color": "green"
+      "color": "gold"
     },
     "Page Visit": {
       "name": "mouse-cursor-bold",
@@ -119,6 +119,10 @@
     "multi events single day": {
       "name": "calendar-day-bold",
       "color": "yellow"
+    },
+     "LoginPass": {
+      "name": "sign-in-bold",
+      "color": "green"
     },
     "LoginFail": {
       "name": "sign-in-bold",
