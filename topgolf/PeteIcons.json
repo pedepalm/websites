@@ -124,6 +124,10 @@
       "name": "bluetooth-filled",
       "color": "blue"
     },
+    "accessibility": {
+      "name": "accessibility",
+      "color": "blue"
+    },
     "Facebook": {
       "name": "social-facebook-color",
       "color": "grey",
