@@ -96,6 +96,10 @@
       "name": "camera-bold",
       "color": "orange"
     },
+    "Transcript": {
+      "name": "chat-outbound-filled",
+      "color": "yellow"
+    },
     "Initiated Walk In": {
       "name": "camera-bold",
       "color": "orange"
