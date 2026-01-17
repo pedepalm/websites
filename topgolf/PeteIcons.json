@@ -100,6 +100,10 @@
       "name": "chat-outbound-filled",
       "color": "yellow"
     },
+    "VoiceTranscript": {
+      "name": "call-voicemail-bold",
+      "color": "green"
+    },
     "Initiated Walk In": {
       "name": "camera-bold",
       "color": "orange"
