@@ -100,6 +100,10 @@
       "name": "chat-outbound-filled",
       "color": "yellow"
     },
+    "ChatTranscript": {
+      "name": "chat-outbound-filled",
+      "color": "yellow"
+    },
     "VoiceTranscript": {
       "name": "call-voicemail-bold",
       "color": "green"
