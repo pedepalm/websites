@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Contact Us</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: transparent;
+  color: #333;
+  min-height: 100vh;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: -1;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================= HEADER ================= */
+.header-wrapper {
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.logo {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.logo img {
+  max-height: 50px;
+}
+
+.header {
+  text-align: center;
+}
+
+.header h1 {
+  font-size: 42px;
+  color: #2E8B57;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header p {
+  font-size: 18px;
+  color: #555;
+}
+
+/* ================= CONTACT BOXES ================= */
+.contact-info {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 40px;
+  text-align: center;
+}
+
+.info-box {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 20px;
+  border-radius: 10px;
+  flex: 1;
+  min-width: 200px;
+  max-width: 220px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.08);
+  cursor: pointer;
+  transition: transform .25s, box-shadow .25s;
+}
+
+.info-box:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 20px rgba(0,0,0,.15);
+}
+
+.info-box h3 {
+  margin: 8px 0;
+  color: #003366;
+  text-shadow: none;
+}
+
+.info-box p {
+  margin: 4px 0;
+  font-size: 15px;
+  color: #333;
+}
+
+/* ================= SMS BOX ================= */
+.sms-box {
+  border: 2px solid #2E8B57;
+  background: rgba(255, 255, 255, 0.12);
+  position: relative;
+}
+
+.sms-badge {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  background: #2E8B57;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(46,139,87,.6); }
+  70% { box-shadow: 0 0 0 12px rgba(46,139,87,0); }
+  100% { box-shadow: 0 0 0 0 rgba(46,139,87,0); }
+}
+
+/* ================= FREE FORM (MATCHES MODALS) ================= */
+.message-section {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.message-section h2 {
+  color: #2E8B57;
+  margin-top: 0;
+  text-shadow: none;
+}
+
+.message-section p {
+  color: #555;
+  margin-bottom: 15px;
+}
+
+/* textarea styled same as modal inputs */
+.message-section textarea {
+  flex-grow: 1;
+  width: 100%;
+  padding: 14px;
+  font-size: 15px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.9);
+  resize: vertical;
+  transition: border-color .2s, box-shadow .2s;
+}
+
+.message-section textarea:focus {
+  outline: none;
+  border-color: #fff;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.3);
+}
+
+/* button styled same as modal buttons */
+.message-section button {
+  margin-top: 20px;
+  padding: 14px;
+  width: 100%;
+  background: #2E8B57;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background .2s, transform .2s;
+}
+
+.message-section button:hover {
+  background: #257d4a;
+  transform: translateY(-1px);
+}
+
+/* ================= MODALS ================= */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .3s ease;
+  z-index: 200;
+}
+
+.overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal {
+  background: #fff;
+  width: 400px;
+  border-radius: 12px;
+  padding: 30px;
+  position: relative;
+  transform: translateY(40px);
+  opacity: 0;
+  transition: transform .4s ease, opacity .4s ease;
+}
+
+.overlay.show .modal {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.modal h2 {
+  color: #003366;
+  margin-top: 0;
+}
+
+.modal label {
+  display: block;
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.modal input {
+  width: 100%;
+  padding: 14px;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.modal button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  background: #003366;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.status {
+  margin-top: 15px;
+  text-align: center;
+  font-size: 14px;
+}
+
+@media (max-width: 600px) {
+  .modal {
+    width: 90%;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header-wrapper">
+    <div class="logo"><img src="https://storage.googleapis.com/gcp-wxcctoolkit-nprd-41927.appspot.com/assets/WZIkCSJ2Y5XT40wEaaQnFoBDJD92/logo%20Melaleuca.jpeg" alt="Melaleuca"></div>
+    <div class="header">
+      <h1>Contact Us</h1>
+      <p>If you have any questions, please contact us on your preferred channel.</p>
+    </div>
+  </div>
+
+  <!-- CONTACT METHODS -->
+  <div class="contact-info">
+
+      <div class="info-box sms-box" onclick="openEmail()">
+      <div class="sms-badge">24/7 Available</div>
+      📧
+      <h3>Email</h3>
+      <p>info@melaleuca.com</p>
+    </div>
+
+  <div class="info-box sms-box" onclick="location.href='tel:(208)522-0700'">
+  <div class="sms-badge">24/7 Available</div>
+  📞
+  <h3>Phone</h3>
+  <p><strong>(208)522-0700</strong></p>
+  <p>Call us anytime</p>
+</div>
+
+
+    <div class="info-box sms-box" onclick="openSMS()">
+      <div class="sms-badge">24/7 Available</div>
+      💬
+      <h3>SMS</h3>
+      <p>Text us anytime</p>
+      <p><strong>(555) 987-6543</strong></p>
+    </div>
+
+<div class="info-box sms-box" onclick="openWhatsApp()">
+  <div class="sms-badge">24/7 Available</div>
+  🟢
+  <h3>WhatsApp</h3>
+  <p>Chat with us on WhatsApp</p>
+  <p><strong>Scan to start</strong></p>
+</div>
+  </div>
+
+  <!-- FREE FORM -->
+  <div class="message-section">
+    <h2>How can we help?</h2>
+    <p>Describe your question or issue below and we'll route it to the right team.</p>
+    <textarea placeholder="Type your message here..."></textarea>
+    <button type="button">Submit</button>
+  </div>
+
+</div>
+
+<!-- EMAIL MODAL -->
+<div id="emailOverlay" class="overlay">
+  <div class="modal">
+    <span class="close-btn" onclick="closeEmail()">×</span>
+    <h2>Email Us</h2>
+
+    <label>Name</label>
+    <input id="emailName">
+
+    <label>Email</label>
+    <input id="emailAddress">
+
+    <button onclick="closeEmail()">Send</button>
+    <div id="emailStatus" class="status"></div>
+  </div>
+</div>
+
+<!-- SMS MODAL -->
+<div id="smsOverlay" class="overlay">
+  <div class="modal">
+    <span class="close-btn" onclick="closeSMS()">×</span>
+    <h2>Start SMS</h2>
+
+    <label>Name</label>
+    <input id="smsName">
+
+    <label>Mobile Number</label>
+    <input id="smsNumber">
+
+    <button onclick="closeSMS()">Start Texting</button>
+    <div id="smsStatus" class="status"></div>
+  </div>
+</div>
+
+<!-- WHATSAPP MODAL -->
+<div id="whatsappOverlay" class="overlay">
+  <div class="modal">
+    <span class="close-btn" onclick="closeWhatsApp()">×</span>
+    <h2>Chat on WhatsApp</h2>
+
+    <p style="text-align:center; color:#555;">
+      Scan the QR code below to start a WhatsApp conversation with our team.
+    </p>
+
+    <div style="text-align:center; margin-top:20px;">
+      <img 
+        src="https://storage.googleapis.com/gcp-wxcctoolkit-nprd-41927.appspot.com/assets/WZIkCSJ2Y5XT40wEaaQnFoBDJD92/WhatsApp%20QR%20code.jpg" 
+        alt="WhatsApp QR Code"
+        style="max-width:220px; width:100%; border-radius:8px;"
+      >
+    </div>
+  </div>
+</div>
+
+
+
+
+<script>
+function openEmail() {
+  document.getElementById('emailOverlay').classList.add('show');
+}
+function closeEmail() {
+  document.getElementById('emailOverlay').classList.remove('show');
+}
+function openSMS() {
+  document.getElementById('smsOverlay').classList.add('show');
+}
+function closeSMS() {
+  document.getElementById('smsOverlay').classList.remove('show');
+}
+function openWhatsApp() {
+  document.getElementById('whatsappOverlay').classList.add('show');
+}
+function closeWhatsApp() {
+  document.getElementById('whatsappOverlay').classList.remove('show');
+}
+</script>
+
+</body>
+</html>
