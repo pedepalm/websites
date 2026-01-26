@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title></title>
+  <link rel="icon" href="https://cdn.glitch.global/bf0538d3-cb62-47e3-bd13-29c937a6319f/58202473.png?v=1727980848388" sizes="270x270" />
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+
+  <link href="style.css" rel="stylesheet">
+</head>
+
+<body>
+   <!-- <script>
+        // Surfly snippet
+        (function(s,u,r,f,l,y){s[f]=s[f]||{init:function(){s[f].q=arguments}};
+        l=u.createElement(r);y=u.getElementsByTagName(r)[0];l.async=1;
+        l.src='https://surfly.com/surfly.js';y.parentNode.insertBefore(l,y);})
+        (window,document,'script','Surfly');
+
+        // The preferred way is to set session options from the Surfly web interface,
+        // so in most cases you only need to provide a widget key below,
+        // but you can also override any options here
+        var settings = {
+            widget_key: "b2ecec0c7bf34ac69c972562a35cb554",
+            hide_until_agent_joins: true,
+            url: "https://wxcc-omnichannel.glitch.me"
+        };
+
+        // Surfly.init() must be called before any other API call
+        Surfly.init(settings, function(init) {
+        if (init.success && !Surfly.isInsideSession) {
+            Surfly.session()
+            .on("session_created", function(session, event) {
+                // display the PIN of the current session
+                document.querySelector("#sessidtarget").innerText = session.pin;
+            })
+            .startLeader();
+        }
+        });
+    </script>-->
+  
+  <!-- Background Image placeholder -->
+  <div class="wrapperImage">
+    <img id="bgImage">
+  </div>
+
+
+  <!-- Contact Button -->
+  <button id="contactButton" class="btn btn-primary" type="button" data-bs-toggle="offcanvas"
+    data-bs-target="#contactMenu">Talk to an Expert</button>
+
+  <div class="offcanvas offcanvas-end rounded-start" tabindex="-1" id="contactMenu">
+    <div class="offcanvas-body">
+      <div class="list-group list-group-flush">
+        <!-- Offcanvas Header -->
+        <div class="list-group-item">
+          <div class="d-flex w-100 justify-content-between">
+            <h1 class="display-6">Need Help?</h1>
+            <button type="button" class="btn-close mt-3" data-bs-dismiss="offcanvas"></button>
+          </div>
+        </div>
+
+        <!-- Offcanvas Expert Advisor -->
+        <div class="list-group-item">
+          <div class="d-flex w-100 justify-content-between">
+            <img id="agent" class="me-4" width="112" height="112" />
+            <div class="vstack align-self-center fs-4 lh-1">
+              <p>Expert Advisor</p>
+              <p>We're here to help</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Offcanvas Call Us -->
+        <a href="#" id="callLink" class="list-group-item list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">Call Us - <span class="h6 text-primary">8 min wait time</span></h5>
+          </div>
+          <p class="mb-1 text-muted">Talk with an expert now</p>
+        </a>
+
+        <!-- Offcanvas Callback -->
+        <a href="#" id="callbackLink" class="list-group-item list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">Callback - <span class="h6 text-primary">8 minute wait time</span></h5>
+          </div>
+          <p class="mb-1 text-muted">Don't wait in queue, we will call you</p>
+        </a>
+
+        <!-- Offcanvas Email an Expert -->
+        <a href="#" id="emailLink" class="list-group-item list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">Email an Expert - <span class="h6 text-primary">12-24 hour wait time</span></h5>
+          </div>
+          <p class="mb-1 text-muted">An expert will respond to your email</p>
+        </a>
+
+        <!-- Offcanvas Start SMS -->
+        <a href="#" id="smsLink" class="list-group-item list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">SMS an Expert - <span class="h6 text-primary">2 minute wait time</span></h5>
+          </div>
+          <p class="mb-1 text-muted">Text message with an expert</p>
+        </a>
+
+        <!-- Offcanvas Start WhatsApp -->
+        <a href="#" id="whatsappLink" class="list-group-item list-group-item-action">
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">WhatsApp - <span class="h6 text-primary">2 minute wait time</span></h5>
+          </div>
+          <p class="mb-1 text-muted">WhatsApp message with an expert</p>
+        </a>
+        
+        <!-- Offcanvas Co-Browsing -->
+        <a href="#" id="CobrowseLink" class="list-group-item list-group-item-action">
+          
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">Start Co-Browsing - <span class="h6 text-primary">2 min wait time</span></h5>
+          </div>
+          <p class="mb-1 text-muted">Share your screen with an expert</p>
+        </a>
+        
+                <!-- Offcanvas VideoChat -->
+        <a href="#" id="VideoLink" class="list-group-item list-group-item-action">
+          
+          <div class="d-flex w-100 justify-content-between">
+            <h5 class="mb-1">VideoChat an Expert - <span class="h6 text-primary">5 min wait time</span></h5>
+          </div>
+          <p class="mb-1 text-muted">Start a VideoChat with an expert</p>
+        </a>
+
+      </div>
+    </div>
+  </div>
+  <!-- End OffCanvas -->
+
+
+  <!-- Call US Modal -->
+  <div class="modal fade" id="callModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <div class="container">
+            <div class="row">
+              <h5 class="col-auto me-auto modal-title">Give us a Call</h5>
+              <button type="button" class="col-auto btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="row">
+              <p class="col text-primary fw-light mb-0">Less than 8 minute wait time</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <a id="telephone" class="btn btn-outline-primary"></a>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Callback Modal -->
+  <div class="modal fade" id="callbackModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <div class="container">
+            <div class="row">
+              <h5 class="col-auto me-auto modal-title">Receive a callback</h5>
+              <button type="button" class="col-auto btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="row">
+              <p class="col text-primary fw-light mb-0">Less than 8 minute wait time</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <form id="callbackForm" class="needs-validation" novalidate>
+            <div class="mb-3">
+              <div class="form-text mb-2">Dont waste time waiting in queue, our experts will call you</div>
+              <label for="callbackName" class="form-label">Name</label>
+              <input type="text" class="form-control" id="callbackName" placeholder="Enter your full name" required />
+            </div>
+            <div class="mb-3">
+              <label for="callbackNumber" class="form-label">Phone Number</label>
+              <input type="tel" class="form-control" id="callbackNumber" pattern="[0-9]{10}"
+                placeholder="Enter your callback number" required />
+              <div class="invalid-feedback">Enter a 10-digit mobile number</div>
+            </div>
+            <div class="mb-3">
+              <label for="callbackDepartment" class="form-label">Callback Reason</label>
+              <select class="form-select" id="callbackDepartment" required>
+                <option value="">--Please choose an option--</option>
+                <option value="Sales">Sales Questions</option>
+                <option value="Billing">Billing Issues</option>
+                <option value="Appointment">Appointments</option>
+                <option value="Tech Support">Technical Support</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="callbackReason" class="form-label">Message</label>
+              <textarea class="form-control" id="callbackReason" rows="2" required></textarea>
+            </div>
+            <div class="mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" id="immediateCallback" name="callbackRaido" checked>
+                <label class="form-check-label" for="immediateCallback">Immediate Callback</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" id="delayCallback" name="callbackRaido">
+                <label class="form-check-label" for="delayCallback">Delay Callback for</label>
+                <input class="ms-1" id="delayCallbackMinutes" type="number" placeholder="5" size="8" min="5" max="60"
+                  step="5">
+                <label class="form-check-label" for="delayCallbackMinutes">minutes</label>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="sendCallbackBtn" type="button" class="btn btn-primary">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Email Modal -->
+  <div class="modal fade" id="emailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <div class="container">
+            <!-- Header Image -->
+  <div class="container">
+    <img class="img-fluid" src="https://cdn.glitch.global/bf0538d3-cb62-47e3-bd13-29c937a6319f/26739MacLaren%20Webex%20-%20LinkedIn_Banner%201584x396-4.jpg?v=1727981345473" alt="Header Image">
+  </div> <!-- End Header Image -->
+            <div class="row">
+              <h5 class="col-auto me-auto modal-title">An expert will respond to your email</h5>
+              <button type="button" class="col-auto btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="row">
+              <p class="col text-primary fw-light mb-0">12-24 hour wait time</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <form id="emailForm" class="needs-validation" novalidate>
+         <div class="row">
+           
+        
+         <div class="col-md-6">
+        <label for="fname" class="form-label ms-2 mb-0">First Name<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="fname" required>
+      </div>
+      <div class="col-md-6">
+        <label for="lname" class="form-label ms-2 mb-0">Last Name<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="lname" required>
+      </div>
+               </div>
+                <div class="row">
+      <div class="col-md-6">
+        <label for="address1" class="form-label ms-2 mb-0">Address 1<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="address1" placeholder="1245 Main Street" required>
+      </div>
+      <div class="col-md-6">
+     <label for="city" class="form-label ms-2 mb-0">City<span class="text-danger">*</span></label>
+     <input type="text" class="form-control" id="city" required>
+      </div>
+                  </div>
+               <div class="row">
+      <div class="col-md-6">
+        <label for="phone" class="form-label ms-2 mb-0">Phone<span class="text-danger">*</span></label>
+        <input type="tel" class="form-control" id="phone" required>
+      </div>
+      <div class="col-md-4">
+        <label for="state" class="form-label ms-2 mb-0">State<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="state" required>
+        </div>
+            
+      <div class="col-md-2">
+        <label for="zip" class="form-label ms-2 mb-0">Zip<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="zip" required>
+      </div>
+                                   </div>
+             <div class="row">
+      <div class="col-md-6">
+        <label for="SSN" class="form-label ms-2 mb-0">Account Number<span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="SSN" placeholder="8 Digits Number" required>
+      </div>
+      <div class="col-md-6">
+        <label for="eaddress" class="form-label ms-2 mb-0">Email Address<span class="text-danger">*</span></label>
+        <input type="email" class="form-control" id="eaddress" required>
+      </div>
+  
+                  
+                </div>
+                <div class="row">
+      <div class="col-md-6">
+        <label for="Company" class="form-label ms-2 mb-0">Company Name</label>
+        <input type="text" class="form-control" id="Company">
+      </div>
+      <div class="col-md-6">
+        <label for="Listproducts" class="form-label ms-2 mb-0">List of Products<span class="text-danger">*</span></label>
+        <select class="form-select" id="Listproducts" required>
+          <option disabled selected>Choose...</option>
+          <option>Webex Suite</option>
+          <option>Webex Contact Center</option>
+          <option>Webex Devices</option>
+          <option>Webex Headsets</option>
+          <option>Webex Connect</option>
+        </select>
+      </div>
+                        </div>
+
+      <div class="col-12">
+        <label for="message" class="form-label ms-2 mb-0">Additional Information</label>
+        <textarea class="form-control" id="message" placeholder="Enter your message..."></textarea>
+      </div>         
+            
+          </form>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="sendEmailBtn" type="button" class="btn btn-primary">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- SMS Modal -->
+  <div class="modal fade" id="smsModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <div class="container">
+            <div class="row">
+              <h5 class="col-auto me-auto modal-title">Text message with an expert</h5>
+              <button type="button" class="col-auto btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="row">
+              <p class="col text-primary fw-light mb-0">Less than 2 minute wait time</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <form id="smsForm" class="needs-validation" novalidate>
+            <div class="mb-3">
+              <label for="smsName" class="form-label">Name</label>
+              <input type="text" class="form-control" id="smsName" placeholder="Enter your full name" required />
+            </div>
+            <div class="mb-3">
+              <label for="smsNumber" class="form-label">Mobile Number</label>
+              <input type="tel" class="form-control" id="smsNumber" pattern="[0-9]{10}"
+                placeholder="Enter your mobile number" required />
+              <div class="invalid-feedback">Enter a 10-digit mobile number</div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="sendSmsBtn" type="button" class="btn btn-primary">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WhatsApp Modal -->
+  <div class="modal fade" id="whatsappModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <div class="container">
+            <div class="row">
+              <h5 class="col-auto me-auto modal-title">WhatsApp message with an expert</h5>
+              <button type="button" class="col-auto btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="row">
+              <p class="col text-primary fw-light mb-0">Less than 2 minute wait time</p>
+            </div>
+          </div>
+        </div>
+        <div class="modal-body text-center">
+          <img id="whatsappQR" width="300" height="300" />
+        </div>
+        <div class="modal-footer bg-light">
+          <p class="me-auto"> Scan this QR Code with your mobile phone</p>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+   <!-- CoBrowse Modal -->
+  <div class="modal fade" id="CobrowseModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <div class="container">
+            <div class="row">
+              <h5 class="col-auto me-auto modal-title">Start Co-Browsing</h5>
+              
+              <!-- <button type="button" class="col-auto btn-close" data-bs-dismiss="modal"></button> -->
+              <!--<button onclick= "Surfly.session().startLeader()">Start a session</button> -->
+
+            </div>
+            <div class="row">
+              
+              <p class="col text-primary fw-light mb-0">Less than 3 minute wait time</p>
+            </div>
+          </div>
+        </div>
+             
+        <div class="modal-body">
+          <a id="CoBrowse" class="btn btn-outline-primary"></a>
+          Session Code: <span id="sessidtarget">...</span>
+        </div>
+ 
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <!-- <button id="sendcobtn" type="button" class="btn btn-primary">Send</button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+  
+   <!-- Video US Modal -->
+  <div class="modal fade" id="videoModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-light">
+          <div class="container">
+            <div class="row">
+              <h5 class="col-auto me-auto modal-title">Video Call with Agent</h5>
+              <button type="button" class="col-auto btn-close" data-bs-dismiss="modal"></button>
+              <iframe id="videoframe" allow="camera;microphone" width="1500" height="700" class="flex-justify-center full-width full-height" ></iframe>
+            </div>
+        
+          </div>
+        </div>
+        
+        <div class="modal-footer bg-light">
+          <button id= "closemeeting" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button id="startmeeting" type="button" class="btn btn-primary" >Start Meeting</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!--  Success Modal -->
+  <div class="modal fade" id="successModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-success">
+          <div class="container">
+            <div class="row">
+              <button type="button" class="col-auto btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="row">
+              <img id="successImg" src="https://cdn.glitch.global/ae9d46bf-4084-4543-a389-bbb7b2ac2eb2/success.svg?v=1728649650123" width="100" height="100">
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p class="text-center fs-1 text-secondary">Success!</p>
+          <p id="successMessage" class="text-center fs-5 text-secondary"></p>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!--  Failure Modal -->
+  <div class="modal fade" id="failureModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-danger">
+          <div class="container">
+            <div class="row">
+              <button type="button" class="col-auto btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="row">
+              <img id="failureImg" src="https://cdn.glitch.global/ae9d46bf-4084-4543-a389-bbb7b2ac2eb2/failure.svg?v=1728649651802" width="100" height="100">
+            </div>
+          </div>
+        </div>
+        <div class="modal-body">
+          <p class="text-center fs-1 text-secondary">Ooops!</p>
+          <p class="text-center fs-5 text-secondary">Something went wrong. Please go back and try again.</p>
+        </div>
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">OK</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!--  Bootstrap Javascript  -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+    crossorigin="anonymous"></script>
+
+  <!---------------------------------------------------->
+  <!--  Paste in IMI Webschat code below this comment -->
+<div id="divicw" data-bind="B961C104-A3A1-4ECF-B049-E4DE6E1C01AD" data-org="" data-guid="2cd03437-1d50-47be-9331-fb30c65f4dfa"></div><script>var i={t:function(t){var e="https://media.imi.chat/widget/js/imichatinit.js";try{var o=new XMLHttpRequest;o.onreadystatechange=function(){if(this.readyState==4){var t=document.getElementById("divicw");if(this.status==0){i.o(t);return}var e=document.createElement("script");e.innerHTML=this.responseText;t.parentNode.insertBefore(e,t.nextSibling)}};o.open("GET",e,true);o.send()}catch(s){console.error(s)}},o:function(t){t.insertAdjacentHTML("afterend",'<iframe id="tls_al_frm" frameborder="0" style="overflow: hidden;height: 208px;width: 394px;position: fixed;display: block;right: 48px;bottom: 12px;z-index: 99999; display:none;"></iframe>');var e=document.getElementById("tls_al_frm");var o=e.contentWindow||(e.contentDocument.document||e.contentDocument);o.document.open();o.document.write('<!doctype html><html><head><meta charset="utf-8"><title>Untitled Document</title><style>body{font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;color: #99a0b0;font-size: 14px;}.popover__content{background-color: #fbfbfe; padding: 1.5rem; border-radius: 5px; width: 300px; box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);position: relative;}.popover__message{font-weight: 600;color:#56627c;font-size: 16px;}.pull-left{float:left;}.clearfix{clear: both;}.hdr-txt{width: 218px; margin-top: 3px;}.para-txt a{text-decoration: none;color: #005cde;}.close-btn{position: absolute;right:15px;top:15px;}.close-btn a{text-decoration: none;font-weight: 400; color: #56627c; font-size: 16px;}</style></head><body><div class="popover__content"><div class="close-btn"><a href="#" onclick="closeTLSAlert();">X</a></div><div class="popover__message"><div class="pull-left hdr-txt">This browser version is not supported on LiveChat.</div></div><div class="clearfix"></div><p class="para-txt">Please update your browser to the latest version and re-open the website to access the widget. </p></div><script>function closeTLSAlert(){window.parent.postMessage({key: "close_tls_alert",value: "close_tls_alert",action: "close_tls_alert"}, "*");}<\\/script></body></html>');o.document.close();e.style.display="block";window.addEventListener("message",function(t){if(t.data.action=="close_tls_alert"){i.s()}})},s:function(){var t=document.getElementById("tls_al_frm");t.remove()}};i.t(function(t){});</script> 
+
+  <!--  Our local Javascript  -->
+   <script src="script.js"></script>
+
+
+
+</body>
+
+</html>
