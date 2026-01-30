@@ -136,6 +136,18 @@
       "name": "bluetooth-filled",
       "color": "blue"
     },
+    "Queue Time Great": {
+      "name": "completed-by-time-bold",
+      "color": "green"
+    },
+    "Queue Time OK": {
+      "name": "completed-by-time-bold",
+      "color": "yellow"
+    },
+    "Queue Time Bad": {
+      "name": "completed-by-time-bold",
+      "color": "red"
+    },
     "accessibility": {
       "name": "accessibility",
       "color": "blue"
@@ -176,4 +188,3 @@
       "iconSet": "momentumBrandVisuals"
     }
 }
-  
