@@ -84,6 +84,14 @@
       "name": "user-bold",
       "color": "blue"
     },
+    "Cancel": {
+      "name": "cancel-filled",
+      "color": "red"
+    },
+    "Move": {
+      "name": "arrow-pointer-cursor-light",
+      "color": "blue"
+    },
     "Quote": {
       "name": "document-bold",
       "color": "cobalt"
