@@ -92,6 +92,10 @@
       "name": "arrow-circle-right-filled",
       "color": "blue"
     },
+    "Notes": {
+      "name": "file-onenote-filled",
+      "color": "blue"
+    },
     "Quote": {
       "name": "document-bold",
       "color": "cobalt"
