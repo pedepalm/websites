@@ -165,7 +165,6 @@ class Form {
             },
             body: JSON.stringify({
                 ...parameters,
-                payload: data
             }),
         });
     }
