@@ -173,22 +173,22 @@ class Form {
 
 // Fixed the trailing quote syntax error in the markup string
 const email_form = new Form(
-    `<p>First Name</p>
+    `<p>E-mail</p>
+    <input name="form-input" type="email" placeholder="me@example.com">
+    <p>Subject</p>
+    <input name="form-input" type="text">
+    <p>First Name</p>
     <input name="form-input" type="text">
     <p>Last Name</p>
     <input name="form-input" type="text">
     <p>Phone</p>
     <input name="form-input" type="text" placeholder="123-456-7890">
-    <p>E-mail</p>
-    <input name="form-input" type="email" placeholder="me@example.com">
-    <p>Subject</p>
-    <input name="form-input" type="text">
     <p>Body</p>
     <textarea name="form-input" type="text" class="increased-height"></textarea>`, 
     'Email',
     'btn-email',
-    'https://webhook.site/c4c4fdb6-4c23-4a4d-9b6d-dc4b78b249b9', // Testing URL
-    ['fname', 'lname', 'phone', 'email', 'subject', 'body'],
+    'https://hooks.us.webexconnect.io/events/K22XV81ZQU', // Testing URL
+    ['customerEmail', 'emailSubject', 'fname', 'lname', 'phone', 'message'],
     {},
     "modal-email"
 );
