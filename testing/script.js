@@ -150,6 +150,8 @@ class Form {
             console.error("API Request Failed:", err);
             throw err;
         }
+
+        inputs.forEach(input => input.textContent = "")
     }
 
     async makeAPIRequest(data) {
@@ -165,6 +167,7 @@ class Form {
             },
             body: JSON.stringify({
                 ...parameters,
+                payload: data
             }),
         });
     }
