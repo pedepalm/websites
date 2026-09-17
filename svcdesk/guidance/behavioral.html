@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Behavioral Guidance</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1a1a1a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1a1a1a;
+      --text: #f0f0f0;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1a1a1a;
+    --text: #f0f0f0;
+  }
+  html, body {
+    height: 100%;
+    margin: 0;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  h1 {
+    font-size: 12vw;
+    text-align: center;
+    margin: 0;
+    padding: 0 0.3em;
+  }
+</style>
+</head>
+<body>
+<h1>Behavioral Guidance</h1>
+</body>
+</html>
