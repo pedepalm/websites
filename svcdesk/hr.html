@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ACME Internal HR Service Desk Topics</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1a1a1a;
+    --muted: #444444;
+    --border: #dddddd;
+    --accent: #2c3e50;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --text: #e8e8e8;
+      --muted: #bbbbbb;
+      --border: #3a3a3a;
+      --accent: #9db4c0;
+    }
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: Georgia, "Times New Roman", serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    line-height: 1.6;
+  }
+  h1 {
+    text-decoration: underline;
+    font-size: 1.6rem;
+    margin-bottom: 0.25rem;
+  }
+  .overview {
+    margin: 1rem 0 2rem;
+  }
+  .overview strong {
+    color: var(--accent);
+  }
+  h2.topic {
+    font-size: 1.15rem;
+    margin-top: 1.75rem;
+    margin-bottom: 0.4rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.2rem;
+  }
+  ul {
+    margin: 0.3rem 0;
+    padding-left: 1.4rem;
+  }
+  ul.level-1 {
+    padding-left: 1.2rem;
+  }
+  ul.level-2 {
+    padding-left: 1.4rem;
+  }
+  li {
+    margin: 0.3rem 0;
+  }
+  .label {
+    font-weight: bold;
+  }
+  .topic-list {
+    margin-bottom: 0.3rem;
+  }
+  table {
+    border-collapse: collapse;
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 400px;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.9rem;
+    text-align: left;
+  }
+  th {
+    background: rgba(128,128,128,0.1);
+  }
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0 1.5rem;
+  }
+  h2.section-title {
+    font-size: 1.3rem;
+    margin-bottom: 0.5rem;
+  }
+  .note {
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>ACME Internal HR Service Desk Topics</h1>
+
+<p class="overview"><strong>Overview:</strong> ACME Corporation has a service desk where agents take calls for typical HR related topics. The following is a list of topics and their descriptions.</p>
+
+<h2 class="topic">Medical</h2>
+<ul class="level-1">
+  <li>Use this for anything Medical related that is not dental or behavioral</li>
+  <li>Valid topics
+    <ul class="level-2">
+      <li>Medical issues: Hypertension, diabetes, obesity, respiratory infections, back pain, arthritis, anxiety/depression, allergies, high cholesterol, heart disease, Family medicine physician, internist, pediatrician, cardiologist, dermatologist, OB-GYN, orthopedist, psychiatrist, endocrinologist, gastroenterologist</li>
+    </ul>
+  </li>
+  <li>Guidance &ndash; no troubleshooting guidance</li>
+</ul>
+
+<h2 class="topic">Dental</h2>
+<ul class="level-1">
+  <li>Valid topics
+    <ul class="level-2">
+      <li>Routine cleaning/checkup, cavity/tooth decay, toothache, teeth whitening, root canal, tooth extraction, gum disease, broken/chipped tooth, orthodontic treatment, dental x-rays</li>
+    </ul>
+  </li>
+  <li>Guidance &ndash; no troubleshooting guidance</li>
+</ul>
+
+<h2 class="topic">Behavioral</h2>
+<ul class="level-1">
+  <li>Valid topics
+    <ul class="level-2">
+      <li>Counseling, Psychiatrist / Psychiatry, Therapy/counseling, psychiatric care, prescription medications, substance use treatment, inpatient psychiatric hospitalization, intensive outpatient/partial hospitalization programs, behavioral therapy for kids, crisis intervention services, psychological testing/evaluations, employee assistance program services</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 class="topic">Compensation</h2>
+<ul class="level-1">
+  <li>Valid topics
+    <ul class="level-2">
+      <li>W2, W4, Commission Check, Paycheck, Bonus, Employee Stock Purchase Plan, ESPP, Salary negotiation, pay raises, bonus structure, promotions, pay equity concerns, benefits enrollment, stock options/equity, overtime pay, severance packages, payroll errors</li>
+    </ul>
+  </li>
+  <li>Guidance &ndash; no troubleshooting guidance</li>
+</ul>
+
+<h2 class="topic">Discrimination</h2>
+<ul class="level-1">
+  <li>Valid topics
+    <ul class="level-2">
+      <li>Passed over on promotion, Color of my skin, racism, nationality, politics, religion, religious beliefs, Race/ethnicity discrimination, gender discrimination, age discrimination, disability discrimination, religious discrimination, sexual orientation discrimination, pregnancy discrimination, national origin discrimination, retaliation for reporting, harassment based on protected class</li>
+    </ul>
+  </li>
+  <li>Guidance &ndash; no troubleshooting guidance</li>
+</ul>
+
+<h2 class="topic">Emergency</h2>
+<ul class="level-1">
+  <li>Valid topics
+    <ul class="level-2">
+      <li>Anything that sounds like an emergency</li>
+    </ul>
+  </li>
+  <li>Guidance &ndash; no troubleshooting guidance</li>
+</ul>
+
+<h2 class="topic">Fraud</h2>
+<ul class="level-1">
+  <li>Valid topics
+    <ul class="level-2">
+      <li>Identity theft, taking money under the table, improper signing contracts, insider trading</li>
+    </ul>
+  </li>
+  <li>Guidance &ndash; no troubleshooting guidance</li>
+</ul>
+
+<hr>
+
+<h2 class="section-title">Topic List and their Default Severity</h2>
+<p class="note">The following lists the valid topics followed by the default severity level of each of the above issues. This is to be used when creating a case, however, the caller can change the severity by request. Use the exact syntax for the topic.</p>
+
+<table>
+  <thead>
+    <tr><th>Topic</th><th>Default Severity</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Medical</td><td>Severity 3</td></tr>
+    <tr><td>Dental</td><td>Severity 3</td></tr>
+    <tr><td>Behavioral</td><td>Severity 3</td></tr>
+    <tr><td>Compensation</td><td>Severity 3</td></tr>
+    <tr><td>Discrimination</td><td>Severity 1</td></tr>
+    <tr><td>Emergency</td><td>Severity 1</td></tr>
+    <tr><td>Fraud</td><td>Severity 1</td></tr>
+  </tbody>
+</table>
+
+</body>
+</html>
