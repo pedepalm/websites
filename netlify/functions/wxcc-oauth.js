@@ -4,7 +4,7 @@ const DEFAULT_SCOPES = "cjp:user cjp:config cjp:config_read cjp:config_write";
 const HOME = "/svcdesk/";
 const COOKIE_TOKEN = "wxcc_at";
 const COOKIE_STATE = "wxcc_oauth_state";
-//test
+
 function header(event, name) {
   const headers = event.headers || {};
   const match = Object.keys(headers).find((key) => key.toLowerCase() === name.toLowerCase());
@@ -67,13 +67,11 @@ function clearCookie(name) {
   return `${name}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`;
 }
 
-function redirect(location, cookies) {
+function redirect(location, cookie) {
   const headers = { Location: location };
-  const response = { statusCode: 302, headers, body: "" };
-  if (cookies && cookies.length) {
-    response.multiValueHeaders = { "Set-Cookie": cookies };
-  }
-  return response;
+  if (Array.isArray(cookie)) cookie = cookie[0];
+  if (typeof cookie === "string" && cookie) headers["Set-Cookie"] = cookie;
+  return { statusCode: 302, headers, body: "" };
 }
 
 function json(statusCode, payload) {
@@ -97,7 +95,7 @@ exports.handler = async (event) => {
   }
 
   if (query(event, "logout") === "1") {
-    return redirect(`${HOME}?wxcc=disconnected`, [clearCookie(COOKIE_TOKEN), clearCookie(COOKIE_STATE)]);
+    return redirect(`${HOME}?wxcc=disconnected`, clearCookie(COOKIE_TOKEN));
   }
 
   const clientId = cleanSecret(process.env.WXCC_CLIENT_ID);
@@ -122,13 +120,13 @@ exports.handler = async (event) => {
     authorize.searchParams.set("redirect_uri", uri);
     authorize.searchParams.set("scope", process.env.WXCC_SCOPES || DEFAULT_SCOPES);
     authorize.searchParams.set("state", state);
-    return redirect(authorize.toString(), [setCookie(COOKIE_STATE, state, 600)]);
+    return redirect(authorize.toString(), setCookie(COOKIE_STATE, state, 600));
   }
 
   const expectedState = cookieValue(event, COOKIE_STATE);
   const returnedState = query(event, "state");
   if (!expectedState || !returnedState || expectedState !== returnedState) {
-    return redirect(`${HOME}?wxcc=error`, [clearCookie(COOKIE_STATE)]);
+    return redirect(`${HOME}?wxcc=error`, clearCookie(COOKIE_STATE));
   }
 
   try {
@@ -149,14 +147,11 @@ exports.handler = async (event) => {
     });
     const data = await response.json();
     if (!response.ok || !data.access_token) {
-      return redirect(`${HOME}?wxcc=error`, [clearCookie(COOKIE_STATE)]);
+      return redirect(`${HOME}?wxcc=error`, clearCookie(COOKIE_STATE));
     }
     const maxAge = Number(data.expires_in) || 43200;
-    return redirect(`${HOME}?wxcc=connected`, [
-      setCookie(COOKIE_TOKEN, data.access_token, maxAge),
-      clearCookie(COOKIE_STATE)
-    ]);
+    return redirect(`${HOME}?wxcc=connected`, setCookie(COOKIE_TOKEN, data.access_token, maxAge));
   } catch {
-    return redirect(`${HOME}?wxcc=error`, [clearCookie(COOKIE_STATE)]);
+    return redirect(`${HOME}?wxcc=error`, clearCookie(COOKIE_STATE));
   }
 };
