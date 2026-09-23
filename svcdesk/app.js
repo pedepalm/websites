@@ -793,6 +793,28 @@ cancelSearchForm?.addEventListener("submit", async (event) => {
   }
 });
 
+const loginModal = document.querySelector("#login-modal");
+document.querySelector("#login-open")?.addEventListener("click", () => {
+  if (!loginModal) return;
+  loginModal.hidden = false;
+  document.querySelector("#login-user")?.focus();
+});
+document.querySelector("#login-cancel")?.addEventListener("click", () => {
+  if (loginModal) loginModal.hidden = true;
+});
+loginModal?.addEventListener("click", (event) => {
+  if (event.target === loginModal) loginModal.hidden = true;
+});
+document.querySelector("#login-form")?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  if (loginModal) loginModal.hidden = true;
+  toast.hidden = false;
+  toast.textContent = "SSO is not connected in this demo.";
+  window.setTimeout(() => {
+    toast.hidden = true;
+  }, 3200);
+});
+
 const queue = document.querySelector("#queue-count");
 if (queue) {
   window.setInterval(() => {

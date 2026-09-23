@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260923e">
+    <link rel="stylesheet" href="styles.css?v=20260923f">
 </head>
 <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -24,9 +24,6 @@
             <a href="index.html#catalog">Service Catalog</a>
             <a href="index.html#knowledge">Knowledge Base</a>
         </nav>
-        <div class="top-actions">
-            <button class="btn login" type="button" id="login-open">Login</button>
-        </div>
     </header>
 
     <main id="main" class="wrap">
@@ -130,43 +127,5 @@
         </div>
     </footer>
 
-    <div class="modal" id="login-modal" hidden>
-        <div class="modal-card" role="dialog" aria-labelledby="login-title">
-            <h2 id="login-title">Employee login</h2>
-            <p>Sign in with your ACME directory account to request a replacement. Nothing is stored in this demo.</p>
-            <form id="login-form">
-                <label for="login-user">Work email</label>
-                <input id="login-user" name="username" type="email" autocomplete="username" required placeholder="first.last@acme.com">
-                <p class="form-error" id="login-error" hidden></p>
-                <div class="modal-actions">
-                    <button class="btn ghost" type="button" id="login-cancel">Cancel</button>
-                    <button class="btn" type="submit">Continue with SSO</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="toast" id="login-toast" hidden role="status"></div>
-
-    <script>
-      const loginModal = document.querySelector("#login-modal");
-      const loginToast = document.querySelector("#login-toast");
-      document.querySelector("#login-open")?.addEventListener("click", () => {
-        loginModal.hidden = false;
-        document.querySelector("#login-user").focus();
-      });
-      document.querySelector("#login-cancel")?.addEventListener("click", () => {
-        loginModal.hidden = true;
-      });
-      loginModal?.addEventListener("click", (event) => {
-        if (event.target === loginModal) loginModal.hidden = true;
-      });
-      document.querySelector("#login-form")?.addEventListener("submit", (event) => {
-        event.preventDefault();
-        loginModal.hidden = true;
-        loginToast.hidden = false;
-        loginToast.textContent = "SSO is not connected in this demo.";
-        window.setTimeout(() => { loginToast.hidden = true; }, 3200);
-      });
-    </script>
 </body>
 </html>
