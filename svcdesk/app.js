@@ -107,7 +107,7 @@ const submitImmediate = document.querySelector("#cb-submit");
 const tokenInput = document.querySelector("#wxcc-token");
 const immediateError = document.querySelector("#callback-immediate-error");
 const E164 = /^\+[1-9]\d{1,14}$/;
-const TASKS_ENDPOINT = "/v1/tasks";
+const TASKS_ENDPOINT = "/.netlify/functions/tasks";
 const CALLBACK_DESTINATION = "+19723428062";
 const CALLBACK_ENTRY_POINT = "2e96d353-a9a7-487b-885e-dd81c51cb783";
 

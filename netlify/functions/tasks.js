@@ -11,6 +11,14 @@ exports.handler = async (event) => {
     return { statusCode: 204 };
   }
 
+  if (event.httpMethod === "GET") {
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ok: true, service: "wxcc-tasks-proxy" })
+    };
+  }
+
   if (event.httpMethod !== "POST") {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
