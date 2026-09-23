@@ -56,6 +56,10 @@
         </section>
 
         <div class="wrap">
+            <div class="token-bar">
+                <label for="wxcc-token">Admin bearer token (testing only)</label>
+                <input id="wxcc-token" type="password" autocomplete="off" spellcheck="false" placeholder="Paste a Webex Contact Center access token">
+            </div>
             <div class="section-head">
                 <div>
                     <h2>Quick actions</h2>
@@ -74,7 +78,7 @@
                     <h3>Immediate or Scheduled Callback</h3>
                     <p>You can receive a callback immediately, or schedule a callback up to 30 days out.</p>
                     <div class="circle-btn-wrap">
-                        <button class="circle-btn" type="button" aria-label="Callback">
+                        <button class="circle-btn" type="button" id="callback-open" aria-label="Callback">
                             <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
                                 <rect x="7" y="2.5" width="10" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect>
                                 <circle cx="12" cy="18.2" r="1" fill="currentColor"></circle>
@@ -246,6 +250,42 @@
     </div>
 
     <div class="toast" id="toast" hidden role="status"></div>
+
+    <div class="modal callback-modal" id="callback-choice-modal" hidden>
+        <div class="modal-card" role="dialog" aria-labelledby="callback-choice-title">
+            <h2 id="callback-choice-title">Request a callback</h2>
+            <p>Do you want an immediate callback, or a scheduled callback?</p>
+            <div class="choice-actions">
+                <button class="btn" type="button" id="callback-choose-immediate">Immediate callback</button>
+                <button class="btn ghost" type="button" id="callback-choose-scheduled" disabled>Scheduled callback</button>
+            </div>
+            <p class="hint">Scheduled callback comes next. Immediate is available now.</p>
+            <div class="modal-actions">
+                <button class="btn ghost" type="button" data-close-callback>Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal callback-modal" id="callback-immediate-modal" hidden>
+        <div class="modal-card" role="dialog" aria-labelledby="callback-immediate-title">
+            <h2 id="callback-immediate-title">Immediate callback</h2>
+            <p>Enter your details so the service desk can call you now.</p>
+            <form id="callback-immediate-form" novalidate>
+                <label for="mobile-e164">Mobile number (E.164)</label>
+                <input id="mobile-e164" name="mobile" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+19725551212" maxlength="16">
+                <p class="hint">Full international format, starting with + — for example +19725551212.</p>
+                <label for="cb-first-name">First name</label>
+                <input id="cb-first-name" name="firstName" type="text" autocomplete="given-name" required maxlength="80">
+                <label for="cb-last-name">Last name</label>
+                <input id="cb-last-name" name="lastName" type="text" autocomplete="family-name" required maxlength="80">
+                <p class="form-error" id="callback-immediate-error" hidden></p>
+                <div class="modal-actions">
+                    <button class="btn ghost" type="button" id="callback-back">Back</button>
+                    <button class="btn" type="submit" id="cb-submit" disabled>Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 

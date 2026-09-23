@@ -1,0 +1,9 @@
+[build]
+  publish = "."
+  functions = "netlify/functions"
+
+[[redirects]]
+  from = "/v1/tasks"
+  to = "/.netlify/functions/tasks"
+  status = 200
+  force = true
