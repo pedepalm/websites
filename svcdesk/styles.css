@@ -369,8 +369,7 @@ body {
   gap: 10px;
   margin: 18px 0 8px;
 }
-.choice-actions .btn { width: 100%; }
-.choice-actions .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.choice-actions .btn { width: 100%; cursor: pointer; }
 .modal-card .hint { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
 .form-error { color: var(--red); font-size: 13px; margin-top: 12px; }
 .modal-card input.invalid { border-color: var(--red); }
