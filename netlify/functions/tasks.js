@@ -54,6 +54,12 @@ exports.handler = async (event) => {
       body = undefined;
     } else if (method === "POST") {
       upstream = WXCC_SCHEDULED;
+    } else if (method === "PUT") {
+      const id = query(event, "id");
+      if (!id) {
+        return { statusCode: 400, body: JSON.stringify({ error: "Missing callback id" }) };
+      }
+      upstream = `${WXCC_SCHEDULED}/${encodeURIComponent(id)}`;
     } else {
       return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
     }

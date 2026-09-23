@@ -252,11 +252,14 @@
     <div class="modal callback-modal" id="callback-scheduled-modal" hidden>
         <div class="modal-card modal-card-tall" role="dialog" aria-labelledby="callback-scheduled-title">
             <h2 id="callback-scheduled-title">Schedule a Callback</h2>
-            <p>Enter the following details to schedule a callback at your convenience. Note that, you cannot schedule a callback more than 30 days out, and the start time and end time must be less than 8 hours apart.</p>
+            <p id="callback-scheduled-intro">Enter the following details to schedule a callback at your convenience. Note that, you cannot schedule a callback more than 30 days out, and the start time and end time must be less than 8 hours apart.</p>
             <form id="callback-scheduled-form" novalidate>
-                <label for="sched-number">Callback number (E.164)</label>
-                <input id="sched-number" name="callbackNumber" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+19725551212" maxlength="16">
-                <p class="hint">Full international format, starting with + — for example +19725551212.</p>
+                <label for="sched-number">Callback number</label>
+                <div class="phone-field">
+                    <span class="phone-prefix" aria-hidden="true">+1</span>
+                    <input id="sched-number" name="callbackNumber" type="tel" inputmode="numeric" autocomplete="tel-national" required placeholder="9725551212" maxlength="10">
+                </div>
+                <p class="hint">Enter the 10-digit number. +1 is added automatically.</p>
                 <label for="sched-date">Callback date</label>
                 <input id="sched-date" name="scheduleDate" type="date" required>
                 <label>Start time</label>
@@ -301,11 +304,14 @@
     <div class="modal callback-modal" id="callback-cancel-modal" hidden>
         <div class="modal-card modal-card-tall" role="dialog" aria-labelledby="callback-cancel-title">
             <h2 id="callback-cancel-title">Cancel a scheduled callback</h2>
-            <p>Enter the callback number used when the callback was scheduled. We will look it up, show the details, then ask you to confirm deletion.</p>
+            <p id="callback-cancel-intro">Enter the callback number used when the callback was scheduled. We will look it up, show the details, then ask you to confirm deletion.</p>
             <form id="callback-cancel-search-form" novalidate>
-                <label for="cancel-number">Callback number (E.164)</label>
-                <input id="cancel-number" name="callbackNumber" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+19725551212" maxlength="16">
-                <p class="hint">Full international format, starting with + — for example +19725551212.</p>
+                <label for="cancel-number">Callback number</label>
+                <div class="phone-field">
+                    <span class="phone-prefix" aria-hidden="true">+1</span>
+                    <input id="cancel-number" name="callbackNumber" type="tel" inputmode="numeric" autocomplete="tel-national" required placeholder="9725551212" maxlength="10">
+                </div>
+                <p class="hint">Enter the 10-digit number. +1 is added automatically.</p>
                 <p class="form-error" id="callback-cancel-error" hidden></p>
                 <div class="modal-actions">
                     <button class="btn ghost" type="button" id="callback-cancel-back">Back</button>
@@ -339,9 +345,12 @@
             <h2 id="callback-immediate-title">Immediate callback</h2>
             <p>Enter your details, and as soon as a human agent is available, we will call you back</p>
             <form id="callback-immediate-form" novalidate>
-                <label for="mobile-e164">Callback number (E.164)</label>
-                <input id="mobile-e164" name="mobile" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+19725551212" maxlength="16">
-                <p class="hint">Full international format, starting with + — for example +19725551212.</p>
+                <label for="mobile-e164">Callback number</label>
+                <div class="phone-field">
+                    <span class="phone-prefix" aria-hidden="true">+1</span>
+                    <input id="mobile-e164" name="mobile" type="tel" inputmode="numeric" autocomplete="tel-national" required placeholder="9725551212" maxlength="10">
+                </div>
+                <p class="hint">Enter the 10-digit number. +1 is added automatically.</p>
                 <label for="cb-first-name">First name</label>
                 <input id="cb-first-name" name="firstName" type="text" autocomplete="given-name" required maxlength="80">
                 <label for="cb-last-name">Last name</label>

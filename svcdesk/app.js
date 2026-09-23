@@ -106,10 +106,40 @@ const lastNameInput = document.querySelector("#cb-last-name");
 const submitImmediate = document.querySelector("#cb-submit");
 const tokenInput = document.querySelector("#wxcc-token");
 const immediateError = document.querySelector("#callback-immediate-error");
-const E164 = /^\+[1-9]\d{1,14}$/;
+const US_10 = /^\d{10}$/;
 const TASKS_ENDPOINT = "/.netlify/functions/tasks";
 const CALLBACK_DESTINATION = "+19723428062";
 const CALLBACK_ENTRY_POINT = "2e96d353-a9a7-487b-885e-dd81c51cb783";
+
+function digitsOnly(value) {
+  let digits = String(value || "").replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) digits = digits.slice(1);
+  return digits.slice(0, 10);
+}
+
+function normalizePhoneInput(input) {
+  if (!input) return "";
+  const next = digitsOnly(input.value);
+  if (input.value !== next) input.value = next;
+  return next;
+}
+
+function isUsPhone(value) {
+  return US_10.test(digitsOnly(value));
+}
+
+function toE164(value) {
+  return `+1${digitsOnly(value)}`;
+}
+
+function nationalFromE164(value) {
+  return digitsOnly(value);
+}
+
+function markPhoneField(input, invalid) {
+  input?.classList.toggle("invalid", invalid);
+  input?.closest(".phone-field")?.classList.toggle("invalid", invalid);
+}
 
 function showImmediateError(message) {
   immediateError.hidden = !message;
@@ -144,10 +174,11 @@ function closeCallbackModals() {
 }
 
 function syncImmediateSubmit() {
-  const mobileOk = E164.test((mobileInput.value || "").trim());
+  const digits = normalizePhoneInput(mobileInput);
+  const mobileOk = isUsPhone(digits);
   const firstOk = (firstNameInput.value || "").trim().length > 0;
   const lastOk = (lastNameInput.value || "").trim().length > 0;
-  mobileInput.classList.toggle("invalid", mobileInput.value.trim() !== "" && !mobileOk);
+  markPhoneField(mobileInput, digits !== "" && !mobileOk);
   submitImmediate.disabled = !(mobileOk && firstOk && lastOk);
 }
 
@@ -241,6 +272,10 @@ const schedLast = document.querySelector("#sched-last-name");
 const schedTimezone = document.querySelector("#sched-timezone");
 const schedSubmit = document.querySelector("#sched-submit");
 const scheduledError = document.querySelector("#callback-scheduled-error");
+const scheduledTitle = document.querySelector("#callback-scheduled-title");
+const scheduledIntro = document.querySelector("#callback-scheduled-intro");
+let editingCallbackId = "";
+let editingQueueId = "";
 const SCHEDULED_ENDPOINT = "/.netlify/functions/tasks";
 const SCHEDULED_QUEUE_ID = "fc8108e3-3fac-4e32-80dd-4a23bf8cb6c8";
 const US_TIMEZONES = [
@@ -371,32 +406,69 @@ function scheduledWindowError() {
 }
 
 function buildScheduledCallbackBody() {
-  return {
+  const body = {
     customerName: `${schedFirst.value.trim()} ${schedLast.value.trim()}`.trim(),
-    callbackNumber: schedNumber.value.trim(),
+    callbackNumber: toE164(schedNumber.value),
     timezone: schedTimezone.value,
     scheduleDate: schedDate.value,
     startTime: readStartTime(),
     endTime: readEndTime(),
-    queueId: SCHEDULED_QUEUE_ID
+    queueId: editingQueueId || SCHEDULED_QUEUE_ID
   };
+  if (editingCallbackId) body.id = editingCallbackId;
+  return body;
+}
+
+function splitCustomerName(name) {
+  const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return { first: "", last: "" };
+  if (parts.length === 1) return { first: parts[0], last: "" };
+  return { first: parts[0], last: parts.slice(1).join(" ") };
+}
+
+function applyClock(time24, hourId, minuteId, ampmId) {
+  const [hours, minutes] = String(time24 || "13:00:00").split(":");
+  let hour = Number(hours);
+  if (!Number.isFinite(hour)) hour = 13;
+  const meridiem = hour >= 12 ? "PM" : "AM";
+  let hour12 = hour % 12;
+  if (hour12 === 0) hour12 = 12;
+  const minute = Number(minutes) >= 30 ? "30" : "00";
+  document.querySelector(hourId).value = String(hour12);
+  document.querySelector(minuteId).value = minute;
+  document.querySelector(ampmId).value = meridiem;
+}
+
+function setScheduledCopy(isEdit) {
+  if (scheduledTitle) {
+    scheduledTitle.textContent = isEdit ? "Modify a scheduled callback" : "Schedule a Callback";
+  }
+  if (scheduledIntro) {
+    scheduledIntro.textContent = isEdit
+      ? "Update the callback details, then save. The date must be within 30 days, and the start and end times must be less than 8 hours apart."
+      : "Enter the following details to schedule a callback at your convenience. Note that, you cannot schedule a callback more than 30 days out, and the start time and end time must be less than 8 hours apart.";
+  }
+  if (schedSubmit) schedSubmit.textContent = isEdit ? "Save changes" : "Submit";
 }
 
 function syncScheduledSubmit() {
-  const numberOk = E164.test((schedNumber.value || "").trim());
+  const digits = normalizePhoneInput(schedNumber);
+  const numberOk = isUsPhone(digits);
   const firstOk = (schedFirst.value || "").trim().length > 0;
   const lastOk = (schedLast.value || "").trim().length > 0;
   const tzOk = Boolean(schedTimezone.value);
   const windowError = scheduledWindowError();
-  schedNumber.classList.toggle("invalid", schedNumber.value.trim() !== "" && !numberOk);
+  markPhoneField(schedNumber, digits !== "" && !numberOk);
   schedDate.classList.toggle("invalid", Boolean(schedDate.value) && Boolean(windowError));
   const ready = numberOk && firstOk && lastOk && tzOk && !windowError;
   schedSubmit.disabled = !ready;
   if (ready) showScheduledError("");
 }
 
-function openScheduledForm() {
+function openScheduledForm(existing) {
+  const record = existing && existing.id ? existing : null;
   choiceModal.hidden = true;
+  if (cancelModal) cancelModal.hidden = true;
   scheduledForm.reset();
   populateHourSelect(document.querySelector("#sched-start-hour"));
   populateHourSelect(document.querySelector("#sched-end-hour"));
@@ -404,24 +476,42 @@ function openScheduledForm() {
   const today = todayIsoDate();
   schedDate.min = today;
   schedDate.max = addDaysIso(today, 30);
-  schedDate.value = today;
-  document.querySelector("#sched-start-hour").value = "1";
-  document.querySelector("#sched-start-minute").value = "00";
-  document.querySelector("#sched-start-ampm").value = "PM";
-  document.querySelector("#sched-end-hour").value = "2";
-  document.querySelector("#sched-end-minute").value = "00";
-  document.querySelector("#sched-end-ampm").value = "PM";
-  schedTimezone.value = "America/Chicago";
+  editingCallbackId = record?.id || "";
+  editingQueueId = record?.queueId || "";
+  setScheduledCopy(Boolean(record));
+  if (record) {
+    const names = splitCustomerName(record.customerName || record.name);
+    schedNumber.value = nationalFromE164(record.callbackNumber);
+    schedFirst.value = names.first;
+    schedLast.value = names.last;
+    schedDate.value = record.scheduleDate || record.scheduledDate || today;
+    if (record.timezone) schedTimezone.value = record.timezone;
+    applyClock(record.startTime, "#sched-start-hour", "#sched-start-minute", "#sched-start-ampm");
+    applyClock(record.endTime, "#sched-end-hour", "#sched-end-minute", "#sched-end-ampm");
+  } else {
+    schedDate.value = today;
+    document.querySelector("#sched-start-hour").value = "1";
+    document.querySelector("#sched-start-minute").value = "00";
+    document.querySelector("#sched-start-ampm").value = "PM";
+    document.querySelector("#sched-end-hour").value = "2";
+    document.querySelector("#sched-end-minute").value = "00";
+    document.querySelector("#sched-end-ampm").value = "PM";
+    schedTimezone.value = "America/Chicago";
+  }
   showScheduledError("");
   syncScheduledSubmit();
   scheduledModal.hidden = false;
   schedNumber.focus();
 }
 
-document.querySelector("#callback-choose-scheduled")?.addEventListener("click", openScheduledForm);
+document.querySelector("#callback-choose-scheduled")?.addEventListener("click", () => openScheduledForm());
 
 document.querySelector("#callback-scheduled-back")?.addEventListener("click", () => {
   scheduledModal.hidden = true;
+  if (editingCallbackId && cancelModal) {
+    cancelModal.hidden = false;
+    return;
+  }
   choiceModal.hidden = false;
 });
 
@@ -458,11 +548,15 @@ scheduledForm?.addEventListener("submit", async (event) => {
     return;
   }
   showScheduledError("");
+  const isEdit = Boolean(editingCallbackId);
   schedSubmit.disabled = true;
-  schedSubmit.textContent = "Submitting…";
+  schedSubmit.textContent = isEdit ? "Saving…" : "Submitting…";
   try {
-    const response = await fetch(SCHEDULED_ENDPOINT, {
-      method: "POST",
+    const url = isEdit
+      ? `${SCHEDULED_ENDPOINT}?id=${encodeURIComponent(editingCallbackId)}`
+      : SCHEDULED_ENDPOINT;
+    const response = await fetch(url, {
+      method: isEdit ? "PUT" : "POST",
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
@@ -478,14 +572,14 @@ scheduledForm?.addEventListener("submit", async (event) => {
     }
     closeCallbackModals();
     toast.hidden = false;
-    toast.textContent = "Scheduled callback requested.";
+    toast.textContent = isEdit ? "Scheduled callback updated." : "Scheduled callback requested.";
     window.setTimeout(() => {
       toast.hidden = true;
     }, 4200);
   } catch (error) {
-    showScheduledError(error.message || "Could not schedule the callback.");
+    showScheduledError(error.message || (isEdit ? "Could not update the scheduled callback." : "Could not schedule the callback."));
   } finally {
-    schedSubmit.textContent = "Submit";
+    schedSubmit.textContent = isEdit ? "Save changes" : "Submit";
     syncScheduledSubmit();
   }
 });
@@ -495,6 +589,9 @@ const cancelNumber = document.querySelector("#cancel-number");
 const cancelSearchBtn = document.querySelector("#cancel-search");
 const cancelError = document.querySelector("#callback-cancel-error");
 const cancelResults = document.querySelector("#cancel-results");
+const cancelTitle = document.querySelector("#callback-cancel-title");
+const cancelIntro = document.querySelector("#callback-cancel-intro");
+let lookupMode = "cancel";
 
 function showCancelError(message) {
   cancelError.hidden = !message;
@@ -547,20 +644,26 @@ function renderCancelResults(items) {
     addDetail(list, "Time zone", item.timezone);
     const actions = document.createElement("div");
     actions.className = "modal-actions";
-    const confirm = document.createElement("button");
-    confirm.type = "button";
-    confirm.className = "btn";
-    confirm.textContent = "Confirm deletion";
+    const primary = document.createElement("button");
+    primary.type = "button";
+    primary.className = "btn";
     const keep = document.createElement("button");
     keep.type = "button";
     keep.className = "btn ghost";
-    keep.textContent = "Keep this callback";
-    confirm.addEventListener("click", () => deleteScheduledCallback(item.id, confirm));
+    if (lookupMode === "modify") {
+      primary.textContent = "Modify this callback";
+      keep.textContent = "Search again";
+      primary.addEventListener("click", () => openScheduledForm(item));
+    } else {
+      primary.textContent = "Confirm deletion";
+      keep.textContent = "Keep this callback";
+      primary.addEventListener("click", () => deleteScheduledCallback(item.id, primary));
+    }
     keep.addEventListener("click", () => {
       cancelResults.hidden = true;
       cancelResults.replaceChildren();
     });
-    actions.appendChild(confirm);
+    actions.appendChild(primary);
     actions.appendChild(keep);
     card.appendChild(heading);
     card.appendChild(list);
@@ -600,23 +703,35 @@ async function deleteScheduledCallback(id, button) {
   }
 }
 
-document.querySelector("#callback-choose-cancel")?.addEventListener("click", () => {
+function openLookupModal(mode) {
+  lookupMode = mode;
   choiceModal.hidden = true;
   cancelSearchForm.reset();
   cancelSearchBtn.disabled = true;
   showCancelError("");
   cancelResults.hidden = true;
   cancelResults.replaceChildren();
+  markPhoneField(cancelNumber, false);
+  if (cancelTitle) {
+    cancelTitle.textContent = mode === "modify"
+      ? "Modify an existing callback"
+      : "Cancel a scheduled callback";
+  }
+  if (cancelIntro) {
+    cancelIntro.textContent = mode === "modify"
+      ? "Enter the callback number used when the callback was scheduled. We will look it up, show the details, then let you edit it."
+      : "Enter the callback number used when the callback was scheduled. We will look it up, show the details, then ask you to confirm deletion.";
+  }
   cancelModal.hidden = false;
   cancelNumber.focus();
+}
+
+document.querySelector("#callback-choose-cancel")?.addEventListener("click", () => {
+  openLookupModal("cancel");
 });
 
 document.querySelector("#callback-choose-modify")?.addEventListener("click", () => {
-  toast.hidden = false;
-  toast.textContent = "Modify an existing callback comes next.";
-  window.setTimeout(() => {
-    toast.hidden = true;
-  }, 3200);
+  openLookupModal("modify");
 });
 
 document.querySelector("#callback-cancel-back")?.addEventListener("click", () => {
@@ -629,18 +744,20 @@ cancelModal?.addEventListener("click", (event) => {
 });
 
 cancelNumber?.addEventListener("input", () => {
-  const ok = E164.test((cancelNumber.value || "").trim());
-  cancelNumber.classList.toggle("invalid", cancelNumber.value.trim() !== "" && !ok);
+  const digits = normalizePhoneInput(cancelNumber);
+  const ok = isUsPhone(digits);
+  markPhoneField(cancelNumber, digits !== "" && !ok);
   cancelSearchBtn.disabled = !ok;
 });
 
 cancelSearchForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  const number = (cancelNumber.value || "").trim();
-  if (!E164.test(number)) {
-    showCancelError("Enter a callback number in E.164 format, starting with +.");
+  const digits = normalizePhoneInput(cancelNumber);
+  if (!isUsPhone(digits)) {
+    showCancelError("Enter a 10-digit callback number.");
     return;
   }
+  const number = toE164(digits);
   const { token, headers } = authHeaders();
   if (!token) {
     showCancelError("Enter an admin bearer token in the testing box above Quick Actions.");
@@ -672,7 +789,7 @@ cancelSearchForm?.addEventListener("submit", async (event) => {
     showCancelError(error.message || "Could not look up the scheduled callback.");
   } finally {
     cancelSearchBtn.textContent = "Search";
-    cancelSearchBtn.disabled = !E164.test((cancelNumber.value || "").trim());
+    cancelSearchBtn.disabled = !isUsPhone(cancelNumber.value);
   }
 });
 
