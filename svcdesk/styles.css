@@ -172,24 +172,29 @@ body {
 .token-bar {
   margin-top: 22px;
   padding: 12px 14px;
-  background: #fff8e8;
-  border: 1px dashed #e0b45a;
+  background: #eef7f6;
+  border: 1px solid #b7ddd8;
   border-radius: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
 }
-.token-bar label {
-  display: block;
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--amber);
-  margin-bottom: 6px;
+.token-bar p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 14px;
 }
-.token-bar input {
+.token-bar #wxcc-auth-needed,
+.token-bar #wxcc-auth-ready {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
   width: 100%;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px;
-  font: inherit;
 }
+.token-bar #wxcc-auth-needed[hidden],
+.token-bar #wxcc-auth-ready[hidden] { display: none; }
 .section-head {
   display: flex;
   justify-content: space-between;

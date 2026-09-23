@@ -104,7 +104,7 @@ const mobileInput = document.querySelector("#mobile-e164");
 const firstNameInput = document.querySelector("#cb-first-name");
 const lastNameInput = document.querySelector("#cb-last-name");
 const submitImmediate = document.querySelector("#cb-submit");
-const tokenInput = document.querySelector("#wxcc-token");
+const OAUTH_ENDPOINT = "/.netlify/functions/wxcc-oauth";
 const immediateError = document.querySelector("#callback-immediate-error");
 const US_10 = /^\d{10}$/;
 const TASKS_ENDPOINT = "/.netlify/functions/tasks";
@@ -223,11 +223,6 @@ immediateForm?.addEventListener("submit", async (event) => {
   if (submitImmediate.disabled) {
     return;
   }
-  const token = (tokenInput?.value || "").trim();
-  if (!token) {
-    showImmediateError("Enter an admin bearer token in the testing box above Quick Actions.");
-    return;
-  }
   showImmediateError("");
   submitImmediate.disabled = true;
   submitImmediate.textContent = "Submitting…";
@@ -235,7 +230,6 @@ immediateForm?.addEventListener("submit", async (event) => {
     const response = await fetch(TASKS_ENDPOINT, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
         Accept: "application/json"
       },
@@ -245,9 +239,7 @@ immediateForm?.addEventListener("submit", async (event) => {
       ))
     });
     if (!response.ok) {
-      const detail = await response.text();
-      const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
-      throw new Error(`Tasks API ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`);
+      throw new Error(await apiError(response, "Tasks API"));
     }
     closeCallbackModals();
     toast.hidden = false;
@@ -542,11 +534,6 @@ scheduledForm?.addEventListener("submit", async (event) => {
   if (schedSubmit.disabled) {
     return;
   }
-  const token = (tokenInput?.value || "").trim();
-  if (!token) {
-    showScheduledError("Enter an admin bearer token in the testing box above Quick Actions.");
-    return;
-  }
   showScheduledError("");
   const isEdit = Boolean(editingCallbackId);
   schedSubmit.disabled = true;
@@ -558,7 +545,6 @@ scheduledForm?.addEventListener("submit", async (event) => {
     const response = await fetch(url, {
       method: isEdit ? "PUT" : "POST",
       headers: {
-        Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
         Accept: "application/json",
         "X-Callback-Type": "scheduled"
@@ -566,9 +552,7 @@ scheduledForm?.addEventListener("submit", async (event) => {
       body: JSON.stringify(buildScheduledCallbackBody())
     });
     if (!response.ok) {
-      const detail = await response.text();
-      const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
-      throw new Error(`Scheduled Callback API ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`);
+      throw new Error(await apiError(response, "Scheduled Callback API"));
     }
     closeCallbackModals();
     toast.hidden = false;
@@ -599,15 +583,19 @@ function showCancelError(message) {
 }
 
 function authHeaders() {
-  const token = (tokenInput?.value || "").trim();
   return {
-    token,
     headers: {
-      Authorization: `Bearer ${token}`,
       Accept: "application/json",
       "X-Callback-Type": "scheduled"
     }
   };
+}
+
+async function apiError(response, label) {
+  if (response.status === 401) return "Connect Webex Contact Center first.";
+  const detail = await response.text();
+  const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
+  return `${label} ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`;
 }
 
 function addDetail(list, label, value) {
@@ -673,11 +661,7 @@ function renderCancelResults(items) {
 }
 
 async function deleteScheduledCallback(id, button) {
-  const { token, headers } = authHeaders();
-  if (!token) {
-    showCancelError("Enter an admin bearer token in the testing box above Quick Actions.");
-    return;
-  }
+  const { headers } = authHeaders();
   button.disabled = true;
   button.textContent = "Deleting…";
   try {
@@ -686,9 +670,7 @@ async function deleteScheduledCallback(id, button) {
       headers
     });
     if (!response.ok && response.status !== 204) {
-      const detail = await response.text();
-      const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
-      throw new Error(`Delete Callback API ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`);
+      throw new Error(await apiError(response, "Delete Callback API"));
     }
     closeCallbackModals();
     toast.hidden = false;
@@ -758,11 +740,7 @@ cancelSearchForm?.addEventListener("submit", async (event) => {
     return;
   }
   const number = toE164(digits);
-  const { token, headers } = authHeaders();
-  if (!token) {
-    showCancelError("Enter an admin bearer token in the testing box above Quick Actions.");
-    return;
-  }
+  const { headers } = authHeaders();
   showCancelError("");
   cancelResults.hidden = true;
   cancelResults.replaceChildren();
@@ -774,9 +752,7 @@ cancelSearchForm?.addEventListener("submit", async (event) => {
       { method: "GET", headers }
     );
     if (!response.ok) {
-      const detail = await response.text();
-      const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
-      throw new Error(`Get Callback API ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`);
+      throw new Error(await apiError(response, "Get Callback API"));
     }
     const payload = await response.json();
     const items = normalizeCallbacks(payload);
@@ -936,6 +912,45 @@ document.querySelector("#logout")?.addEventListener("click", () => {
 });
 
 renderAccount(readSessionUser());
+
+function setWxccAuthState(connected) {
+  const needed = document.querySelector("#wxcc-auth-needed");
+  const ready = document.querySelector("#wxcc-auth-ready");
+  if (needed) needed.hidden = Boolean(connected);
+  if (ready) ready.hidden = !connected;
+}
+
+async function refreshWxccAuthState() {
+  try {
+    const response = await fetch(`${OAUTH_ENDPOINT}?status=1`, { headers: { Accept: "application/json" } });
+    const payload = await response.json();
+    setWxccAuthState(Boolean(payload.connected));
+  } catch {
+    setWxccAuthState(false);
+  }
+}
+
+const wxccStatus = new URLSearchParams(window.location.search).get("wxcc");
+if (wxccStatus) {
+  const messages = {
+    connected: "Webex Contact Center connected.",
+    disconnected: "Webex Contact Center disconnected.",
+    denied: "Webex authorization was denied.",
+    error: "Webex authorization failed."
+  };
+  if (messages[wxccStatus]) {
+    toast.hidden = false;
+    toast.textContent = messages[wxccStatus];
+    window.setTimeout(() => {
+      toast.hidden = true;
+    }, 4200);
+  }
+  const clean = new URL(window.location.href);
+  clean.searchParams.delete("wxcc");
+  window.history.replaceState({}, "", clean.pathname + clean.search + clean.hash);
+}
+
+refreshWxccAuthState();
 
 const queue = document.querySelector("#queue-count");
 if (queue) {

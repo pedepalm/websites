@@ -13,6 +13,24 @@ function query(event, name) {
   return params[name] || "";
 }
 
+function cookieValue(event, name) {
+  const raw = header(event, "cookie");
+  if (!raw) return "";
+  const parts = raw.split(";");
+  for (const part of parts) {
+    const [key, ...rest] = part.trim().split("=");
+    if (key === name) return decodeURIComponent(rest.join("="));
+  }
+  return "";
+}
+
+function authorizationHeader(event) {
+  const headerValue = header(event, "authorization");
+  if (headerValue) return headerValue;
+  const token = cookieValue(event, "wxcc_at");
+  return token ? `Bearer ${token}` : "";
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204 };
@@ -29,9 +47,9 @@ exports.handler = async (event) => {
     };
   }
 
-  const authorization = header(event, "authorization");
+  const authorization = authorizationHeader(event);
   if (!authorization) {
-    return { statusCode: 401, body: JSON.stringify({ error: "Missing Authorization header" }) };
+    return { statusCode: 401, body: JSON.stringify({ error: "Connect Webex Contact Center first." }) };
   }
 
   let upstream = WXCC_TASKS;
