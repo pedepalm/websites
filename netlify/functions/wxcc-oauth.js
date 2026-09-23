@@ -32,7 +32,13 @@ function cookieValue(event, name) {
   const parts = raw.split(";");
   for (const part of parts) {
     const [key, ...rest] = part.trim().split("=");
-    if (key === name) return decodeURIComponent(rest.join("="));
+    if (key === name) {
+      try {
+        return decodeURIComponent(rest.join("="));
+      } catch {
+        return rest.join("=");
+      }
+    }
   }
   return "";
 }
@@ -63,9 +69,11 @@ function clearCookie(name) {
 
 function redirect(location, cookies) {
   const headers = { Location: location };
-  if (cookies && cookies.length === 1) headers["Set-Cookie"] = cookies[0];
-  if (cookies && cookies.length > 1) headers["Set-Cookie"] = cookies;
-  return { statusCode: 302, headers, body: "" };
+  const response = { statusCode: 302, headers, body: "" };
+  if (cookies && cookies.length) {
+    response.multiValueHeaders = { "Set-Cookie": cookies };
+  }
+  return response;
 }
 
 function json(statusCode, payload) {
