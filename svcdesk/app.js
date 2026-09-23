@@ -238,7 +238,7 @@ const schedLast = document.querySelector("#sched-last-name");
 const schedTimezone = document.querySelector("#sched-timezone");
 const schedSubmit = document.querySelector("#sched-submit");
 const scheduledError = document.querySelector("#callback-scheduled-error");
-const SCHEDULED_ENDPOINT = "/.netlify/functions/scheduled-callback";
+const SCHEDULED_ENDPOINT = "/.netlify/functions/tasks";
 const SCHEDULED_QUEUE_ID = "fc8108e3-3fac-4e32-80dd-4a23bf8cb6c8";
 const US_TIMEZONES = [
   "America/New_York",
@@ -463,7 +463,8 @@ scheduledForm?.addEventListener("submit", async (event) => {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "application/json",
-        Accept: "application/json"
+        Accept: "application/json",
+        "X-Callback-Type": "scheduled"
       },
       body: JSON.stringify(buildScheduledCallbackBody())
     });

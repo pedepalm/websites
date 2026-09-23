@@ -15,6 +15,6 @@
 
 [[redirects]]
   from = "/v1/callbacks/scheduled"
-  to = "/.netlify/functions/scheduled-callback"
+  to = "/.netlify/functions/tasks"
   status = 200
   force = true

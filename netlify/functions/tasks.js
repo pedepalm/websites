@@ -1,4 +1,6 @@
 const WXCC_TASKS = "https://api.wxcc-us1.cisco.com/v1/tasks";
+const ORG_ID = "d06af121-6f1c-4724-822e-f602a2748cb9";
+const WXCC_SCHEDULED = `https://api.wxcc-us1.cisco.com/v1/callbacks/organization/${ORG_ID}/scheduled-callback`;
 
 function header(event, name) {
   const headers = event.headers || {};
@@ -28,8 +30,11 @@ exports.handler = async (event) => {
     return { statusCode: 401, body: JSON.stringify({ error: "Missing Authorization header" }) };
   }
 
+  const callbackType = header(event, "x-callback-type").toLowerCase();
+  const upstream = callbackType === "scheduled" ? WXCC_SCHEDULED : WXCC_TASKS;
+
   try {
-    const response = await fetch(WXCC_TASKS, {
+    const response = await fetch(upstream, {
       method: "POST",
       headers: {
         Authorization: authorization,
@@ -47,7 +52,7 @@ exports.handler = async (event) => {
   } catch (error) {
     return {
       statusCode: 502,
-      body: JSON.stringify({ error: "Could not reach the Webex Contact Center Tasks API." })
+      body: JSON.stringify({ error: "Could not reach the Webex Contact Center API." })
     };
   }
 };
