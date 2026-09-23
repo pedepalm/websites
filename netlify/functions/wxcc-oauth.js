@@ -4,7 +4,7 @@ const DEFAULT_SCOPES = "cjp:user cjp:config cjp:config_read cjp:config_write";
 const HOME = "/svcdesk/";
 const COOKIE_TOKEN = "wxcc_at";
 const COOKIE_STATE = "wxcc_oauth_state";
-
+//test
 function header(event, name) {
   const headers = event.headers || {};
   const match = Object.keys(headers).find((key) => key.toLowerCase() === name.toLowerCase());
