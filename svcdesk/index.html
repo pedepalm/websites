@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260923f">
+    <link rel="stylesheet" href="styles.css?v=20260923g">
 </head>
 <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -24,7 +24,7 @@
             <a href="#catalog">Service Catalog</a>
             <a href="#knowledge">Knowledge Base</a>
         </nav>
-        <div class="account-slot">
+        <div class="account-slot" id="account-guest">
             <button class="account-login" type="button" id="login-open" aria-label="Log in">
                 <span class="avatar" aria-hidden="true">
                     <svg viewBox="0 0 24 24" width="20" height="20">
@@ -37,6 +37,14 @@
                     Log In
                 </span>
             </button>
+        </div>
+        <div class="account-slot account-user" id="account-user" hidden>
+            <span class="avatar avatar-initials" id="account-initials" aria-hidden="true"></span>
+            <span class="account-label">
+                <small>Logged in</small>
+                <span id="account-name"></span>
+            </span>
+            <button class="btn logout" type="button" id="logout">Log out</button>
         </div>
     </header>
 
@@ -359,21 +367,23 @@
 
     <div class="modal" id="login-modal" hidden>
         <div class="modal-card" role="dialog" aria-labelledby="login-title">
-            <h2 id="login-title">Employee login</h2>
-            <p>Sign in with your ACME directory account. Nothing is stored in this demo.</p>
-            <form id="login-form">
-                <label for="login-user">Work email</label>
-                <input id="login-user" name="username" type="email" autocomplete="username" required placeholder="first.last@acme.com">
+            <h2 id="login-title">Log in</h2>
+            <p>Enter your 5-digit employee User ID.</p>
+            <form id="login-form" autocomplete="on">
+                <label for="login-user">User ID</label>
+                <input id="login-user" name="userId" type="text" inputmode="numeric" autocomplete="username" required maxlength="5" placeholder="12345">
+                <label for="login-password">Password</label>
+                <input id="login-password" name="password" type="password" autocomplete="current-password">
                 <p class="form-error" id="login-error" hidden></p>
                 <div class="modal-actions">
                     <button class="btn ghost" type="button" id="login-cancel">Cancel</button>
-                    <button class="btn" type="submit">Continue with SSO</button>
+                    <button class="btn" type="submit" id="login-submit">Log in</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <script src="app.js?v=20260923f"></script>
+    <script src="app.js?v=20260923g"></script>
 
     <div id="divicw" data-bind="1409839B-93FD-4675-80E4-98590377393D" data-org="" data-guid="846fdc09-bada-4207-8660-1937dffc3f8f"></div><script>var i={t:function(){try{var e=document.getElementById("divicw"),t=document.createElement("script");t.src="https://chat-widget.produs1.ciscoccservice.com/js/imichatinit.js?t="+new Date().toISOString(),e.insertAdjacentElement("afterend",t),t.addEventListener("load",function(){console.log(new Date().toISOString(),"Livechat script loaded successfully!")}),t.addEventListener("error",function(){console.log(new Date().toISOString(),"Error loading Livechat script");i.o(e)})}catch(e){console.error(e)}},o:function(e){e.insertAdjacentHTML("afterend",'<iframe id="tls_al_frm" frameborder="0" style="overflow:hidden;height:208px;width:394px;position:fixed;display:block;right:48px;bottom:12px;z-index:99999;display:none;"></iframe>');var t=document.getElementById("tls_al_frm"),n=t.contentWindow,d=n.document;d.open();d.write("<!doctype html><html><head><meta charset='utf-8'><title>Untitled Document</title><style>body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;color:#99a0b0;font-size:14px}.popover__content{background-color:#fbfbfe;padding:1.5rem;border-radius:5px;width:300px;box-shadow:0 2px 5px 0 rgba(0,0,0,0.26);position:relative}.popover__message{font-weight:600;color:#56627c;font-size:16px}.pull-left{float:left}.clearfix{clear:both}.hdr-txt{width:218px;margin-top:3px}.para-txt a{text-decoration:none;color:#005cde}.close-btn{position:absolute;right:15px;top:15px}.close-btn a{text-decoration:none;font-weight:400;color:#56627c;font-size:16px}</style></head><body><div class='popover__content'><div class='close-btn'><a href='#' onclick='closeTLSAlert()'>X</a></div><div class='popover__message'><div class='pull-left hdr-txt'>This browser version is not supported on LiveChat.</div></div><div class='clearfix'></div><p class='para-txt'>Please update your browser to the latest version and re-open the website to access the widget.</p></div><script>function closeTLSAlert(){window.parent.postMessage({key:'close_tls_alert',value:'close_tls_alert',action:'close_tls_alert'},'*');}<\/script></body></html>");d.close();t.style.display='block';window.addEventListener('message',function(e){'close_tls_alert'===e.data.action&&i.s()})},s:function(){var e=document.getElementById('tls_al_frm');e&&e.remove()}};i.t();</script>
 </body>

@@ -793,27 +793,144 @@ cancelSearchForm?.addEventListener("submit", async (event) => {
   }
 });
 
+const LOGIN_ENDPOINT = "/.netlify/functions/login";
+const EMPLOYEE_ID = /^\d{5}$/;
 const loginModal = document.querySelector("#login-modal");
-document.querySelector("#login-open")?.addEventListener("click", () => {
+const loginForm = document.querySelector("#login-form");
+const loginUser = document.querySelector("#login-user");
+const loginPassword = document.querySelector("#login-password");
+const loginError = document.querySelector("#login-error");
+const loginSubmit = document.querySelector("#login-submit");
+const accountGuest = document.querySelector("#account-guest");
+const accountUser = document.querySelector("#account-user");
+const accountInitials = document.querySelector("#account-initials");
+const accountName = document.querySelector("#account-name");
+
+function showLoginError(message) {
+  if (!loginError) return;
+  loginError.hidden = !message;
+  loginError.textContent = message || "";
+}
+
+function initialsFromName(fname, lname) {
+  const first = String(fname || "").trim().charAt(0);
+  const last = String(lname || "").trim().charAt(0);
+  return `${first}${last}`.toUpperCase() || "?";
+}
+
+function readSessionUser() {
+  const employeeId = sessionStorage.getItem("employeeId") || "";
+  const fname = sessionStorage.getItem("fname") || "";
+  const lname = sessionStorage.getItem("lname") || "";
+  if (!employeeId) return null;
+  return { employeeId, fname, lname };
+}
+
+function storeSessionUser(user) {
+  sessionStorage.setItem("employeeId", user.employeeId || "");
+  sessionStorage.setItem("fname", user.fname || "");
+  sessionStorage.setItem("lname", user.lname || "");
+}
+
+function clearSessionUser() {
+  sessionStorage.removeItem("employeeId");
+  sessionStorage.removeItem("fname");
+  sessionStorage.removeItem("lname");
+}
+
+function renderAccount(user) {
+  if (user) {
+    if (accountInitials) accountInitials.textContent = initialsFromName(user.fname, user.lname);
+    if (accountName) accountName.textContent = `${user.fname} ${user.lname}`.trim() || user.employeeId;
+    if (accountGuest) accountGuest.hidden = true;
+    if (accountUser) accountUser.hidden = false;
+    return;
+  }
+  if (accountInitials) accountInitials.textContent = "";
+  if (accountName) accountName.textContent = "";
+  if (accountUser) accountUser.hidden = true;
+  if (accountGuest) accountGuest.hidden = false;
+}
+
+function openLoginModal() {
   if (!loginModal) return;
+  loginForm?.reset();
+  showLoginError("");
   loginModal.hidden = false;
-  document.querySelector("#login-user")?.focus();
-});
-document.querySelector("#login-cancel")?.addEventListener("click", () => {
+  loginUser?.focus();
+}
+
+function closeLoginModal() {
   if (loginModal) loginModal.hidden = true;
-});
+  loginForm?.reset();
+  showLoginError("");
+}
+
+document.querySelector("#login-open")?.addEventListener("click", openLoginModal);
+document.querySelector("#login-cancel")?.addEventListener("click", closeLoginModal);
 loginModal?.addEventListener("click", (event) => {
-  if (event.target === loginModal) loginModal.hidden = true;
+  if (event.target === loginModal) closeLoginModal();
 });
-document.querySelector("#login-form")?.addEventListener("submit", (event) => {
+
+loginUser?.addEventListener("input", () => {
+  loginUser.value = String(loginUser.value || "").replace(/\D/g, "").slice(0, 5);
+});
+
+loginForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
-  if (loginModal) loginModal.hidden = true;
-  toast.hidden = false;
-  toast.textContent = "SSO is not connected in this demo.";
-  window.setTimeout(() => {
-    toast.hidden = true;
-  }, 3200);
+  const employeeId = String(loginUser?.value || "").trim();
+  if (loginPassword) loginPassword.value = "";
+  if (!EMPLOYEE_ID.test(employeeId)) {
+    showLoginError("Enter a 5-digit User ID.");
+    return;
+  }
+  showLoginError("");
+  if (loginSubmit) {
+    loginSubmit.disabled = true;
+    loginSubmit.textContent = "Logging in…";
+  }
+  try {
+    const response = await fetch(LOGIN_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify({ employeeId })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || "Login Failed");
+    }
+    const user = {
+      employeeId: payload.employeeId || employeeId,
+      fname: payload.fname || "",
+      lname: payload.lname || ""
+    };
+    storeSessionUser(user);
+    renderAccount(user);
+    closeLoginModal();
+  } catch {
+    showLoginError("");
+    toast.hidden = false;
+    toast.textContent = "Login Failed";
+    window.setTimeout(() => {
+      toast.hidden = true;
+    }, 3200);
+  } finally {
+    if (loginSubmit) {
+      loginSubmit.disabled = false;
+      loginSubmit.textContent = "Log in";
+    }
+  }
 });
+
+document.querySelector("#logout")?.addEventListener("click", () => {
+  clearSessionUser();
+  renderAccount(null);
+});
+
+renderAccount(readSessionUser());
 
 const queue = document.querySelector("#queue-count");
 if (queue) {

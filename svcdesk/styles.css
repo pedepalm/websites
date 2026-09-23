@@ -435,6 +435,12 @@ body {
 }
 
 .account-slot { margin-left: auto; }
+.account-slot[hidden] { display: none !important; }
+.account-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .account-login {
   display: flex;
   align-items: center;
@@ -468,6 +474,21 @@ body {
   font-size: 11px;
   font-weight: 500;
   color: #9db0c5;
+}
+.avatar-initials {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: var(--teal);
+  border-color: #0b5b55;
+}
+.btn.logout {
+  background: transparent;
+  color: #e8eef5;
+  border: 1px solid #3d5774;
+  padding: 6px 10px;
+  font-size: 12px;
 }
 
 .device-hero { padding: 36px 0 8px; }
