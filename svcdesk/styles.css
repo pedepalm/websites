@@ -68,7 +68,6 @@ body {
 .nav { display: flex; gap: 18px; flex-wrap: wrap; }
 .nav a { color: #d5e0ec; text-decoration: none; font-size: 14px; }
 .nav a:hover { color: #fff; }
-.top-meta { display: flex; align-items: center; gap: 12px; }
 .chip {
   display: inline-flex;
   align-items: center;
@@ -84,7 +83,6 @@ body {
 .chip.down { background: var(--red); color: #fff; }
 .chip.it { background: var(--teal-soft); color: var(--teal); }
 .chip.hr { background: var(--amber-soft); color: var(--amber); }
-.employee { font-size: 12px; color: #b7c6d6; text-align: right; }
 
 .banner {
   display: flex;
@@ -94,8 +92,13 @@ body {
   background: #fff6e8;
   border-bottom: 1px solid #f0d7a8;
 }
+.banner.down {
+  background: #fde8e6;
+  border-bottom-color: #f0b8b3;
+}
 .banner.hidden { display: none; }
 .banner strong { color: var(--amber); }
+.banner.down strong { color: var(--red); }
 .banner button {
   border: 0;
   background: transparent;
