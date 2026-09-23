@@ -67,27 +67,35 @@ document.querySelector("#dismiss-banner")?.addEventListener("click", () => {
   banner.classList.add("hidden");
 });
 
-function openServiceDeskChat() {
-  const widget = window.imichatwidget;
-  if (widget && typeof widget.show === "function") {
-    widget.show();
-    return true;
+function placeChatLauncher() {
+  const slot = document.querySelector("#chat-widget-slot");
+  const launcher = document.querySelector("#imi-chatbutton");
+  if (!slot || !launcher || launcher.parentElement === slot) {
+    return Boolean(slot && launcher);
   }
-  return false;
+  slot.appendChild(launcher);
+  return true;
 }
 
-document.querySelector("#chat-desk")?.addEventListener("click", () => {
-  if (openServiceDeskChat()) {
-    return;
+function watchChatLauncher() {
+  placeChatLauncher();
+  const host = document.querySelector("#divicw");
+  if (host) {
+    const observer = new MutationObserver(() => {
+      placeChatLauncher();
+    });
+    observer.observe(host, { childList: true, subtree: true });
   }
   let attempts = 0;
   const timer = window.setInterval(() => {
     attempts += 1;
-    if (openServiceDeskChat() || attempts >= 20) {
+    if (placeChatLauncher() || attempts >= 40) {
       window.clearInterval(timer);
     }
   }, 250);
-});
+}
+
+watchChatLauncher();
 
 const queue = document.querySelector("#queue-count");
 if (queue) {

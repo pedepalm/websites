@@ -189,12 +189,23 @@ body {
 .card.chat-action {
   background: #fff;
 }
-.card.chat-action .card-meta {
-  flex-direction: column;
-  align-items: stretch;
+.chat-widget-slot {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.card.chat-action .btn {
-  width: 100%;
+.chat-widget-slot .chatbutton,
+.chat-widget-slot #imi-chatbutton {
+  position: relative !important;
+  right: auto !important;
+  bottom: auto !important;
+  left: auto !important;
+  top: auto !important;
+  display: block !important;
+  width: 70px !important;
+  height: 70px !important;
+  z-index: 2 !important;
 }
 .card.hidden,
 .kb article.hidden { display: none; }
