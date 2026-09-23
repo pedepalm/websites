@@ -206,6 +206,10 @@ body {
   width: 70px !important;
   height: 70px !important;
   z-index: 2 !important;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 .card.hidden,
 .kb article.hidden { display: none; }
