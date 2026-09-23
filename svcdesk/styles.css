@@ -147,6 +147,27 @@ body {
 .health small { color: var(--muted); }
 
 .wrap { max-width: 1100px; margin: 0 auto; padding: 10px 28px 48px; }
+.token-bar {
+  margin-top: 22px;
+  padding: 12px 14px;
+  background: #fff8e8;
+  border: 1px dashed #e0b45a;
+  border-radius: 10px;
+}
+.token-bar label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--amber);
+  margin-bottom: 6px;
+}
+.token-bar input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  font: inherit;
+}
 .section-head {
   display: flex;
   justify-content: space-between;
@@ -205,7 +226,7 @@ body {
   color: #fff;
   display: grid;
   place-items: center;
-  cursor: default;
+  cursor: pointer;
   box-shadow: var(--shadow);
 }
 .chat-widget-slot {
@@ -332,6 +353,19 @@ body {
   gap: 8px;
   margin-top: 16px;
 }
+.callback-modal { z-index: 2147483647; }
+.choice-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 18px 0 8px;
+}
+.choice-actions .btn { width: 100%; }
+.choice-actions .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.modal-card .hint { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
+.form-error { color: var(--red); font-size: 13px; margin-top: 12px; }
+.modal-card input.invalid { border-color: var(--red); }
+#cb-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .toast {
   position: fixed;
