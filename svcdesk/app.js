@@ -910,6 +910,11 @@ loginForm?.addEventListener("submit", async (event) => {
     storeSessionUser(user);
     renderAccount(user);
     closeLoginModal();
+    toast.hidden = false;
+    toast.textContent = "Login successful";
+    window.setTimeout(() => {
+      toast.hidden = true;
+    }, 3200);
   } catch {
     showLoginError("");
     toast.hidden = false;

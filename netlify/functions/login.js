@@ -1,4 +1,6 @@
 const EMPLOYEE_ID = /^\d{5}$/;
+const AIRTABLE_BASE = process.env.AIRTABLE_BASE || "appgAU3E3SIB5Ma7l";
+const AIRTABLE_TABLE = process.env.AIRTABLE_TABLE || "tbllwB3xBNiY1Hre2";
 
 function field(fields, names) {
   for (const name of names) {
@@ -17,11 +19,9 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
   }
 
-  const base = process.env.AIRTABLE_BASE;
-  const table = process.env.AIRTABLE_TABLE;
   const token = process.env.AIRTABLE_TOKEN;
-  if (!base || !table || !token) {
-    return { statusCode: 500, body: JSON.stringify({ error: "Login is not configured." }) };
+  if (!token) {
+    return { statusCode: 500, body: JSON.stringify({ error: "Login Failed" }) };
   }
 
   let employeeId = "";
@@ -37,7 +37,7 @@ exports.handler = async (event) => {
   }
 
   const formula = `employeeid='${employeeId}'`;
-  const url = `https://api.airtable.com/v0/${encodeURIComponent(base)}/${encodeURIComponent(table)}?filterByFormula=${encodeURIComponent(formula)}`;
+  const url = `https://api.airtable.com/v0/${AIRTABLE_BASE}/${AIRTABLE_TABLE}/?filterByFormula=${encodeURIComponent(formula)}`;
 
   try {
     const response = await fetch(url, {
@@ -59,9 +59,9 @@ exports.handler = async (event) => {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        employeeId: field(fields, ["employeeId", "employeeid", "Employee ID"]) || employeeId,
-        fname: field(fields, ["fname", "First Name", "firstName", "FirstName"]),
-        lname: field(fields, ["lname", "Last Name", "lastName", "LastName"])
+        employeeId: field(fields, ["employeeid", "employeeId"]) || employeeId,
+        fname: field(fields, ["fname"]),
+        lname: field(fields, ["lname"])
       })
     };
   } catch {
