@@ -193,8 +193,10 @@ document.querySelector("#callback-choose-immediate")?.addEventListener("click", 
   submitImmediate.disabled = true;
   mobileInput.classList.remove("invalid");
   showImmediateError("");
-  fillFromLoggedInUser({ first: firstNameInput, last: lastNameInput, phone: mobileInput });
-  syncImmediateSubmit();
+  applyLoggedInCallbackDefaults(
+    { first: firstNameInput, last: lastNameInput, phone: mobileInput },
+    syncImmediateSubmit
+  );
   immediateModal.hidden = false;
   mobileInput.focus();
 });
@@ -491,10 +493,13 @@ function openScheduledForm(existing) {
     document.querySelector("#sched-end-minute").value = "00";
     document.querySelector("#sched-end-ampm").value = "PM";
     schedTimezone.value = "America/Chicago";
-    fillFromLoggedInUser({ first: schedFirst, last: schedLast, phone: schedNumber });
+    applyLoggedInCallbackDefaults(
+      { first: schedFirst, last: schedLast, phone: schedNumber },
+      syncScheduledSubmit
+    );
   }
   showScheduledError("");
-  syncScheduledSubmit();
+  if (record) syncScheduledSubmit();
   scheduledModal.hidden = false;
   schedNumber.focus();
 }
@@ -697,9 +702,10 @@ function openLookupModal(mode) {
   cancelResults.hidden = true;
   cancelResults.replaceChildren();
   markPhoneField(cancelNumber, false);
-  fillFromLoggedInUser({ phone: cancelNumber });
-  const savedDigits = normalizePhoneInput(cancelNumber);
-  cancelSearchBtn.disabled = !isUsPhone(savedDigits);
+  applyLoggedInCallbackDefaults({ phone: cancelNumber }, () => {
+    const savedDigits = normalizePhoneInput(cancelNumber);
+    cancelSearchBtn.disabled = !isUsPhone(savedDigits);
+  });
   if (cancelTitle) {
     cancelTitle.textContent = mode === "modify"
       ? "Modify an existing callback"
@@ -829,7 +835,7 @@ function sessionPhoneDigits(user) {
 
 function fillFromLoggedInUser(fields) {
   const user = readSessionUser();
-  if (!user) return;
+  if (!user) return false;
   if (fields.first) fields.first.value = user.fname || "";
   if (fields.last) fields.last.value = user.lname || "";
   if (fields.phone) {
@@ -837,6 +843,16 @@ function fillFromLoggedInUser(fields) {
     fields.phone.value = digits;
     if (digits) markPhoneField(fields.phone, !isUsPhone(digits));
   }
+  return true;
+}
+
+function applyLoggedInCallbackDefaults(fields, afterFill) {
+  const run = () => {
+    fillFromLoggedInUser(fields);
+    if (typeof afterFill === "function") afterFill();
+  };
+  run();
+  window.requestAnimationFrame(run);
 }
 
 function renderAccount(user) {

@@ -16,11 +16,23 @@ function cleanSecret(value) {
   return text;
 }
 
+function normalizeFieldValue(value) {
+  if (value === undefined || value === null || value === "") return "";
+  if (Array.isArray(value)) return normalizeFieldValue(value[0]);
+  if (typeof value === "object") {
+    return String(
+      value.phoneNumber || value.number || value.formatted || value.name || value.email || ""
+    ).trim();
+  }
+  return String(value).trim();
+}
+
 function field(fields, names) {
+  const keys = Object.keys(fields || {});
   for (const name of names) {
-    if (fields[name] !== undefined && fields[name] !== null && String(fields[name]).trim() !== "") {
-      return String(fields[name]).trim();
-    }
+    const match = keys.find((key) => key.toLowerCase() === String(name).toLowerCase());
+    const text = normalizeFieldValue(match ? fields[match] : undefined);
+    if (text) return text;
   }
   return "";
 }
@@ -97,7 +109,7 @@ exports.handler = async (event) => {
         employeeId: field(fields, ["employeeid", "employeeId"]) || employeeId,
         fname: field(fields, ["fname"]),
         lname: field(fields, ["lname"]),
-        phone: field(fields, ["phone", "Phone"])
+        phone: field(fields, ["phone", "Phone", "mobile", "Mobile", "Phone Number"])
       })
     };
   } catch {
