@@ -96,7 +96,8 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         employeeId: field(fields, ["employeeid", "employeeId"]) || employeeId,
         fname: field(fields, ["fname"]),
-        lname: field(fields, ["lname"])
+        lname: field(fields, ["lname"]),
+        phone: field(fields, ["phone", "Phone"])
       })
     };
   } catch {

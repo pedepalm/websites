@@ -193,6 +193,8 @@ document.querySelector("#callback-choose-immediate")?.addEventListener("click", 
   submitImmediate.disabled = true;
   mobileInput.classList.remove("invalid");
   showImmediateError("");
+  fillFromLoggedInUser({ first: firstNameInput, last: lastNameInput, phone: mobileInput });
+  syncImmediateSubmit();
   immediateModal.hidden = false;
   mobileInput.focus();
 });
@@ -489,6 +491,7 @@ function openScheduledForm(existing) {
     document.querySelector("#sched-end-minute").value = "00";
     document.querySelector("#sched-end-ampm").value = "PM";
     schedTimezone.value = "America/Chicago";
+    fillFromLoggedInUser({ first: schedFirst, last: schedLast, phone: schedNumber });
   }
   showScheduledError("");
   syncScheduledSubmit();
@@ -694,6 +697,9 @@ function openLookupModal(mode) {
   cancelResults.hidden = true;
   cancelResults.replaceChildren();
   markPhoneField(cancelNumber, false);
+  fillFromLoggedInUser({ phone: cancelNumber });
+  const savedDigits = normalizePhoneInput(cancelNumber);
+  cancelSearchBtn.disabled = !isUsPhone(savedDigits);
   if (cancelTitle) {
     cancelTitle.textContent = mode === "modify"
       ? "Modify an existing callback"
@@ -798,20 +804,39 @@ function readSessionUser() {
   const employeeId = sessionStorage.getItem("employeeId") || "";
   const fname = sessionStorage.getItem("fname") || "";
   const lname = sessionStorage.getItem("lname") || "";
+  const phone = sessionStorage.getItem("phone") || "";
   if (!employeeId) return null;
-  return { employeeId, fname, lname };
+  return { employeeId, fname, lname, phone };
 }
 
 function storeSessionUser(user) {
   sessionStorage.setItem("employeeId", user.employeeId || "");
   sessionStorage.setItem("fname", user.fname || "");
   sessionStorage.setItem("lname", user.lname || "");
+  sessionStorage.setItem("phone", user.phone || "");
 }
 
 function clearSessionUser() {
   sessionStorage.removeItem("employeeId");
   sessionStorage.removeItem("fname");
   sessionStorage.removeItem("lname");
+  sessionStorage.removeItem("phone");
+}
+
+function sessionPhoneDigits(user) {
+  return digitsOnly(user?.phone || "");
+}
+
+function fillFromLoggedInUser(fields) {
+  const user = readSessionUser();
+  if (!user) return;
+  if (fields.first) fields.first.value = user.fname || "";
+  if (fields.last) fields.last.value = user.lname || "";
+  if (fields.phone) {
+    const digits = sessionPhoneDigits(user);
+    fields.phone.value = digits;
+    if (digits) markPhoneField(fields.phone, !isUsPhone(digits));
+  }
 }
 
 function renderAccount(user) {
@@ -881,7 +906,8 @@ loginForm?.addEventListener("submit", async (event) => {
     const user = {
       employeeId: payload.employeeId || employeeId,
       fname: payload.fname || "",
-      lname: payload.lname || ""
+      lname: payload.lname || "",
+      phone: payload.phone || ""
     };
     storeSessionUser(user);
     renderAccount(user);
