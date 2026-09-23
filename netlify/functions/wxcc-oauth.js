@@ -1,3 +1,11 @@
+const {
+  newSessionId,
+  saveAccessToken,
+  loadAccessToken,
+  deleteAccessToken,
+  looksLikeJwt
+} = require("../lib/wxcc-session");
+
 const AUTHORIZE = "https://webexapis.com/v1/authorize";
 const TOKEN = "https://webexapis.com/v1/access_token";
 const DEFAULT_SCOPES = "cjp:user cjp:config cjp:config_read cjp:config_write";
@@ -28,19 +36,28 @@ function cleanSecret(value) {
 
 function cookieValue(event, name) {
   const raw = header(event, "cookie");
-  if (!raw) return "";
-  const parts = raw.split(";");
+  const text = Array.isArray(raw) ? raw.join("; ") : String(raw || "");
+  if (!text) return "";
+  const parts = text.split(";");
   for (const part of parts) {
     const [key, ...rest] = part.trim().split("=");
     if (key === name) {
+      const value = rest.join("=");
       try {
-        return decodeURIComponent(rest.join("="));
+        return decodeURIComponent(value);
       } catch {
-        return rest.join("=");
+        return value;
       }
     }
   }
   return "";
+}
+
+async function isConnected(event) {
+  const raw = cookieValue(event, COOKIE_TOKEN);
+  if (!raw) return false;
+  if (looksLikeJwt(raw)) return true;
+  return Boolean(await loadAccessToken(raw));
 }
 
 function redirectUri(event) {
@@ -82,7 +99,7 @@ function json(statusCode, payload) {
   };
 }
 
-exports.handler = async (event) => {
+async function handle(event) {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204 };
   }
@@ -91,10 +108,11 @@ exports.handler = async (event) => {
   }
 
   if (query(event, "status") === "1") {
-    return json(200, { connected: Boolean(cookieValue(event, COOKIE_TOKEN)) });
+    return json(200, { connected: await isConnected(event) });
   }
 
   if (query(event, "logout") === "1") {
+    await deleteAccessToken(cookieValue(event, COOKIE_TOKEN));
     return redirect(`${HOME}?wxcc=disconnected`, clearCookie(COOKIE_TOKEN));
   }
 
@@ -150,8 +168,19 @@ exports.handler = async (event) => {
       return redirect(`${HOME}?wxcc=error`, clearCookie(COOKIE_STATE));
     }
     const maxAge = Number(data.expires_in) || 43200;
-    return redirect(`${HOME}?wxcc=connected`, setCookie(COOKIE_TOKEN, data.access_token, maxAge));
+    const sessionId = newSessionId();
+    const saved = await saveAccessToken(sessionId, data.access_token);
+    const cookieValueToSet = saved ? sessionId : data.access_token;
+    return redirect(`${HOME}?wxcc=connected`, setCookie(COOKIE_TOKEN, cookieValueToSet, maxAge));
   } catch {
     return redirect(`${HOME}?wxcc=error`, clearCookie(COOKIE_STATE));
+  }
+}
+
+exports.handler = async (event) => {
+  try {
+    return await handle(event);
+  } catch {
+    return redirect(`${HOME}?wxcc=error`);
   }
 };

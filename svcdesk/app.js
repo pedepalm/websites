@@ -602,6 +602,9 @@ function authHeaders() {
 async function apiError(response, label) {
   if (response.status === 401) return "Connect Webex Contact Center first.";
   const detail = await response.text();
+  if (/Error - Request ID/i.test(detail) || response.status >= 500) {
+    return "Callback service failed. Disconnect Webex, connect again, and retry.";
+  }
   const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
   return `${label} ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`;
 }
