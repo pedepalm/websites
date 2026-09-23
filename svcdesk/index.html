@@ -298,6 +298,24 @@
         </div>
     </div>
 
+    <div class="modal callback-modal" id="callback-cancel-modal" hidden>
+        <div class="modal-card modal-card-tall" role="dialog" aria-labelledby="callback-cancel-title">
+            <h2 id="callback-cancel-title">Cancel a scheduled callback</h2>
+            <p>Enter the callback number used when the callback was scheduled. We will look it up, show the details, then ask you to confirm deletion.</p>
+            <form id="callback-cancel-search-form" novalidate>
+                <label for="cancel-number">Callback number (E.164)</label>
+                <input id="cancel-number" name="callbackNumber" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+19725551212" maxlength="16">
+                <p class="hint">Full international format, starting with + — for example +19725551212.</p>
+                <p class="form-error" id="callback-cancel-error" hidden></p>
+                <div class="modal-actions">
+                    <button class="btn ghost" type="button" id="callback-cancel-back">Back</button>
+                    <button class="btn" type="submit" id="cancel-search" disabled>Search</button>
+                </div>
+            </form>
+            <div id="cancel-results" hidden></div>
+        </div>
+    </div>
+
     <div class="toast" id="toast" hidden role="status"></div>
 
     <div class="modal callback-modal" id="callback-choice-modal" hidden>
@@ -307,6 +325,8 @@
             <div class="choice-actions">
                 <button class="btn" type="button" id="callback-choose-immediate">Immediate callback</button>
                 <button class="btn" type="button" id="callback-choose-scheduled">Scheduled callback</button>
+                <button class="btn" type="button" id="callback-choose-cancel">Cancel a scheduled callback</button>
+                <button class="btn" type="button" id="callback-choose-modify">Modify an existing callback</button>
             </div>
             <div class="modal-actions">
                 <button class="btn ghost" type="button" data-close-callback>Cancel</button>

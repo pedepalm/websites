@@ -8,12 +8,20 @@ function header(event, name) {
   return match ? headers[match] : "";
 }
 
+function query(event, name) {
+  const params = event.queryStringParameters || {};
+  return params[name] || "";
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod === "OPTIONS") {
     return { statusCode: 204 };
   }
 
-  if (event.httpMethod === "GET") {
+  const callbackType = header(event, "x-callback-type").toLowerCase();
+  const isScheduled = callbackType === "scheduled";
+
+  if (event.httpMethod === "GET" && !isScheduled) {
     return {
       statusCode: 200,
       headers: { "Content-Type": "application/json" },
@@ -21,27 +29,48 @@ exports.handler = async (event) => {
     };
   }
 
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
-  }
-
   const authorization = header(event, "authorization");
   if (!authorization) {
     return { statusCode: 401, body: JSON.stringify({ error: "Missing Authorization header" }) };
   }
 
-  const callbackType = header(event, "x-callback-type").toLowerCase();
-  const upstream = callbackType === "scheduled" ? WXCC_SCHEDULED : WXCC_TASKS;
+  let upstream = WXCC_TASKS;
+  let method = event.httpMethod;
+  let body = event.body || "{}";
+
+  if (isScheduled) {
+    if (method === "GET") {
+      const callbackNumber = query(event, "callbackNumber");
+      const search = new URLSearchParams();
+      if (callbackNumber) search.set("callbackNumber", callbackNumber);
+      upstream = `${WXCC_SCHEDULED}?${search.toString()}`;
+      body = undefined;
+    } else if (method === "DELETE") {
+      const id = query(event, "id");
+      if (!id) {
+        return { statusCode: 400, body: JSON.stringify({ error: "Missing callback id" }) };
+      }
+      upstream = `${WXCC_SCHEDULED}/${encodeURIComponent(id)}`;
+      body = undefined;
+    } else if (method === "POST") {
+      upstream = WXCC_SCHEDULED;
+    } else {
+      return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
+    }
+  } else if (method !== "POST") {
+    return { statusCode: 405, body: JSON.stringify({ error: "Method not allowed" }) };
+  }
 
   try {
+    const headers = {
+      Authorization: authorization,
+      Accept: "application/json"
+    };
+    if (body !== undefined) headers["Content-Type"] = "application/json";
     const response = await fetch(upstream, {
-      method: "POST",
-      headers: {
-        Authorization: authorization,
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      },
-      body: event.body || "{}"
+      method,
+      headers,
+      body
     });
     const text = await response.text();
     return {

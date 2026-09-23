@@ -374,7 +374,18 @@ body {
 .form-error { color: var(--red); font-size: 13px; margin-top: 12px; }
 .modal-card input.invalid { border-color: var(--red); }
 #cb-submit:disabled,
-#sched-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+#sched-submit:disabled,
+#cancel-search:disabled { opacity: 0.5; cursor: not-allowed; }
+.callback-result {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  margin-top: 14px;
+  background: #fbfcfe;
+}
+.callback-result dt { font-size: 12px; color: var(--muted); margin-top: 8px; }
+.callback-result dd { margin: 0; font-size: 14px; }
+.callback-result .modal-actions { justify-content: flex-start; }
 
 .toast {
   position: fixed;

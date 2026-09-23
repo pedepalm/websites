@@ -134,10 +134,13 @@ function buildImmediateTaskBody(firstName, lastName) {
   };
 }
 
+const cancelModal = document.querySelector("#callback-cancel-modal");
+
 function closeCallbackModals() {
   choiceModal.hidden = true;
   immediateModal.hidden = true;
   if (scheduledModal) scheduledModal.hidden = true;
+  if (cancelModal) cancelModal.hidden = true;
 }
 
 function syncImmediateSubmit() {
@@ -484,6 +487,192 @@ scheduledForm?.addEventListener("submit", async (event) => {
   } finally {
     schedSubmit.textContent = "Submit";
     syncScheduledSubmit();
+  }
+});
+
+const cancelSearchForm = document.querySelector("#callback-cancel-search-form");
+const cancelNumber = document.querySelector("#cancel-number");
+const cancelSearchBtn = document.querySelector("#cancel-search");
+const cancelError = document.querySelector("#callback-cancel-error");
+const cancelResults = document.querySelector("#cancel-results");
+
+function showCancelError(message) {
+  cancelError.hidden = !message;
+  cancelError.textContent = message || "";
+}
+
+function authHeaders() {
+  const token = (tokenInput?.value || "").trim();
+  return {
+    token,
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+      "X-Callback-Type": "scheduled"
+    }
+  };
+}
+
+function addDetail(list, label, value) {
+  const dt = document.createElement("dt");
+  dt.textContent = label;
+  const dd = document.createElement("dd");
+  dd.textContent = value || "—";
+  list.appendChild(dt);
+  list.appendChild(dd);
+}
+
+function normalizeCallbacks(payload) {
+  if (Array.isArray(payload)) return payload;
+  if (Array.isArray(payload?.data)) return payload.data;
+  if (Array.isArray(payload?.data?.items)) return payload.data.items;
+  if (payload?.id) return [payload];
+  return [];
+}
+
+function renderCancelResults(items) {
+  cancelResults.replaceChildren();
+  cancelResults.hidden = items.length === 0;
+  items.forEach((item) => {
+    const card = document.createElement("article");
+    card.className = "callback-result";
+    const heading = document.createElement("h3");
+    heading.textContent = "Scheduled callback found";
+    const list = document.createElement("dl");
+    addDetail(list, "ID", item.id);
+    addDetail(list, "Name", item.customerName || item.name);
+    addDetail(list, "Callback number", item.callbackNumber);
+    addDetail(list, "Date", item.scheduleDate || item.scheduledDate);
+    addDetail(list, "Window", `${item.startTime || "—"} – ${item.endTime || "—"}`);
+    addDetail(list, "Time zone", item.timezone);
+    const actions = document.createElement("div");
+    actions.className = "modal-actions";
+    const confirm = document.createElement("button");
+    confirm.type = "button";
+    confirm.className = "btn";
+    confirm.textContent = "Confirm deletion";
+    const keep = document.createElement("button");
+    keep.type = "button";
+    keep.className = "btn ghost";
+    keep.textContent = "Keep this callback";
+    confirm.addEventListener("click", () => deleteScheduledCallback(item.id, confirm));
+    keep.addEventListener("click", () => {
+      cancelResults.hidden = true;
+      cancelResults.replaceChildren();
+    });
+    actions.appendChild(confirm);
+    actions.appendChild(keep);
+    card.appendChild(heading);
+    card.appendChild(list);
+    card.appendChild(actions);
+    cancelResults.appendChild(card);
+  });
+}
+
+async function deleteScheduledCallback(id, button) {
+  const { token, headers } = authHeaders();
+  if (!token) {
+    showCancelError("Enter an admin bearer token in the testing box above Quick Actions.");
+    return;
+  }
+  button.disabled = true;
+  button.textContent = "Deleting…";
+  try {
+    const response = await fetch(`${TASKS_ENDPOINT}?id=${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      headers
+    });
+    if (!response.ok && response.status !== 204) {
+      const detail = await response.text();
+      const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
+      throw new Error(`Delete Callback API ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`);
+    }
+    closeCallbackModals();
+    toast.hidden = false;
+    toast.textContent = "Scheduled callback cancelled.";
+    window.setTimeout(() => {
+      toast.hidden = true;
+    }, 4200);
+  } catch (error) {
+    showCancelError(error.message || "Could not delete the scheduled callback.");
+    button.disabled = false;
+    button.textContent = "Confirm deletion";
+  }
+}
+
+document.querySelector("#callback-choose-cancel")?.addEventListener("click", () => {
+  choiceModal.hidden = true;
+  cancelSearchForm.reset();
+  cancelSearchBtn.disabled = true;
+  showCancelError("");
+  cancelResults.hidden = true;
+  cancelResults.replaceChildren();
+  cancelModal.hidden = false;
+  cancelNumber.focus();
+});
+
+document.querySelector("#callback-choose-modify")?.addEventListener("click", () => {
+  toast.hidden = false;
+  toast.textContent = "Modify an existing callback comes next.";
+  window.setTimeout(() => {
+    toast.hidden = true;
+  }, 3200);
+});
+
+document.querySelector("#callback-cancel-back")?.addEventListener("click", () => {
+  cancelModal.hidden = true;
+  choiceModal.hidden = false;
+});
+
+cancelModal?.addEventListener("click", (event) => {
+  if (event.target === cancelModal) closeCallbackModals();
+});
+
+cancelNumber?.addEventListener("input", () => {
+  const ok = E164.test((cancelNumber.value || "").trim());
+  cancelNumber.classList.toggle("invalid", cancelNumber.value.trim() !== "" && !ok);
+  cancelSearchBtn.disabled = !ok;
+});
+
+cancelSearchForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const number = (cancelNumber.value || "").trim();
+  if (!E164.test(number)) {
+    showCancelError("Enter a callback number in E.164 format, starting with +.");
+    return;
+  }
+  const { token, headers } = authHeaders();
+  if (!token) {
+    showCancelError("Enter an admin bearer token in the testing box above Quick Actions.");
+    return;
+  }
+  showCancelError("");
+  cancelResults.hidden = true;
+  cancelResults.replaceChildren();
+  cancelSearchBtn.disabled = true;
+  cancelSearchBtn.textContent = "Searching…";
+  try {
+    const response = await fetch(
+      `${TASKS_ENDPOINT}?callbackNumber=${encodeURIComponent(number)}`,
+      { method: "GET", headers }
+    );
+    if (!response.ok) {
+      const detail = await response.text();
+      const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
+      throw new Error(`Get Callback API ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`);
+    }
+    const payload = await response.json();
+    const items = normalizeCallbacks(payload);
+    if (items.length === 0) {
+      showCancelError("No scheduled callback was found for that number.");
+      return;
+    }
+    renderCancelResults(items);
+  } catch (error) {
+    showCancelError(error.message || "Could not look up the scheduled callback.");
+  } finally {
+    cancelSearchBtn.textContent = "Search";
+    cancelSearchBtn.disabled = !E164.test((cancelNumber.value || "").trim());
   }
 });
 
