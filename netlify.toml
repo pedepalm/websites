@@ -12,3 +12,9 @@
   to = "/.netlify/functions/tasks"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/v1/callbacks/scheduled"
+  to = "/.netlify/functions/scheduled-callback"
+  status = 200
+  force = true

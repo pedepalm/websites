@@ -137,6 +137,7 @@ function buildImmediateTaskBody(firstName, lastName) {
 function closeCallbackModals() {
   choiceModal.hidden = true;
   immediateModal.hidden = true;
+  if (scheduledModal) scheduledModal.hidden = true;
 }
 
 function syncImmediateSubmit() {
@@ -225,6 +226,263 @@ immediateForm?.addEventListener("submit", async (event) => {
   } finally {
     submitImmediate.textContent = "Submit";
     syncImmediateSubmit();
+  }
+});
+
+const scheduledModal = document.querySelector("#callback-scheduled-modal");
+const scheduledForm = document.querySelector("#callback-scheduled-form");
+const schedNumber = document.querySelector("#sched-number");
+const schedDate = document.querySelector("#sched-date");
+const schedFirst = document.querySelector("#sched-first-name");
+const schedLast = document.querySelector("#sched-last-name");
+const schedTimezone = document.querySelector("#sched-timezone");
+const schedSubmit = document.querySelector("#sched-submit");
+const scheduledError = document.querySelector("#callback-scheduled-error");
+const SCHEDULED_ENDPOINT = "/.netlify/functions/scheduled-callback";
+const SCHEDULED_QUEUE_ID = "fc8108e3-3fac-4e32-80dd-4a23bf8cb6c8";
+const US_TIMEZONES = [
+  "America/New_York",
+  "America/Detroit",
+  "America/Kentucky/Louisville",
+  "America/Kentucky/Monticello",
+  "America/Indiana/Indianapolis",
+  "America/Indiana/Marengo",
+  "America/Indiana/Petersburg",
+  "America/Indiana/Vevay",
+  "America/Indiana/Vincennes",
+  "America/Indiana/Winamac",
+  "America/Chicago",
+  "America/Indiana/Knox",
+  "America/Indiana/Tell_City",
+  "America/Menominee",
+  "America/North_Dakota/Center",
+  "America/North_Dakota/New_Salem",
+  "America/North_Dakota/Beulah",
+  "America/Denver",
+  "America/Boise",
+  "America/Phoenix",
+  "America/Los_Angeles",
+  "America/Anchorage",
+  "America/Juneau",
+  "America/Sitka",
+  "America/Yakutat",
+  "America/Nome",
+  "America/Adak",
+  "America/Metlakatla",
+  "Pacific/Honolulu",
+  "America/Puerto_Rico",
+  "America/St_Thomas"
+];
+
+function showScheduledError(message) {
+  scheduledError.hidden = !message;
+  scheduledError.textContent = message || "";
+}
+
+function pad2(value) {
+  return String(value).padStart(2, "0");
+}
+
+function todayIsoDate() {
+  const now = new Date();
+  return `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+}
+
+function addDaysIso(isoDate, days) {
+  const [year, month, day] = isoDate.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + days);
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+function populateHourSelect(select) {
+  if (!select || select.options.length > 0) return;
+  for (let hour = 1; hour <= 12; hour += 1) {
+    const option = document.createElement("option");
+    option.value = String(hour);
+    option.textContent = String(hour);
+    select.appendChild(option);
+  }
+}
+
+function populateTimezones() {
+  if (!schedTimezone || schedTimezone.options.length > 0) return;
+  US_TIMEZONES.forEach((zone) => {
+    const option = document.createElement("option");
+    option.value = zone;
+    option.textContent = zone;
+    schedTimezone.appendChild(option);
+  });
+  schedTimezone.value = "America/Chicago";
+}
+
+function toTwentyFourHour(hour12, minute, meridiem) {
+  let hour = Number(hour12);
+  if (meridiem === "AM") {
+    hour = hour === 12 ? 0 : hour;
+  } else {
+    hour = hour === 12 ? 12 : hour + 12;
+  }
+  return `${pad2(hour)}:${minute}:00`;
+}
+
+function minutesFromMidnight(time24) {
+  const [hours, minutes] = time24.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
+function readStartTime() {
+  return toTwentyFourHour(
+    document.querySelector("#sched-start-hour").value,
+    document.querySelector("#sched-start-minute").value,
+    document.querySelector("#sched-start-ampm").value
+  );
+}
+
+function readEndTime() {
+  return toTwentyFourHour(
+    document.querySelector("#sched-end-hour").value,
+    document.querySelector("#sched-end-minute").value,
+    document.querySelector("#sched-end-ampm").value
+  );
+}
+
+function scheduledWindowError() {
+  const dateValue = schedDate.value;
+  if (!dateValue) return "Select a callback date.";
+  const min = schedDate.min;
+  const max = schedDate.max;
+  if (dateValue < min || dateValue > max) {
+    return "Callback date must be today through 30 days from now.";
+  }
+  const start = readStartTime();
+  const end = readEndTime();
+  const duration = minutesFromMidnight(end) - minutesFromMidnight(start);
+  if (duration <= 0) {
+    return "Ending time must be after the start time on the same day.";
+  }
+  if (duration >= 8 * 60) {
+    return "Start time and end time must be less than 8 hours apart.";
+  }
+  return "";
+}
+
+function buildScheduledCallbackBody() {
+  return {
+    customerName: `${schedFirst.value.trim()} ${schedLast.value.trim()}`.trim(),
+    callbackNumber: schedNumber.value.trim(),
+    timezone: schedTimezone.value,
+    scheduleDate: schedDate.value,
+    startTime: readStartTime(),
+    endTime: readEndTime(),
+    queueId: SCHEDULED_QUEUE_ID
+  };
+}
+
+function syncScheduledSubmit() {
+  const numberOk = E164.test((schedNumber.value || "").trim());
+  const firstOk = (schedFirst.value || "").trim().length > 0;
+  const lastOk = (schedLast.value || "").trim().length > 0;
+  const tzOk = Boolean(schedTimezone.value);
+  const windowError = scheduledWindowError();
+  schedNumber.classList.toggle("invalid", schedNumber.value.trim() !== "" && !numberOk);
+  schedDate.classList.toggle("invalid", Boolean(schedDate.value) && Boolean(windowError));
+  const ready = numberOk && firstOk && lastOk && tzOk && !windowError;
+  schedSubmit.disabled = !ready;
+  if (ready) showScheduledError("");
+}
+
+function openScheduledForm() {
+  choiceModal.hidden = true;
+  scheduledForm.reset();
+  populateHourSelect(document.querySelector("#sched-start-hour"));
+  populateHourSelect(document.querySelector("#sched-end-hour"));
+  populateTimezones();
+  const today = todayIsoDate();
+  schedDate.min = today;
+  schedDate.max = addDaysIso(today, 30);
+  schedDate.value = today;
+  document.querySelector("#sched-start-hour").value = "1";
+  document.querySelector("#sched-start-minute").value = "00";
+  document.querySelector("#sched-start-ampm").value = "PM";
+  document.querySelector("#sched-end-hour").value = "2";
+  document.querySelector("#sched-end-minute").value = "00";
+  document.querySelector("#sched-end-ampm").value = "PM";
+  schedTimezone.value = "America/Chicago";
+  showScheduledError("");
+  syncScheduledSubmit();
+  scheduledModal.hidden = false;
+  schedNumber.focus();
+}
+
+document.querySelector("#callback-choose-scheduled")?.addEventListener("click", openScheduledForm);
+
+document.querySelector("#callback-scheduled-back")?.addEventListener("click", () => {
+  scheduledModal.hidden = true;
+  choiceModal.hidden = false;
+});
+
+scheduledModal?.addEventListener("click", (event) => {
+  if (event.target === scheduledModal) closeCallbackModals();
+});
+
+[schedNumber, schedDate, schedFirst, schedLast, schedTimezone,
+  document.querySelector("#sched-start-hour"),
+  document.querySelector("#sched-start-minute"),
+  document.querySelector("#sched-start-ampm"),
+  document.querySelector("#sched-end-hour"),
+  document.querySelector("#sched-end-minute"),
+  document.querySelector("#sched-end-ampm")
+].forEach((input) => {
+  input?.addEventListener("input", syncScheduledSubmit);
+  input?.addEventListener("change", syncScheduledSubmit);
+});
+
+scheduledForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  syncScheduledSubmit();
+  const windowError = scheduledWindowError();
+  if (windowError) {
+    showScheduledError(windowError);
+    return;
+  }
+  if (schedSubmit.disabled) {
+    return;
+  }
+  const token = (tokenInput?.value || "").trim();
+  if (!token) {
+    showScheduledError("Enter an admin bearer token in the testing box above Quick Actions.");
+    return;
+  }
+  showScheduledError("");
+  schedSubmit.disabled = true;
+  schedSubmit.textContent = "Submitting…";
+  try {
+    const response = await fetch(SCHEDULED_ENDPOINT, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify(buildScheduledCallbackBody())
+    });
+    if (!response.ok) {
+      const detail = await response.text();
+      const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
+      throw new Error(`Scheduled Callback API ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`);
+    }
+    closeCallbackModals();
+    toast.hidden = false;
+    toast.textContent = "Scheduled callback requested.";
+    window.setTimeout(() => {
+      toast.hidden = true;
+    }, 4200);
+  } catch (error) {
+    showScheduledError(error.message || "Could not schedule the callback.");
+  } finally {
+    schedSubmit.textContent = "Submit";
+    syncScheduledSubmit();
   }
 });
 

@@ -335,6 +335,15 @@ body {
   border-radius: 16px;
   padding: 22px;
 }
+.modal-card-tall {
+  max-height: 90vh;
+  overflow: auto;
+}
+.time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
 .modal-card h2 { margin: 0 0 8px; }
 .modal-card p { margin: 0 0 8px; color: var(--muted); font-size: 14px; }
 .modal-card label { display: block; font-size: 13px; margin: 12px 0 4px; }
@@ -365,7 +374,8 @@ body {
 .modal-card .hint { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
 .form-error { color: var(--red); font-size: 13px; margin-top: 12px; }
 .modal-card input.invalid { border-color: var(--red); }
-#cb-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+#cb-submit:disabled,
+#sched-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .toast {
   position: fixed;

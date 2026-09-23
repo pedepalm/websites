@@ -249,6 +249,55 @@
         </div>
     </div>
 
+    <div class="modal callback-modal" id="callback-scheduled-modal" hidden>
+        <div class="modal-card modal-card-tall" role="dialog" aria-labelledby="callback-scheduled-title">
+            <h2 id="callback-scheduled-title">Schedule a Callback</h2>
+            <p>Enter the following details to schedule a callback at your convenience. Note that, you cannot schedule a callback more than 30 days out, and the start time and end time must be less than 8 hours apart.</p>
+            <form id="callback-scheduled-form" novalidate>
+                <label for="sched-number">Callback number (E.164)</label>
+                <input id="sched-number" name="callbackNumber" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+19725551212" maxlength="16">
+                <p class="hint">Full international format, starting with + — for example +19725551212.</p>
+                <label for="sched-date">Callback date</label>
+                <input id="sched-date" name="scheduleDate" type="date" required>
+                <label>Start time</label>
+                <div class="time-row" data-time="start">
+                    <select id="sched-start-hour" aria-label="Start hour" required></select>
+                    <select id="sched-start-minute" aria-label="Start minutes" required>
+                        <option value="00">00</option>
+                        <option value="30">30</option>
+                    </select>
+                    <select id="sched-start-ampm" aria-label="Start AM or PM" required>
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <label>Ending time</label>
+                <div class="time-row" data-time="end">
+                    <select id="sched-end-hour" aria-label="Ending hour" required></select>
+                    <select id="sched-end-minute" aria-label="Ending minutes" required>
+                        <option value="00">00</option>
+                        <option value="30">30</option>
+                    </select>
+                    <select id="sched-end-ampm" aria-label="Ending AM or PM" required>
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </div>
+                <label for="sched-first-name">First name</label>
+                <input id="sched-first-name" name="firstName" type="text" autocomplete="given-name" required maxlength="80">
+                <label for="sched-last-name">Last name</label>
+                <input id="sched-last-name" name="lastName" type="text" autocomplete="family-name" required maxlength="80">
+                <label for="sched-timezone">Time zone</label>
+                <select id="sched-timezone" name="timezone" required></select>
+                <p class="form-error" id="callback-scheduled-error" hidden></p>
+                <div class="modal-actions">
+                    <button class="btn ghost" type="button" id="callback-scheduled-back">Back</button>
+                    <button class="btn" type="submit" id="sched-submit" disabled>Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="toast" id="toast" hidden role="status"></div>
 
     <div class="modal callback-modal" id="callback-choice-modal" hidden>
@@ -257,9 +306,8 @@
             <p>Do you want an immediate callback, or a scheduled callback?</p>
             <div class="choice-actions">
                 <button class="btn" type="button" id="callback-choose-immediate">Immediate callback</button>
-                <button class="btn ghost" type="button" id="callback-choose-scheduled" disabled>Scheduled callback</button>
+                <button class="btn ghost" type="button" id="callback-choose-scheduled">Scheduled callback</button>
             </div>
-            <p class="hint">Scheduled callback comes next. Immediate is available now.</p>
             <div class="modal-actions">
                 <button class="btn ghost" type="button" data-close-callback>Cancel</button>
             </div>
@@ -269,9 +317,9 @@
     <div class="modal callback-modal" id="callback-immediate-modal" hidden>
         <div class="modal-card" role="dialog" aria-labelledby="callback-immediate-title">
             <h2 id="callback-immediate-title">Immediate callback</h2>
-            <p>Enter your details so the service desk can call you now.</p>
+            <p>Enter your details, and as soon as a human agent is available, we will call you back</p>
             <form id="callback-immediate-form" novalidate>
-                <label for="mobile-e164">Mobile number (E.164)</label>
+                <label for="mobile-e164">Callback number (E.164)</label>
                 <input id="mobile-e164" name="mobile" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+19725551212" maxlength="16">
                 <p class="hint">Full international format, starting with + — for example +19725551212.</p>
                 <label for="cb-first-name">First name</label>
