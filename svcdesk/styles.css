@@ -81,6 +81,7 @@ body {
 .chip.ok { background: var(--green-soft); color: var(--green); }
 .chip.warn { background: var(--amber-soft); color: var(--amber); }
 .chip.sev { background: var(--red-soft); color: var(--red); }
+.chip.down { background: var(--red); color: #fff; }
 .chip.it { background: var(--teal-soft); color: var(--teal); }
 .chip.hr { background: var(--amber-soft); color: var(--amber); }
 .employee { font-size: 12px; color: #b7c6d6; text-align: right; }
@@ -139,12 +140,29 @@ body {
   margin-top: 22px;
 }
 .health article {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  min-height: 84px;
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 12px 10px;
 }
-.health small { color: var(--muted); }
+.health small {
+  display: block;
+  width: 100%;
+  color: var(--muted);
+  line-height: 1.3;
+  text-align: center;
+}
+.health .chip {
+  justify-content: center;
+  margin: 0 auto;
+}
 
 .wrap { max-width: 1100px; margin: 0 auto; padding: 10px 28px 48px; }
 .token-bar {
@@ -296,15 +314,6 @@ body {
 .kb h3 { margin: 0 0 6px; font-size: 16px; }
 .kb p { margin: 0; color: var(--muted); font-size: 14px; }
 
-.escalate { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.contact {
-  background: #fff;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 20px;
-}
-.contact a { color: var(--teal); }
-
 .site-footer {
   padding: 28px;
   color: #9aa8b6;
@@ -429,7 +438,6 @@ body {
   .grid.four,
   .ops,
   .kb,
-  .escalate,
   .ticket {
     grid-template-columns: 1fr;
   }
