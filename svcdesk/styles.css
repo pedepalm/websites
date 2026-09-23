@@ -538,8 +538,51 @@ body {
   background: #f6f8fb;
   border-radius: 10px;
 }
+.product-photo {
+  display: block;
+  border-radius: 10px;
+}
+.product-photo:hover img,
+.product-photo:focus-visible img {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
 .product-card h3 { margin: 12px 0 4px; font-size: 16px; }
 .product-card p { margin: 0; color: var(--muted); font-size: 13px; }
+.device-back { margin: 22px 0 0; }
+.device-back a { color: var(--teal); font-size: 14px; }
+.device-detail {
+  display: grid;
+  grid-template-columns: minmax(240px, 420px) 1fr;
+  gap: 28px;
+  align-items: start;
+  margin: 16px 0 40px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+.device-detail-photo img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: contain;
+  background: #f6f8fb;
+  border-radius: 10px;
+}
+.device-detail-copy h1 { margin: 0 0 8px; }
+.device-detail-copy h2 { margin: 22px 0 10px; font-size: 18px; }
+.device-lede { margin: 0; color: var(--muted); }
+.spec-list { margin: 0; }
+.spec-row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+}
+.spec-row dt { margin: 0; color: var(--muted); font-size: 13px; }
+.spec-row dd { margin: 0; font-size: 14px; }
 .empty-accessories {
   background: #fff;
   border: 1px dashed var(--line);
@@ -568,7 +611,9 @@ body {
   .ops,
   .kb,
   .product-grid,
-  .ticket {
+  .ticket,
+  .device-detail,
+  .spec-row {
     grid-template-columns: 1fr;
   }
   .topbar { flex-wrap: wrap; }

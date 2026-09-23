@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device specifications · ACME Service Desk</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=20260923p">
+</head>
+<body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    <header class="topbar">
+        <a class="brand brand-link" href="index.html">
+            <div class="logo" aria-hidden="true">A</div>
+            <div>
+                <strong>ACME SERVICE DESK</strong>
+                <span>Employee Experience Portal</span>
+            </div>
+        </a>
+        <nav class="nav" aria-label="Portal">
+            <a href="index.html#catalog">Service Catalog</a>
+            <a href="devices.html">Device Replacements</a>
+        </nav>
+    </header>
+
+    <main id="main" class="wrap">
+        <p class="device-back"><a href="devices.html">Back to Device Replacements</a></p>
+        <article class="device-detail" id="device-detail">
+            <p>Loading device details…</p>
+        </article>
+    </main>
+
+    <footer class="site-footer">
+        <div class="wrap">
+            <div>© 2026 ACME Corporation · Internal service portal · SOC 2 need-to-know. Do not forward outside the tenant.</div>
+            <div>
+                <a href="devices.html">Back to device catalog</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="device-catalog.js?v=20260923p"></script>
+    <script>
+      (function renderDevice() {
+        const root = document.querySelector("#device-detail");
+        const id = new URLSearchParams(window.location.search).get("id") || "";
+        const device = DEVICE_CATALOG[id];
+        if (!device) {
+          document.title = "Device not found · ACME Service Desk";
+          root.innerHTML = "<h1>Device not found</h1><p>That model is not in the replacement catalog. <a href=\"devices.html\">Return to Device Replacements</a>.</p>";
+          return;
+        }
+        document.title = device.name + " · ACME Service Desk";
+        const rows = device.specs.map(([label, value]) => (
+          "<div class=\"spec-row\"><dt>" + label + "</dt><dd>" + value + "</dd></div>"
+        )).join("");
+        root.innerHTML = (
+          "<div class=\"device-detail-photo\">" +
+            "<img src=\"" + device.image + "\" alt=\"" + device.name + "\">" +
+          "</div>" +
+          "<div class=\"device-detail-copy\">" +
+            "<p class=\"kicker\">" + device.family + "</p>" +
+            "<h1>" + device.name + "</h1>" +
+            "<p class=\"device-lede\">" + device.summary + "</p>" +
+            "<h2>Specifications</h2>" +
+            "<dl class=\"spec-list\">" + rows + "</dl>" +
+          "</div>"
+        );
+      })();
+    </script>
+</body>
+</html>
