@@ -97,7 +97,7 @@ function journeyPayload(action, user, extras) {
       data: {
         uiData: uiData(extras, {
           title: isLogout ? "Svc Desk Logout" : "Svc Desk Login",
-          iconType: "sign-in-bold",
+          iconType: isLogout ? "Cancel" : "Login",
           subTitle: isLogout
             ? `${first} ${last} with user ID ${employeeId} Logged off`
             : `${first} ${last} with user ID ${employeeId} Logged On`,
@@ -115,7 +115,7 @@ function journeyPayload(action, user, extras) {
       data: {
         uiData: uiData(extras, {
           title: "Product Interest",
-          iconType: "mouse-cursor-bold",
+          iconType: "Page Visit",
           subTitle: `${first} ${last} might like product - ${product}`,
           filterTags: ["Product", product]
         })
@@ -132,7 +132,7 @@ function journeyPayload(action, user, extras) {
         Number: number,
         uiData: uiData(extras, {
           title: "Immediate Callback",
-          iconType: "calendar-day-bold",
+          iconType: "Phone",
           subTitle: `${first} ${last} initiated an immediate callback`,
           filterTags: ["Callback", "Immediate"]
         })
@@ -149,16 +149,19 @@ function journeyPayload(action, user, extras) {
     const defaults = {
       scheduled: {
         title: "Scheduled Callback",
+        iconType: "multi events single day",
         subTitle: `${first} ${last} scheduled a callback`,
         filterTags: ["Callback", "Scheduled"]
       },
       cancelled: {
         title: "Cancelled Scheduled Callback",
+        iconType: "Cancel",
         subTitle: `${first} ${last} cancelled a scheduled callback`,
         filterTags: ["Callback", "Scheduled", "Cancelled"]
       },
       modified: {
         title: "Modified Scheduled Callback",
+        iconType: "Move",
         subTitle: `${first} ${last} modified a scheduled callback`,
         filterTags: ["Callback", "Scheduled", "Modified"]
       }
@@ -167,7 +170,7 @@ function journeyPayload(action, user, extras) {
       Number: number,
       uiData: uiData(extras, {
         title: defaults.title,
-        iconType: "calendar-day-bold",
+        iconType: defaults.iconType,
         subTitle: defaults.subTitle,
         filterTags: defaults.filterTags
       })

@@ -124,7 +124,7 @@ function callbackJourneyUi(action, user) {
   if (action === "immediate") {
     return {
       title: "Immediate Callback",
-      iconType: "calendar-day-bold",
+      iconType: "Phone",
       subTitle: `${first} ${last} initiated an immediate callback`,
       filterTags: ["Callback", "Immediate"]
     };
@@ -132,7 +132,7 @@ function callbackJourneyUi(action, user) {
   if (action === "cancelled") {
     return {
       title: "Cancelled Scheduled Callback",
-      iconType: "calendar-day-bold",
+      iconType: "Cancel",
       subTitle: `${first} ${last} cancelled a scheduled callback`,
       filterTags: ["Callback", "Scheduled", "Cancelled"]
     };
@@ -140,7 +140,7 @@ function callbackJourneyUi(action, user) {
   if (action === "modified") {
     return {
       title: "Modified Scheduled Callback",
-      iconType: "calendar-day-bold",
+      iconType: "Move",
       subTitle: `${first} ${last} modified a scheduled callback`,
       filterTags: ["Callback", "Scheduled", "Modified"]
     };
@@ -148,7 +148,7 @@ function callbackJourneyUi(action, user) {
   if (action === "scheduled") {
     return {
       title: "Scheduled Callback",
-      iconType: "calendar-day-bold",
+      iconType: "multi events single day",
       subTitle: `${first} ${last} scheduled a callback`,
       filterTags: ["Callback", "Scheduled"]
     };
