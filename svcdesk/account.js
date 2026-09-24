@@ -76,8 +76,13 @@ function isLoggedInUser(user) {
   return Boolean(user && EMPLOYEE_ID.test(String(user.employeeId || "").trim()));
 }
 
-async function postJourneyEvent(action, user) {
+async function postJourneyEvent(action, user, extras) {
   if (!isLoggedInUser(user)) return;
+  const needsOauth = action === "product" || action === "immediate" || action === "scheduled";
+  if (needsOauth) {
+    const connected = await refreshWxccAuthState();
+    if (!connected) return;
+  }
   try {
     const response = await fetch(JOURNEY_ENDPOINT, {
       method: "POST",
@@ -89,16 +94,31 @@ async function postJourneyEvent(action, user) {
         action,
         employeeId: user.employeeId,
         fname: user.fname || "",
-        lname: user.lname || ""
+        lname: user.lname || "",
+        ...(extras || {})
       })
     });
     if (response.status === 401) {
       setWxccAuthState(false);
     }
   } catch {
-    // Login and logout still complete if the journey post fails.
+    // Page actions still complete if the journey post fails.
   }
 }
+
+function productNameFromPage() {
+  return document.querySelector("#device-detail")?.dataset.productName || "";
+}
+
+function publishProductInterest(user) {
+  const product = productNameFromPage();
+  if (!product) return;
+  postJourneyEvent("product", user || readSessionUser(), { product });
+}
+
+window.publishSvcDeskJourney = function publishSvcDeskJourney(action, extras) {
+  return postJourneyEvent(action, readSessionUser(), extras || {});
+};
 
 function setWxccAuthState(connected) {
   const needed = document.querySelector("#wxcc-auth-needed");
@@ -287,7 +307,10 @@ function bindAccountChrome() {
       renderAccount(user);
       closeLoginModal();
       showAccountToast("Login successful");
-      if (isLoggedInUser(readSessionUser())) postJourneyEvent("login", user);
+      if (isLoggedInUser(readSessionUser())) {
+        postJourneyEvent("login", user);
+        publishProductInterest(user);
+      }
     } catch {
       showLoginError("");
       showAccountToast("Login Failed");

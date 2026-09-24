@@ -255,6 +255,9 @@ immediateForm?.addEventListener("submit", async (event) => {
     closeCallbackModals();
     toast.hidden = false;
     toast.textContent = "Immediate callback requested. An agent will call you shortly.";
+    if (typeof window.publishSvcDeskJourney === "function") {
+      window.publishSvcDeskJourney("immediate", { number: toE164(mobileInput.value) });
+    }
     window.setTimeout(() => {
       toast.hidden = true;
     }, 4200);
@@ -572,6 +575,14 @@ scheduledForm?.addEventListener("submit", async (event) => {
     closeCallbackModals();
     toast.hidden = false;
     toast.textContent = isEdit ? "Scheduled callback updated." : "Scheduled callback requested.";
+    if (typeof window.publishSvcDeskJourney === "function") {
+      window.publishSvcDeskJourney("scheduled", {
+        number: toE164(schedNumber.value),
+        date: schedDate.value,
+        startTime: readStartTime(),
+        endTime: readEndTime()
+      });
+    }
     window.setTimeout(() => {
       toast.hidden = true;
     }, 4200);

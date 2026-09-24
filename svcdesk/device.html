@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260923u">
+    <link rel="stylesheet" href="styles.css?v=20260923v">
 </head>
 <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -89,7 +89,7 @@
             </form>
         </div>
     </div>
-    <script src="account.js?v=20260923u"></script>
+    <script src="account.js?v=20260923v"></script>
     <script src="device-catalog.js?v=20260923q"></script>
     <script>
       (function renderDevice() {
@@ -102,6 +102,7 @@
           return;
         }
         document.title = device.name + " · ACME Service Desk";
+        root.dataset.productName = device.name;
         const rows = device.specs.map(([label, value]) => (
           "<div class=\"spec-row\"><dt>" + label + "</dt><dd>" + value + "</dd></div>"
         )).join("");
@@ -117,6 +118,9 @@
             "<dl class=\"spec-list\">" + rows + "</dl>" +
           "</div>"
         );
+        if (typeof window.publishSvcDeskJourney === "function") {
+          window.publishSvcDeskJourney("product", { product: device.name });
+        }
       })();
     </script>
 </body>

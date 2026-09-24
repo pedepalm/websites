@@ -54,30 +54,98 @@ function newEventId() {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
-function journeyPayload(action, user) {
+function cleanText(value, max) {
+  return String(value || "").replace(/[\u0000-\u001F]/g, "").trim().slice(0, max || 80);
+}
+
+function journeyPayload(action, user, extras) {
   const employeeId = user.employeeId;
   const first = user.fname;
   const last = user.lname;
-  const isLogout = action === "logout";
-  return {
+  const base = {
     id: newEventId(),
     specversion: "1.0",
     type: "Web",
     source: "SvcDeskWebpage",
     identity: employeeId,
     identitytype: "customerId",
-    datacontenttype: "application/json",
-    data: {
-      uiData: {
-        title: isLogout ? "Svc Desk Logout" : "Svc Desk Login",
-        iconType: "sign-in-bold",
-        subTitle: isLogout
-          ? `${first} ${last} with user ID ${employeeId} Logged off`
-          : `${first} ${last} with user ID ${employeeId} Logged On`,
-        filterTags: [isLogout ? "Logout" : "Login", "Svc Desk"]
-      }
-    }
+    datacontenttype: "application/json"
   };
+
+  if (action === "login" || action === "logout") {
+    const isLogout = action === "logout";
+    return {
+      ...base,
+      data: {
+        uiData: {
+          title: isLogout ? "Svc Desk Logout" : "Svc Desk Login",
+          iconType: "sign-in-bold",
+          subTitle: isLogout
+            ? `${first} ${last} with user ID ${employeeId} Logged off`
+            : `${first} ${last} with user ID ${employeeId} Logged On`,
+          filterTags: [isLogout ? "Logout" : "Login", "Svc Desk"]
+        }
+      }
+    };
+  }
+
+  if (action === "product") {
+    const product = cleanText(extras.product, 80);
+    if (!product) return null;
+    return {
+      ...base,
+      data: {
+        uiData: {
+          title: "Product Interest",
+          iconType: "mouse-cursor-bold",
+          subTitle: `${first} ${last} might like product - ${product}`,
+          filterTags: ["Product", product]
+        }
+      }
+    };
+  }
+
+  if (action === "immediate") {
+    const number = cleanText(extras.number, 20);
+    if (!number) return null;
+    return {
+      ...base,
+      data: {
+        Number: number,
+        uiData: {
+          title: "Scheduled Callback",
+          iconType: "calendar-day-bold",
+          subTitle: `${first} ${last} scheduled a callback`,
+          filterTags: ["Callback", "Immediate"]
+        }
+      }
+    };
+  }
+
+  if (action === "scheduled") {
+    const number = cleanText(extras.number, 20);
+    const date = cleanText(extras.date, 32);
+    const startTime = cleanText(extras.startTime, 16);
+    const endTime = cleanText(extras.endTime, 16);
+    if (!number || !date || !startTime || !endTime) return null;
+    return {
+      ...base,
+      data: {
+        Number: number,
+        Date: date,
+        "Start Time": startTime,
+        "End Time": endTime,
+        uiData: {
+          title: "Scheduled Callback",
+          iconType: "calendar-day-bold",
+          subTitle: `${first} ${last} scheduled a callback`,
+          filterTags: ["Callback", "Scheduled"]
+        }
+      }
+    };
+  }
+
+  return null;
 }
 
 exports.handler = async (event) => {
@@ -92,9 +160,13 @@ exports.handler = async (event) => {
 
     const payload = requestBody(event);
     const action = String(payload.action || "").toLowerCase();
-    if (action !== "login" && action !== "logout") {
-      return json(400, { error: "Unsupported journey action." });
-    }
+    const extras = {
+      product: payload.product,
+      number: payload.number,
+      date: payload.date,
+      startTime: payload.startTime,
+      endTime: payload.endTime
+    };
 
     const user = {
       employeeId: String(payload.employeeId || "").trim(),
@@ -105,6 +177,11 @@ exports.handler = async (event) => {
       return json(400, { error: "Missing employee id." });
     }
 
+    const eventBody = journeyPayload(action, user, extras);
+    if (!eventBody) {
+      return json(400, { error: "Unsupported journey action." });
+    }
+
     const response = await fetch(JOURNEY_URL, {
       method: "POST",
       headers: {
@@ -112,7 +189,7 @@ exports.handler = async (event) => {
         "Content-Type": "application/json",
         Accept: "application/json"
       },
-      body: JSON.stringify(journeyPayload(action, user))
+      body: JSON.stringify(eventBody)
     });
     const text = await response.text();
     return {
