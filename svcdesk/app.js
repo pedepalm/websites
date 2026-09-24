@@ -193,10 +193,6 @@ document.querySelector("#callback-choose-immediate")?.addEventListener("click", 
   submitImmediate.disabled = true;
   mobileInput.classList.remove("invalid");
   showImmediateError("");
-  applyLoggedInCallbackDefaults(
-    { first: firstNameInput, last: lastNameInput, phone: mobileInput },
-    syncImmediateSubmit
-  );
   immediateModal.hidden = false;
   mobileInput.focus();
 });
@@ -493,13 +489,9 @@ function openScheduledForm(existing) {
     document.querySelector("#sched-end-minute").value = "00";
     document.querySelector("#sched-end-ampm").value = "PM";
     schedTimezone.value = "America/Chicago";
-    applyLoggedInCallbackDefaults(
-      { first: schedFirst, last: schedLast, phone: schedNumber },
-      syncScheduledSubmit
-    );
   }
   showScheduledError("");
-  if (record) syncScheduledSubmit();
+  syncScheduledSubmit();
   scheduledModal.hidden = false;
   schedNumber.focus();
 }
@@ -602,9 +594,6 @@ function authHeaders() {
 async function apiError(response, label) {
   if (response.status === 401) return "Connect Webex Contact Center first.";
   const detail = await response.text();
-  if (/Error - Request ID/i.test(detail) || response.status >= 500) {
-    return "Callback service failed. Disconnect Webex, connect again, and retry.";
-  }
   const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
   return `${label} ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`;
 }
@@ -705,10 +694,6 @@ function openLookupModal(mode) {
   cancelResults.hidden = true;
   cancelResults.replaceChildren();
   markPhoneField(cancelNumber, false);
-  applyLoggedInCallbackDefaults({ phone: cancelNumber }, () => {
-    const savedDigits = normalizePhoneInput(cancelNumber);
-    cancelSearchBtn.disabled = !isUsPhone(savedDigits);
-  });
   if (cancelTitle) {
     cancelTitle.textContent = mode === "modify"
       ? "Modify an existing callback"
@@ -813,49 +798,20 @@ function readSessionUser() {
   const employeeId = sessionStorage.getItem("employeeId") || "";
   const fname = sessionStorage.getItem("fname") || "";
   const lname = sessionStorage.getItem("lname") || "";
-  const phone = sessionStorage.getItem("phone") || "";
   if (!employeeId) return null;
-  return { employeeId, fname, lname, phone };
+  return { employeeId, fname, lname };
 }
 
 function storeSessionUser(user) {
   sessionStorage.setItem("employeeId", user.employeeId || "");
   sessionStorage.setItem("fname", user.fname || "");
   sessionStorage.setItem("lname", user.lname || "");
-  sessionStorage.setItem("phone", user.phone || "");
 }
 
 function clearSessionUser() {
   sessionStorage.removeItem("employeeId");
   sessionStorage.removeItem("fname");
   sessionStorage.removeItem("lname");
-  sessionStorage.removeItem("phone");
-}
-
-function sessionPhoneDigits(user) {
-  return digitsOnly(user?.phone || "");
-}
-
-function fillFromLoggedInUser(fields) {
-  const user = readSessionUser();
-  if (!user) return false;
-  if (fields.first) fields.first.value = user.fname || "";
-  if (fields.last) fields.last.value = user.lname || "";
-  if (fields.phone) {
-    const digits = sessionPhoneDigits(user);
-    fields.phone.value = digits;
-    if (digits) markPhoneField(fields.phone, !isUsPhone(digits));
-  }
-  return true;
-}
-
-function applyLoggedInCallbackDefaults(fields, afterFill) {
-  const run = () => {
-    fillFromLoggedInUser(fields);
-    if (typeof afterFill === "function") afterFill();
-  };
-  run();
-  window.requestAnimationFrame(run);
 }
 
 function renderAccount(user) {
@@ -925,8 +881,7 @@ loginForm?.addEventListener("submit", async (event) => {
     const user = {
       employeeId: payload.employeeId || employeeId,
       fname: payload.fname || "",
-      lname: payload.lname || "",
-      phone: payload.phone || ""
+      lname: payload.lname || ""
     };
     storeSessionUser(user);
     renderAccount(user);

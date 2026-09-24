@@ -1,0 +1,228 @@
+const LOGIN_ENDPOINT = "/.netlify/functions/login";
+const OAUTH_ENDPOINT = "/.netlify/functions/wxcc-oauth";
+const JOURNEY_ENDPOINT = "/.netlify/functions/journey";
+const EMPLOYEE_ID = /^\d{5}$/;
+
+function accountToast() {
+  let node = document.querySelector("#toast");
+  if (!node) {
+    node = document.createElement("div");
+    node.id = "toast";
+    node.className = "toast";
+    node.hidden = true;
+    node.setAttribute("role", "status");
+    document.body.appendChild(node);
+  }
+  return node;
+}
+
+function showAccountToast(message, ms) {
+  const toast = accountToast();
+  toast.hidden = false;
+  toast.textContent = message;
+  window.setTimeout(() => {
+    toast.hidden = true;
+  }, ms || 3200);
+}
+
+function initialsFromName(fname, lname) {
+  const first = String(fname || "").trim().charAt(0);
+  const last = String(lname || "").trim().charAt(0);
+  return `${first}${last}`.toUpperCase() || "?";
+}
+
+function readSessionUser() {
+  const employeeId = sessionStorage.getItem("employeeId") || "";
+  const fname = sessionStorage.getItem("fname") || "";
+  const lname = sessionStorage.getItem("lname") || "";
+  const phone = sessionStorage.getItem("phone") || "";
+  if (!employeeId) return null;
+  return { employeeId, fname, lname, phone };
+}
+
+function storeSessionUser(user) {
+  sessionStorage.setItem("employeeId", user.employeeId || "");
+  sessionStorage.setItem("fname", user.fname || "");
+  sessionStorage.setItem("lname", user.lname || "");
+  sessionStorage.setItem("phone", user.phone || "");
+}
+
+function clearSessionUser() {
+  sessionStorage.removeItem("employeeId");
+  sessionStorage.removeItem("fname");
+  sessionStorage.removeItem("lname");
+  sessionStorage.removeItem("phone");
+}
+
+function renderAccount(user) {
+  const accountGuest = document.querySelector("#account-guest");
+  const accountUser = document.querySelector("#account-user");
+  const accountInitials = document.querySelector("#account-initials");
+  const accountName = document.querySelector("#account-name");
+  if (user) {
+    if (accountInitials) accountInitials.textContent = initialsFromName(user.fname, user.lname);
+    if (accountName) accountName.textContent = `${user.fname} ${user.lname}`.trim() || user.employeeId;
+    if (accountGuest) accountGuest.hidden = true;
+    if (accountUser) accountUser.hidden = false;
+    return;
+  }
+  if (accountInitials) accountInitials.textContent = "";
+  if (accountName) accountName.textContent = "";
+  if (accountUser) accountUser.hidden = true;
+  if (accountGuest) accountGuest.hidden = false;
+}
+
+function isLoggedInUser(user) {
+  return Boolean(user && EMPLOYEE_ID.test(String(user.employeeId || "").trim()));
+}
+
+async function postJourneyEvent(action, user) {
+  if (!isLoggedInUser(user)) return;
+  try {
+    await fetch(JOURNEY_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify({
+        action,
+        employeeId: user.employeeId,
+        fname: user.fname || "",
+        lname: user.lname || ""
+      })
+    });
+  } catch {
+    // Login and logout still complete if the journey post fails.
+  }
+}
+
+function setWxccAuthState(connected) {
+  const needed = document.querySelector("#wxcc-auth-needed");
+  const ready = document.querySelector("#wxcc-auth-ready");
+  if (needed) needed.hidden = Boolean(connected);
+  if (ready) ready.hidden = !connected;
+}
+
+async function refreshWxccAuthState() {
+  try {
+    const response = await fetch(`${OAUTH_ENDPOINT}?status=1`, { headers: { Accept: "application/json" } });
+    const payload = await response.json();
+    setWxccAuthState(Boolean(payload.connected));
+  } catch {
+    setWxccAuthState(false);
+  }
+}
+
+function bindAccountChrome() {
+  const loginModal = document.querySelector("#login-modal");
+  const loginForm = document.querySelector("#login-form");
+  const loginUser = document.querySelector("#login-user");
+  const loginPassword = document.querySelector("#login-password");
+  const loginError = document.querySelector("#login-error");
+  const loginSubmit = document.querySelector("#login-submit");
+
+  function showLoginError(message) {
+    if (!loginError) return;
+    loginError.hidden = !message;
+    loginError.textContent = message || "";
+  }
+
+  function openLoginModal() {
+    if (!loginModal) return;
+    loginForm?.reset();
+    showLoginError("");
+    loginModal.hidden = false;
+    loginUser?.focus();
+  }
+
+  function closeLoginModal() {
+    if (loginModal) loginModal.hidden = true;
+    loginForm?.reset();
+    showLoginError("");
+  }
+
+  document.querySelector("#login-open")?.addEventListener("click", openLoginModal);
+  document.querySelector("#login-cancel")?.addEventListener("click", closeLoginModal);
+  loginModal?.addEventListener("click", (event) => {
+    if (event.target === loginModal) closeLoginModal();
+  });
+
+  loginUser?.addEventListener("input", () => {
+    loginUser.value = String(loginUser.value || "").replace(/\D/g, "").slice(0, 5);
+  });
+
+  loginForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const employeeId = String(loginUser?.value || "").trim();
+    if (loginPassword) loginPassword.value = "";
+    if (!EMPLOYEE_ID.test(employeeId)) {
+      showLoginError("Enter a 5-digit User ID.");
+      return;
+    }
+    showLoginError("");
+    if (loginSubmit) {
+      loginSubmit.disabled = true;
+      loginSubmit.textContent = "Logging in…";
+    }
+    try {
+      const response = await fetch(LOGIN_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json"
+        },
+        body: JSON.stringify({ employeeId })
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || "Login Failed");
+      }
+      const user = {
+        employeeId: payload.employeeId || employeeId,
+        fname: payload.fname || "",
+        lname: payload.lname || "",
+        phone: payload.phone || ""
+      };
+      storeSessionUser(user);
+      renderAccount(user);
+      closeLoginModal();
+      showAccountToast("Login successful");
+      if (isLoggedInUser(readSessionUser())) postJourneyEvent("login", user);
+    } catch {
+      showLoginError("");
+      showAccountToast("Login Failed");
+    } finally {
+      if (loginSubmit) {
+        loginSubmit.disabled = false;
+        loginSubmit.textContent = "Log in";
+      }
+    }
+  });
+
+  document.querySelector("#logout")?.addEventListener("click", () => {
+    const user = readSessionUser();
+    if (isLoggedInUser(user)) postJourneyEvent("logout", user);
+    clearSessionUser();
+    renderAccount(null);
+  });
+
+  const wxccStatus = new URLSearchParams(window.location.search).get("wxcc");
+  if (wxccStatus) {
+    const messages = {
+      connected: "Webex Contact Center connected.",
+      disconnected: "Webex Contact Center disconnected.",
+      denied: "Webex authorization was denied.",
+      error: "Webex authorization failed."
+    };
+    if (messages[wxccStatus]) showAccountToast(messages[wxccStatus], 4200);
+    const clean = new URL(window.location.href);
+    clean.searchParams.delete("wxcc");
+    window.history.replaceState({}, "", clean.pathname + clean.search + clean.hash);
+  }
+
+  renderAccount(readSessionUser());
+  refreshWxccAuthState();
+}
+
+bindAccountChrome();

@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260923p">
+    <link rel="stylesheet" href="styles.css?v=20260923q">
 </head>
 <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -24,6 +24,37 @@
             <a href="index.html#catalog">Service Catalog</a>
             <a href="index.html#knowledge">Knowledge Base</a>
         </nav>
+        <div class="topbar-end">
+            <div class="wxcc-chip" id="wxcc-auth-bar">
+                <a class="wxcc-link" id="wxcc-auth-needed" href="/.netlify/functions/wxcc-oauth">Connect Webex</a>
+                <span id="wxcc-auth-ready" hidden>
+                    <span class="wxcc-status">Webex on</span>
+                    <a class="wxcc-link" href="/.netlify/functions/wxcc-oauth?logout=1">Disconnect</a>
+                </span>
+            </div>
+            <div class="account-slot" id="account-guest">
+                <button class="account-login" type="button" id="login-open" aria-label="Log in">
+                    <span class="avatar" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <circle cx="12" cy="8" r="3.4" fill="none" stroke="currentColor" stroke-width="1.7"></circle>
+                            <path d="M5.2 18.6c1.2-3.1 3.6-4.6 6.8-4.6s5.6 1.5 6.8 4.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"></path>
+                        </svg>
+                    </span>
+                    <span class="account-label">
+                        <small>Not signed in</small>
+                        Log In
+                    </span>
+                </button>
+            </div>
+            <div class="account-slot account-user" id="account-user" hidden>
+                <span class="avatar avatar-initials" id="account-initials" aria-hidden="true"></span>
+                <span class="account-label">
+                    <small>Logged in</small>
+                    <span id="account-name"></span>
+                </span>
+                <button class="btn logout" type="button" id="logout">Log out</button>
+            </div>
+        </div>
     </header>
 
     <main id="main" class="wrap">
@@ -127,5 +158,24 @@
         </div>
     </footer>
 
+    <div class="toast" id="toast" hidden role="status"></div>
+    <div class="modal" id="login-modal" hidden>
+        <div class="modal-card" role="dialog" aria-labelledby="login-title">
+            <h2 id="login-title">Log in</h2>
+            <p>Enter your 5-digit User ID (XXXXX) and password.</p>
+            <form id="login-form" autocomplete="on">
+                <label for="login-user">User ID</label>
+                <input id="login-user" name="userId" type="text" inputmode="numeric" autocomplete="username" required maxlength="5" placeholder="XXXXX">
+                <label for="login-password">Password</label>
+                <input id="login-password" name="password" type="password" autocomplete="current-password" required>
+                <p class="form-error" id="login-error" hidden></p>
+                <div class="modal-actions">
+                    <button class="btn ghost" type="button" id="login-cancel">Cancel</button>
+                    <button class="btn" type="submit" id="login-submit">Log in</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="account.js?v=20260923r"></script>
 </body>
 </html>
