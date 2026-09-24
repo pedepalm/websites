@@ -117,8 +117,50 @@ function publishProductInterest(user) {
   postJourneyEvent("product", user || readSessionUser(), { product });
 }
 
+function callbackJourneyUi(action, user) {
+  const first = String(user?.fname || "").trim();
+  const last = String(user?.lname || "").trim();
+  if (action === "immediate") {
+    return {
+      title: "Immediate Callback",
+      iconType: "calendar-day-bold",
+      subTitle: `${first} ${last} initiated an immediate callback`,
+      filterTags: ["Callback", "Immediate"]
+    };
+  }
+  if (action === "cancelled") {
+    return {
+      title: "Cancelled Scheduled Callback",
+      iconType: "calendar-day-bold",
+      subTitle: `${first} ${last} cancelled a scheduled callback`,
+      filterTags: ["Callback", "Scheduled", "Cancelled"]
+    };
+  }
+  if (action === "modified") {
+    return {
+      title: "Modified Scheduled Callback",
+      iconType: "calendar-day-bold",
+      subTitle: `${first} ${last} modified a scheduled callback`,
+      filterTags: ["Callback", "Scheduled", "Modified"]
+    };
+  }
+  if (action === "scheduled") {
+    return {
+      title: "Scheduled Callback",
+      iconType: "calendar-day-bold",
+      subTitle: `${first} ${last} scheduled a callback`,
+      filterTags: ["Callback", "Scheduled"]
+    };
+  }
+  return {};
+}
+
 window.publishSvcDeskJourney = function publishSvcDeskJourney(action, extras) {
-  return postJourneyEvent(action, readSessionUser(), extras || {});
+  const user = readSessionUser();
+  return postJourneyEvent(action, user, {
+    ...(extras || {}),
+    ...callbackJourneyUi(action, user)
+  });
 };
 
 function setWxccAuthState(connected) {

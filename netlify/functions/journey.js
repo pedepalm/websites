@@ -58,7 +58,24 @@ function cleanText(value, max) {
   return String(value || "").replace(/[\u0000-\u001F]/g, "").trim().slice(0, max || 80);
 }
 
+function asTags(value, fallback) {
+  if (Array.isArray(value) && value.length) {
+    return value.map((tag) => cleanText(tag, 40)).filter(Boolean);
+  }
+  return fallback;
+}
+
+function uiData(extras, defaults) {
+  return {
+    title: cleanText(extras.title, 80) || defaults.title,
+    iconType: cleanText(extras.iconType, 40) || defaults.iconType,
+    subTitle: cleanText(extras.subTitle, 200) || defaults.subTitle,
+    filterTags: asTags(extras.filterTags, defaults.filterTags)
+  };
+}
+
 function journeyPayload(action, user, extras) {
+  extras = extras || {};
   const employeeId = user.employeeId;
   const first = user.fname;
   const last = user.lname;
@@ -77,14 +94,14 @@ function journeyPayload(action, user, extras) {
     return {
       ...base,
       data: {
-        uiData: {
+        uiData: uiData(extras, {
           title: isLogout ? "Svc Desk Logout" : "Svc Desk Login",
           iconType: "sign-in-bold",
           subTitle: isLogout
             ? `${first} ${last} with user ID ${employeeId} Logged off`
             : `${first} ${last} with user ID ${employeeId} Logged On`,
           filterTags: [isLogout ? "Logout" : "Login", "Svc Desk"]
-        }
+        })
       }
     };
   }
@@ -95,12 +112,12 @@ function journeyPayload(action, user, extras) {
     return {
       ...base,
       data: {
-        uiData: {
+        uiData: uiData(extras, {
           title: "Product Interest",
           iconType: "mouse-cursor-bold",
           subTitle: `${first} ${last} might like product - ${product}`,
           filterTags: ["Product", product]
-        }
+        })
       }
     };
   }
@@ -112,55 +129,52 @@ function journeyPayload(action, user, extras) {
       ...base,
       data: {
         Number: number,
-        uiData: {
+        uiData: uiData(extras, {
           title: "Immediate Callback",
           iconType: "calendar-day-bold",
           subTitle: `${first} ${last} initiated an immediate callback`,
           filterTags: ["Callback", "Immediate"]
-        }
+        })
       }
     };
   }
 
-  const scheduledCopy = {
-    scheduled: {
-      title: "Scheduled Callback",
-      subTitle: `${first} ${last} scheduled a callback`,
-      filterTags: ["Callback", "Scheduled"]
-    },
-    cancelled: {
-      title: "Cancelled Scheduled Callback",
-      subTitle: `${first} ${last} cancelled a scheduled callback`,
-      filterTags: ["Callback", "Scheduled", "Cancelled"]
-    },
-    modified: {
-      title: "Modified Scheduled Callback",
-      subTitle: `${first} ${last} modified a scheduled callback`,
-      filterTags: ["Callback", "Scheduled", "Modified"]
-    }
-  }[action];
-
-  if (scheduledCopy) {
+  if (action === "scheduled" || action === "cancelled" || action === "modified") {
     const number = cleanText(extras.number, 20);
+    if (!number) return null;
     const date = cleanText(extras.date, 32);
     const startTime = cleanText(extras.startTime, 16);
     const endTime = cleanText(extras.endTime, 16);
-    if (!number || !date || !startTime || !endTime) return null;
-    return {
-      ...base,
-      data: {
-        Number: number,
-        Date: date,
-        "Start Time": startTime,
-        "End Time": endTime,
-        uiData: {
-          title: scheduledCopy.title,
-          iconType: "calendar-day-bold",
-          subTitle: scheduledCopy.subTitle,
-          filterTags: scheduledCopy.filterTags
-        }
+    const defaults = {
+      scheduled: {
+        title: "Scheduled Callback",
+        subTitle: `${first} ${last} scheduled a callback`,
+        filterTags: ["Callback", "Scheduled"]
+      },
+      cancelled: {
+        title: "Cancelled Scheduled Callback",
+        subTitle: `${first} ${last} cancelled a scheduled callback`,
+        filterTags: ["Callback", "Scheduled", "Cancelled"]
+      },
+      modified: {
+        title: "Modified Scheduled Callback",
+        subTitle: `${first} ${last} modified a scheduled callback`,
+        filterTags: ["Callback", "Scheduled", "Modified"]
       }
+    }[action];
+    const data = {
+      Number: number,
+      uiData: uiData(extras, {
+        title: defaults.title,
+        iconType: "calendar-day-bold",
+        subTitle: defaults.subTitle,
+        filterTags: defaults.filterTags
+      })
     };
+    if (date) data.Date = date;
+    if (startTime) data["Start Time"] = startTime;
+    if (endTime) data["End Time"] = endTime;
+    return { ...base, data };
   }
 
   return null;
@@ -178,12 +192,17 @@ exports.handler = async (event) => {
 
     const payload = requestBody(event);
     const action = String(payload.action || "").toLowerCase();
+    const ui = payload.uiData && typeof payload.uiData === "object" ? payload.uiData : {};
     const extras = {
       product: payload.product,
       number: payload.number,
       date: payload.date,
       startTime: payload.startTime,
-      endTime: payload.endTime
+      endTime: payload.endTime,
+      title: payload.title || ui.title,
+      subTitle: payload.subTitle || ui.subTitle,
+      iconType: payload.iconType || ui.iconType,
+      filterTags: payload.filterTags || ui.filterTags
     };
 
     const user = {
