@@ -100,8 +100,13 @@ async function postJourneyEvent(action, user) {
 function setWxccAuthState(connected) {
   const needed = document.querySelector("#wxcc-auth-needed");
   const ready = document.querySelector("#wxcc-auth-ready");
+  const label = document.querySelector("#wxcc-status-label");
   if (needed) needed.hidden = Boolean(connected);
   if (ready) ready.hidden = !connected;
+  if (label) {
+    label.textContent = connected ? "Webex on" : "Webex off";
+    label.classList.toggle("on", Boolean(connected));
+  }
 }
 
 async function refreshWxccAuthState() {
@@ -223,6 +228,7 @@ function bindAccountChrome() {
 
   renderAccount(readSessionUser());
   refreshWxccAuthState();
+  window.setInterval(refreshWxccAuthState, 180000);
 }
 
 bindAccountChrome();

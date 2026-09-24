@@ -1,3 +1,11 @@
+document.querySelector("#dismiss-banner")?.addEventListener("click", (event) => {
+  event.preventDefault();
+  const banner = document.querySelector("#sev-banner");
+  if (!banner) return;
+  banner.hidden = true;
+  banner.classList.add("hidden");
+});
+
 const cards = [...document.querySelectorAll("[data-card]")];
 const tabs = [...document.querySelectorAll("[data-tab]")];
 const modal = document.querySelector("#intake-modal");
@@ -23,6 +31,7 @@ tabs.forEach((tab) => {
 });
 
 function openModal(preset = {}) {
+  if (!form || !modal) return;
   form.reset();
   form.lane.value = preset.lane || "it";
   form.category.value = preset.category || "";
@@ -43,28 +52,26 @@ document.querySelectorAll("[data-request]").forEach((btn) => {
 
 document.querySelectorAll("[data-close-modal]").forEach((btn) => {
   btn.addEventListener("click", () => {
-    modal.hidden = true;
+    if (modal) modal.hidden = true;
   });
 });
 
-modal.addEventListener("click", (event) => {
+modal?.addEventListener("click", (event) => {
   if (event.target === modal) modal.hidden = true;
 });
 
-form.addEventListener("submit", (event) => {
+form?.addEventListener("submit", (event) => {
   event.preventDefault();
   const prefix = form.lane.value === "hr" ? "HRT" : form.urgency.value === "p1" ? "INC" : "RITM";
   const id = `${prefix}-${Math.floor(10000 + Math.random() * 89999)}`;
-  modal.hidden = true;
-  toast.hidden = false;
-  toast.textContent = `${id} opened and routed to ${form.lane.value === "hr" ? "People Operations" : "L1 Service Desk"}. SLA clock started.`;
-  window.setTimeout(() => {
-    toast.hidden = true;
-  }, 4200);
-});
-
-document.querySelector("#dismiss-banner")?.addEventListener("click", () => {
-  banner.classList.add("hidden");
+  if (modal) modal.hidden = true;
+  if (toast) {
+    toast.hidden = false;
+    toast.textContent = `${id} opened and routed to ${form.lane.value === "hr" ? "People Operations" : "L1 Service Desk"}. SLA clock started.`;
+    window.setTimeout(() => {
+      toast.hidden = true;
+    }, 4200);
+  }
 });
 
 function placeChatLauncher() {
@@ -104,7 +111,6 @@ const mobileInput = document.querySelector("#mobile-e164");
 const firstNameInput = document.querySelector("#cb-first-name");
 const lastNameInput = document.querySelector("#cb-last-name");
 const submitImmediate = document.querySelector("#cb-submit");
-const OAUTH_ENDPOINT = "/.netlify/functions/wxcc-oauth";
 const immediateError = document.querySelector("#callback-immediate-error");
 const US_10 = /^\d{10}$/;
 const TASKS_ENDPOINT = "/.netlify/functions/tasks";
@@ -167,8 +173,8 @@ function buildImmediateTaskBody(firstName, lastName) {
 const cancelModal = document.querySelector("#callback-cancel-modal");
 
 function closeCallbackModals() {
-  choiceModal.hidden = true;
-  immediateModal.hidden = true;
+  if (choiceModal) choiceModal.hidden = true;
+  if (immediateModal) immediateModal.hidden = true;
   if (scheduledModal) scheduledModal.hidden = true;
   if (cancelModal) cancelModal.hidden = true;
 }
@@ -184,15 +190,20 @@ function syncImmediateSubmit() {
 
 document.querySelector("#callback-open")?.addEventListener("click", () => {
   closeCallbackModals();
-  choiceModal.hidden = false;
+  if (choiceModal) choiceModal.hidden = false;
 });
 
 document.querySelector("#callback-choose-immediate")?.addEventListener("click", () => {
-  choiceModal.hidden = true;
+  if (choiceModal) choiceModal.hidden = true;
+  if (!immediateForm || !immediateModal) return;
   immediateForm.reset();
   submitImmediate.disabled = true;
   mobileInput.classList.remove("invalid");
   showImmediateError("");
+  applyLoggedInCallbackDefaults(
+    { first: firstNameInput, last: lastNameInput, phone: mobileInput },
+    syncImmediateSubmit
+  );
   immediateModal.hidden = false;
   mobileInput.focus();
 });
@@ -489,9 +500,13 @@ function openScheduledForm(existing) {
     document.querySelector("#sched-end-minute").value = "00";
     document.querySelector("#sched-end-ampm").value = "PM";
     schedTimezone.value = "America/Chicago";
+    applyLoggedInCallbackDefaults(
+      { first: schedFirst, last: schedLast, phone: schedNumber },
+      syncScheduledSubmit
+    );
   }
   showScheduledError("");
-  syncScheduledSubmit();
+  if (record) syncScheduledSubmit();
   scheduledModal.hidden = false;
   schedNumber.focus();
 }
@@ -594,6 +609,9 @@ function authHeaders() {
 async function apiError(response, label) {
   if (response.status === 401) return "Connect Webex Contact Center first.";
   const detail = await response.text();
+  if (/Error - Request ID/i.test(detail) || response.status >= 500) {
+    return "Callback service failed. Disconnect Webex, connect again, and retry.";
+  }
   const safeDetail = detail.replace(/bearer\s+[a-z0-9._-]+/ig, "[redacted]").slice(0, 240);
   return `${label} ${response.status}${safeDetail ? `: ${safeDetail}` : ""}`;
 }
@@ -694,6 +712,10 @@ function openLookupModal(mode) {
   cancelResults.hidden = true;
   cancelResults.replaceChildren();
   markPhoneField(cancelNumber, false);
+  applyLoggedInCallbackDefaults({ phone: cancelNumber }, () => {
+    const savedDigits = normalizePhoneInput(cancelNumber);
+    cancelSearchBtn.disabled = !isUsPhone(savedDigits);
+  });
   if (cancelTitle) {
     cancelTitle.textContent = mode === "modify"
       ? "Modify an existing callback"
@@ -769,188 +791,31 @@ cancelSearchForm?.addEventListener("submit", async (event) => {
   }
 });
 
-const LOGIN_ENDPOINT = "/.netlify/functions/login";
-const EMPLOYEE_ID = /^\d{5}$/;
-const loginModal = document.querySelector("#login-modal");
-const loginForm = document.querySelector("#login-form");
-const loginUser = document.querySelector("#login-user");
-const loginPassword = document.querySelector("#login-password");
-const loginError = document.querySelector("#login-error");
-const loginSubmit = document.querySelector("#login-submit");
-const accountGuest = document.querySelector("#account-guest");
-const accountUser = document.querySelector("#account-user");
-const accountInitials = document.querySelector("#account-initials");
-const accountName = document.querySelector("#account-name");
-
-function showLoginError(message) {
-  if (!loginError) return;
-  loginError.hidden = !message;
-  loginError.textContent = message || "";
+function sessionPhoneDigits(user) {
+  return digitsOnly(user?.phone || "");
 }
 
-function initialsFromName(fname, lname) {
-  const first = String(fname || "").trim().charAt(0);
-  const last = String(lname || "").trim().charAt(0);
-  return `${first}${last}`.toUpperCase() || "?";
-}
-
-function readSessionUser() {
-  const employeeId = sessionStorage.getItem("employeeId") || "";
-  const fname = sessionStorage.getItem("fname") || "";
-  const lname = sessionStorage.getItem("lname") || "";
-  if (!employeeId) return null;
-  return { employeeId, fname, lname };
-}
-
-function storeSessionUser(user) {
-  sessionStorage.setItem("employeeId", user.employeeId || "");
-  sessionStorage.setItem("fname", user.fname || "");
-  sessionStorage.setItem("lname", user.lname || "");
-}
-
-function clearSessionUser() {
-  sessionStorage.removeItem("employeeId");
-  sessionStorage.removeItem("fname");
-  sessionStorage.removeItem("lname");
-}
-
-function renderAccount(user) {
-  if (user) {
-    if (accountInitials) accountInitials.textContent = initialsFromName(user.fname, user.lname);
-    if (accountName) accountName.textContent = `${user.fname} ${user.lname}`.trim() || user.employeeId;
-    if (accountGuest) accountGuest.hidden = true;
-    if (accountUser) accountUser.hidden = false;
-    return;
+function fillFromLoggedInUser(fields) {
+  const user = typeof readSessionUser === "function" ? readSessionUser() : null;
+  if (!user) return false;
+  if (fields.first) fields.first.value = user.fname || "";
+  if (fields.last) fields.last.value = user.lname || "";
+  if (fields.phone) {
+    const digits = sessionPhoneDigits(user);
+    fields.phone.value = digits;
+    if (digits) markPhoneField(fields.phone, !isUsPhone(digits));
   }
-  if (accountInitials) accountInitials.textContent = "";
-  if (accountName) accountName.textContent = "";
-  if (accountUser) accountUser.hidden = true;
-  if (accountGuest) accountGuest.hidden = false;
+  return true;
 }
 
-function openLoginModal() {
-  if (!loginModal) return;
-  loginForm?.reset();
-  showLoginError("");
-  loginModal.hidden = false;
-  loginUser?.focus();
-}
-
-function closeLoginModal() {
-  if (loginModal) loginModal.hidden = true;
-  loginForm?.reset();
-  showLoginError("");
-}
-
-document.querySelector("#login-open")?.addEventListener("click", openLoginModal);
-document.querySelector("#login-cancel")?.addEventListener("click", closeLoginModal);
-loginModal?.addEventListener("click", (event) => {
-  if (event.target === loginModal) closeLoginModal();
-});
-
-loginUser?.addEventListener("input", () => {
-  loginUser.value = String(loginUser.value || "").replace(/\D/g, "").slice(0, 5);
-});
-
-loginForm?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const employeeId = String(loginUser?.value || "").trim();
-  if (loginPassword) loginPassword.value = "";
-  if (!EMPLOYEE_ID.test(employeeId)) {
-    showLoginError("Enter a 5-digit User ID.");
-    return;
-  }
-  showLoginError("");
-  if (loginSubmit) {
-    loginSubmit.disabled = true;
-    loginSubmit.textContent = "Logging in…";
-  }
-  try {
-    const response = await fetch(LOGIN_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      },
-      body: JSON.stringify({ employeeId })
-    });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(payload.error || "Login Failed");
-    }
-    const user = {
-      employeeId: payload.employeeId || employeeId,
-      fname: payload.fname || "",
-      lname: payload.lname || ""
-    };
-    storeSessionUser(user);
-    renderAccount(user);
-    closeLoginModal();
-    toast.hidden = false;
-    toast.textContent = "Login successful";
-    window.setTimeout(() => {
-      toast.hidden = true;
-    }, 3200);
-  } catch {
-    showLoginError("");
-    toast.hidden = false;
-    toast.textContent = "Login Failed";
-    window.setTimeout(() => {
-      toast.hidden = true;
-    }, 3200);
-  } finally {
-    if (loginSubmit) {
-      loginSubmit.disabled = false;
-      loginSubmit.textContent = "Log in";
-    }
-  }
-});
-
-document.querySelector("#logout")?.addEventListener("click", () => {
-  clearSessionUser();
-  renderAccount(null);
-});
-
-renderAccount(readSessionUser());
-
-function setWxccAuthState(connected) {
-  const needed = document.querySelector("#wxcc-auth-needed");
-  const ready = document.querySelector("#wxcc-auth-ready");
-  if (needed) needed.hidden = Boolean(connected);
-  if (ready) ready.hidden = !connected;
-}
-
-async function refreshWxccAuthState() {
-  try {
-    const response = await fetch(`${OAUTH_ENDPOINT}?status=1`, { headers: { Accept: "application/json" } });
-    const payload = await response.json();
-    setWxccAuthState(Boolean(payload.connected));
-  } catch {
-    setWxccAuthState(false);
-  }
-}
-
-const wxccStatus = new URLSearchParams(window.location.search).get("wxcc");
-if (wxccStatus) {
-  const messages = {
-    connected: "Webex Contact Center connected.",
-    disconnected: "Webex Contact Center disconnected.",
-    denied: "Webex authorization was denied.",
-    error: "Webex authorization failed."
+function applyLoggedInCallbackDefaults(fields, afterFill) {
+  const run = () => {
+    fillFromLoggedInUser(fields);
+    if (typeof afterFill === "function") afterFill();
   };
-  if (messages[wxccStatus]) {
-    toast.hidden = false;
-    toast.textContent = messages[wxccStatus];
-    window.setTimeout(() => {
-      toast.hidden = true;
-    }, 4200);
-  }
-  const clean = new URL(window.location.href);
-  clean.searchParams.delete("wxcc");
-  window.history.replaceState({}, "", clean.pathname + clean.search + clean.hash);
+  run();
+  window.requestAnimationFrame(run);
 }
-
-refreshWxccAuthState();
 
 const queue = document.querySelector("#queue-count");
 if (queue) {

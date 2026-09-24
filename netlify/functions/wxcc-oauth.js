@@ -53,11 +53,31 @@ function cookieValue(event, name) {
   return "";
 }
 
-async function isConnected(event) {
+async function accessTokenFromEvent(event) {
   const raw = cookieValue(event, COOKIE_TOKEN);
-  if (!raw) return false;
-  if (looksLikeJwt(raw)) return true;
-  return Boolean(await loadAccessToken(raw));
+  if (!raw) return "";
+  if (looksLikeJwt(raw)) return raw;
+  return loadAccessToken(raw);
+}
+
+async function tokenWorks(token) {
+  if (!token) return false;
+  try {
+    const response = await fetch("https://api.wxcc-us1.cisco.com/v1/tasks", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        Accept: "application/json"
+      }
+    });
+    return response.status !== 401 && response.status !== 403;
+  } catch {
+    return false;
+  }
+}
+
+async function isConnected(event) {
+  return tokenWorks(await accessTokenFromEvent(event));
 }
 
 function redirectUri(event) {
