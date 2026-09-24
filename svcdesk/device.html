@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260923s">
+    <link rel="stylesheet" href="styles.css?v=20260923u">
 </head>
 <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -27,7 +27,7 @@
         <div class="topbar-end">
             <div class="wxcc-chip" id="wxcc-auth-bar">
                 <span class="wxcc-status" id="wxcc-status-label">Webex off</span>
-                <a class="wxcc-link" id="wxcc-auth-needed" href="/.netlify/functions/wxcc-oauth">Connect</a>
+                <button class="wxcc-link" type="button" id="wxcc-auth-needed">Connect</button>
                 <a class="wxcc-link" id="wxcc-auth-ready" href="/.netlify/functions/wxcc-oauth?logout=1" hidden>Disconnect</a>
             </div>
             <div class="account-slot" id="account-guest">
@@ -89,7 +89,7 @@
             </form>
         </div>
     </div>
-    <script src="account.js?v=20260923t"></script>
+    <script src="account.js?v=20260923u"></script>
     <script src="device-catalog.js?v=20260923q"></script>
     <script>
       (function renderDevice() {

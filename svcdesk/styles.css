@@ -192,6 +192,11 @@ body {
   padding: 3px 8px;
   line-height: 1.2;
 }
+button.wxcc-link {
+  font: inherit;
+  background: transparent;
+  cursor: pointer;
+}
 .wxcc-link:hover { color: #fff; border-color: #7f98b3; }
 .wxcc-status {
   color: #9db0c5;

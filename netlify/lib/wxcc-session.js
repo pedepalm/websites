@@ -2,9 +2,16 @@ const TOKEN_URL = "https://webexapis.com/v1/access_token";
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const COOKIE_TOKEN = "wxcc_at";
 
-function tokenStore() {
+function tokenStore(event) {
   try {
-    const { getStore } = require("@netlify/blobs");
+    const { getStore, connectLambda } = require("@netlify/blobs");
+    if (event && typeof connectLambda === "function") {
+      try {
+        connectLambda(event);
+      } catch {
+        // already initialized for this invocation
+      }
+    }
     return getStore("wxcc-tokens");
   } catch {
     return null;
@@ -78,15 +85,15 @@ function recordFromTokenResponse(data, previous) {
   };
 }
 
-async function saveSession(sessionId, data, previous) {
-  const store = tokenStore();
+async function saveSession(event, sessionId, data, previous) {
+  const store = tokenStore(event);
   if (!store || !sessionId || !data?.access_token) return false;
   await store.set(sessionId, JSON.stringify(recordFromTokenResponse(data, previous)));
   return true;
 }
 
-async function loadRecord(sessionId) {
-  const store = tokenStore();
+async function loadRecord(event, sessionId) {
+  const store = tokenStore(event);
   if (!store || !sessionId) return null;
   try {
     return parseRecord(await store.get(sessionId));
@@ -95,8 +102,8 @@ async function loadRecord(sessionId) {
   }
 }
 
-async function deleteAccessToken(sessionId) {
-  const store = tokenStore();
+async function deleteAccessToken(event, sessionId) {
+  const store = tokenStore(event);
   if (!store || !sessionId) return;
   try {
     await store.delete(sessionId);
@@ -105,7 +112,7 @@ async function deleteAccessToken(sessionId) {
   }
 }
 
-async function refreshRecord(sessionId, record) {
+async function refreshRecord(event, sessionId, record) {
   const refreshToken = record?.refresh_token;
   const clientId = cleanSecret(process.env.WXCC_CLIENT_ID);
   const clientSecret = cleanSecret(process.env.WXCC_CLIENT_SECRET);
@@ -125,9 +132,8 @@ async function refreshRecord(sessionId, record) {
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok || !data.access_token) return record || null;
-  const next = recordFromTokenResponse(data, record);
-  await saveSession(sessionId, data, record);
-  return next;
+  await saveSession(event, sessionId, data, record);
+  return recordFromTokenResponse(data, record);
 }
 
 function needsRefresh(record) {
@@ -141,11 +147,11 @@ async function resolveAccessToken(event) {
   const raw = cookieValue(event, COOKIE_TOKEN);
   if (!raw) return "";
   if (looksLikeJwt(raw)) return raw;
-  let record = await loadRecord(raw);
+  let record = await loadRecord(event, raw);
   if (!record) return "";
   if (needsRefresh(record)) {
     try {
-      record = await refreshRecord(raw, record);
+      record = await refreshRecord(event, raw, record);
     } catch {
       // keep the current access token if refresh fails
     }
@@ -153,12 +159,12 @@ async function resolveAccessToken(event) {
   return record?.access_token || "";
 }
 
-async function saveAccessToken(sessionId, token) {
-  return saveSession(sessionId, { access_token: token });
+async function saveAccessToken(event, sessionId, token) {
+  return saveSession(event, sessionId, { access_token: token });
 }
 
-async function loadAccessToken(sessionId) {
-  const record = await loadRecord(sessionId);
+async function loadAccessToken(event, sessionId) {
+  const record = await loadRecord(event, sessionId);
   return record?.access_token || "";
 }
 

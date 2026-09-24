@@ -117,9 +117,100 @@ async function refreshWxccAuthState() {
     const response = await fetch(`${OAUTH_ENDPOINT}?status=1`, { headers: { Accept: "application/json" } });
     const payload = await response.json();
     setWxccAuthState(Boolean(payload.connected));
+    return Boolean(payload.connected);
   } catch {
     setWxccAuthState(false);
+    return false;
   }
+}
+
+const WXCC_OAUTH_TOASTS = {
+  connected: "Webex Contact Center connected.",
+  disconnected: "Webex Contact Center disconnected.",
+  denied: "Webex authorization was denied.",
+  error: "Webex authorization failed."
+};
+
+let wxccOauthPopup = null;
+let wxccOauthPoll = null;
+let wxccOauthPending = false;
+
+function wxccOauthPopupFeatures() {
+  const width = 520;
+  const height = 700;
+  const left = Math.round(window.screenX + (window.outerWidth - width) / 2);
+  const top = Math.round(window.screenY + (window.outerHeight - height) / 2);
+  return `width=${width},height=${height},left=${left},top=${top},scrollbars=yes`;
+}
+
+function isTrustedWxccOrigin(origin) {
+  return origin === window.location.origin;
+}
+
+function applyWxccOauthStatus(status) {
+  if (status === "connected") setWxccAuthState(true);
+  if (status === "disconnected" || status === "denied" || status === "error") {
+    setWxccAuthState(false);
+  }
+  if (WXCC_OAUTH_TOASTS[status]) showAccountToast(WXCC_OAUTH_TOASTS[status], 4200);
+  refreshWxccAuthState();
+  window.focus();
+}
+
+function clearWxccOauthPoll() {
+  if (wxccOauthPoll) {
+    window.clearInterval(wxccOauthPoll);
+    wxccOauthPoll = null;
+  }
+}
+
+function bindWxccOauthPopup() {
+  document.querySelector("#wxcc-auth-needed")?.addEventListener("click", (event) => {
+    event.preventDefault();
+    if (wxccOauthPopup && !wxccOauthPopup.closed) {
+      wxccOauthPopup.focus();
+      return;
+    }
+    const popup = window.open(
+      `${OAUTH_ENDPOINT}?popup=1`,
+      "wxcc-oauth",
+      wxccOauthPopupFeatures()
+    );
+    if (!popup) {
+      window.location.assign(OAUTH_ENDPOINT);
+      return;
+    }
+    wxccOauthPopup = popup;
+    wxccOauthPending = true;
+    clearWxccOauthPoll();
+    wxccOauthPoll = window.setInterval(() => {
+      if (wxccOauthPopup && !wxccOauthPopup.closed) return;
+      clearWxccOauthPoll();
+      wxccOauthPopup = null;
+      if (!wxccOauthPending) return;
+      wxccOauthPending = false;
+      refreshWxccAuthState();
+    }, 500);
+  });
+
+  window.addEventListener("message", (event) => {
+    if (!isTrustedWxccOrigin(event.origin)) return;
+    const data = event.data;
+    if (!data || data.type !== "wxcc-oauth") return;
+    const status = String(data.status || "");
+    if (!WXCC_OAUTH_TOASTS[status]) return;
+    wxccOauthPending = false;
+    clearWxccOauthPoll();
+    if (wxccOauthPopup && !wxccOauthPopup.closed) {
+      try {
+        wxccOauthPopup.close();
+      } catch {
+        // popup may already be closing itself
+      }
+    }
+    wxccOauthPopup = null;
+    applyWxccOauthStatus(status);
+  });
 }
 
 function bindAccountChrome() {
@@ -217,13 +308,7 @@ function bindAccountChrome() {
 
   const wxccStatus = new URLSearchParams(window.location.search).get("wxcc");
   if (wxccStatus) {
-    const messages = {
-      connected: "Webex Contact Center connected.",
-      disconnected: "Webex Contact Center disconnected.",
-      denied: "Webex authorization was denied.",
-      error: "Webex authorization failed."
-    };
-    if (messages[wxccStatus]) showAccountToast(messages[wxccStatus], 4200);
+    if (WXCC_OAUTH_TOASTS[wxccStatus]) showAccountToast(WXCC_OAUTH_TOASTS[wxccStatus], 4200);
     if (wxccStatus === "connected") setWxccAuthState(true);
     if (wxccStatus === "disconnected") setWxccAuthState(false);
     const clean = new URL(window.location.href);
@@ -231,6 +316,7 @@ function bindAccountChrome() {
     window.history.replaceState({}, "", clean.pathname + clean.search + clean.hash);
   }
 
+  bindWxccOauthPopup();
   renderAccount(readSessionUser());
   refreshWxccAuthState();
   window.setInterval(refreshWxccAuthState, 180000);
