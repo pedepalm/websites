@@ -269,24 +269,21 @@ button.wxcc-link {
 .chat-widget-slot {
   min-height: 70px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 8px;
 }
-.chat-widget-slot .chatbutton,
-.chat-widget-slot #imi-chatbutton {
-  position: relative !important;
-  right: auto !important;
-  bottom: auto !important;
-  left: auto !important;
-  top: auto !important;
-  display: block !important;
-  width: 70px !important;
-  height: 70px !important;
-  z-index: 2 !important;
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
+.chat-popout {
+  border: 0;
+  background: none;
+  color: var(--teal);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 .card.hidden,
 .kb article.hidden { display: none; }

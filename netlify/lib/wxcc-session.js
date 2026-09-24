@@ -136,9 +136,14 @@ async function refreshRecord(event, sessionId, record) {
   return recordFromTokenResponse(data, record);
 }
 
+function isExpired(record) {
+  return Boolean(record?.expires_at && Date.now() > record.expires_at);
+}
+
 function needsRefresh(record) {
   if (!record?.access_token) return Boolean(record?.refresh_token);
-  if (record.expires_at && Date.now() > record.expires_at - 60 * 1000) return true;
+  if (!record.expires_at) return Boolean(record.refresh_token);
+  if (Date.now() > record.expires_at - 60 * 60 * 1000) return true;
   if (record.refreshed_at && Date.now() - record.refreshed_at > WEEK_MS) return true;
   return false;
 }
@@ -151,11 +156,13 @@ async function resolveAccessToken(event) {
   if (!record) return "";
   if (needsRefresh(record)) {
     try {
-      record = await refreshRecord(event, raw, record);
+      const refreshed = await refreshRecord(event, raw, record);
+      if (refreshed?.access_token) record = refreshed;
     } catch {
       // keep the current access token if refresh fails
     }
   }
+  if (isExpired(record)) return "";
   return record?.access_token || "";
 }
 

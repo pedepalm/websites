@@ -4,7 +4,8 @@ const {
   saveSession,
   deleteAccessToken,
   resolveAccessToken,
-  cookieValue
+  cookieValue,
+  looksLikeJwt
 } = require("../lib/wxcc-session");
 
 const AUTHORIZE = "https://webexapis.com/v1/authorize";
@@ -173,7 +174,19 @@ async function handle(event) {
   }
 
   if (query(event, "status") === "1") {
-    return json(200, { connected: await isConnected(event) });
+    const connected = await isConnected(event);
+    const sessionId = cookieValue(event, COOKIE_TOKEN);
+    if (connected && sessionId && !looksLikeJwt(sessionId)) {
+      return {
+        statusCode: 200,
+        ...withCookies(
+          { "Content-Type": "application/json" },
+          setCookie(COOKIE_TOKEN, sessionId, SESSION_COOKIE_AGE)
+        ),
+        body: JSON.stringify({ connected })
+      };
+    }
+    return json(200, { connected });
   }
 
   if (query(event, "logout") === "1") {
@@ -245,7 +258,7 @@ async function handle(event) {
     if (!saved) {
       return finish(event, "error", clearCookie(COOKIE_STATE), returnedState);
     }
-    const maxAge = Number(data.refresh_token_expires_in) || SESSION_COOKIE_AGE;
+    const maxAge = Math.max(SESSION_COOKIE_AGE, Number(data.refresh_token_expires_in) || 0);
     return finish(event, "connected", [
       setCookie(COOKIE_TOKEN, sessionId, maxAge),
       clearCookie(COOKIE_STATE)

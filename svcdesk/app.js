@@ -74,35 +74,43 @@ form?.addEventListener("submit", (event) => {
   }
 });
 
-function placeChatLauncher() {
-  const slot = document.querySelector("#chat-widget-slot");
-  const launcher = document.querySelector("#imi-chatbutton");
-  if (!slot || !launcher || launcher.parentElement === slot) {
-    return Boolean(slot && launcher);
+function openCiscoChat() {
+  if (typeof window.imichatwidget?.show === "function") {
+    window.imichatwidget.show();
+    return true;
   }
-  slot.appendChild(launcher);
-  return true;
+  const launcher = document.querySelector("#imi-chatbutton, .chatbutton");
+  if (launcher) {
+    launcher.click();
+    return true;
+  }
+  return false;
 }
 
-function watchChatLauncher() {
-  placeChatLauncher();
-  const host = document.querySelector("#divicw");
-  if (host) {
-    const observer = new MutationObserver(() => {
-      placeChatLauncher();
-    });
-    observer.observe(host, { childList: true, subtree: true });
-  }
+function openCiscoChatWhenReady() {
+  if (openCiscoChat()) return;
   let attempts = 0;
   const timer = window.setInterval(() => {
     attempts += 1;
-    if (placeChatLauncher() || attempts >= 40) {
-      window.clearInterval(timer);
-    }
+    if (openCiscoChat() || attempts >= 40) window.clearInterval(timer);
   }, 250);
 }
 
-watchChatLauncher();
+function openChatPopout() {
+  const width = 420;
+  const height = 720;
+  const left = Math.round(window.screenX + (window.outerWidth - width) / 2);
+  const top = Math.round(window.screenY + (window.outerHeight - height) / 2);
+  const popup = window.open(
+    "chat.html",
+    "svcdesk-chat",
+    `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+  );
+  if (!popup) openCiscoChatWhenReady();
+}
+
+document.querySelector("#chat-open")?.addEventListener("click", openCiscoChatWhenReady);
+document.querySelector("#chat-popout")?.addEventListener("click", openChatPopout);
 
 const choiceModal = document.querySelector("#callback-choice-modal");
 const immediateModal = document.querySelector("#callback-immediate-modal");

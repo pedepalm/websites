@@ -385,6 +385,9 @@ function bindAccountChrome() {
   bindWxccOauthPopup();
   renderAccount(readSessionUser());
   refreshWxccAuthState();
+  window.addEventListener("pageshow", () => {
+    refreshWxccAuthState();
+  });
   window.setInterval(refreshWxccAuthState, 180000);
 }
 
