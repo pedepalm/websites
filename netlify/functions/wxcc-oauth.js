@@ -1,17 +1,18 @@
 const {
+  COOKIE_TOKEN,
   newSessionId,
-  saveAccessToken,
-  loadAccessToken,
+  saveSession,
   deleteAccessToken,
-  looksLikeJwt
+  resolveAccessToken,
+  cookieValue
 } = require("../lib/wxcc-session");
 
 const AUTHORIZE = "https://webexapis.com/v1/authorize";
 const TOKEN = "https://webexapis.com/v1/access_token";
 const DEFAULT_SCOPES = "cjp:user cjp:config cjp:config_read cjp:config_write";
 const HOME = "/svcdesk/";
-const COOKIE_TOKEN = "wxcc_at";
 const COOKIE_STATE = "wxcc_oauth_state";
+const SESSION_COOKIE_AGE = 7776000;
 
 function header(event, name) {
   const headers = event.headers || {};
@@ -34,50 +35,8 @@ function cleanSecret(value) {
   return text;
 }
 
-function cookieValue(event, name) {
-  const raw = header(event, "cookie");
-  const text = Array.isArray(raw) ? raw.join("; ") : String(raw || "");
-  if (!text) return "";
-  const parts = text.split(";");
-  for (const part of parts) {
-    const [key, ...rest] = part.trim().split("=");
-    if (key === name) {
-      const value = rest.join("=");
-      try {
-        return decodeURIComponent(value);
-      } catch {
-        return value;
-      }
-    }
-  }
-  return "";
-}
-
-async function accessTokenFromEvent(event) {
-  const raw = cookieValue(event, COOKIE_TOKEN);
-  if (!raw) return "";
-  if (looksLikeJwt(raw)) return raw;
-  return loadAccessToken(raw);
-}
-
-async function tokenWorks(token) {
-  if (!token) return false;
-  try {
-    const response = await fetch("https://api.wxcc-us1.cisco.com/v1/tasks", {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: "application/json"
-      }
-    });
-    return response.status !== 401 && response.status !== 403;
-  } catch {
-    return false;
-  }
-}
-
 async function isConnected(event) {
-  return tokenWorks(await accessTokenFromEvent(event));
+  return Boolean(await resolveAccessToken(event));
 }
 
 function redirectUri(event) {
@@ -187,11 +146,13 @@ async function handle(event) {
     if (!response.ok || !data.access_token) {
       return redirect(`${HOME}?wxcc=error`, clearCookie(COOKIE_STATE));
     }
-    const maxAge = Number(data.expires_in) || 43200;
     const sessionId = newSessionId();
-    const saved = await saveAccessToken(sessionId, data.access_token);
-    const cookieValueToSet = saved ? sessionId : data.access_token;
-    return redirect(`${HOME}?wxcc=connected`, setCookie(COOKIE_TOKEN, cookieValueToSet, maxAge));
+    const saved = await saveSession(sessionId, data);
+    if (!saved) {
+      return redirect(`${HOME}?wxcc=error`, clearCookie(COOKIE_STATE));
+    }
+    const maxAge = Number(data.refresh_token_expires_in) || SESSION_COOKIE_AGE;
+    return redirect(`${HOME}?wxcc=connected`, setCookie(COOKIE_TOKEN, sessionId, maxAge));
   } catch {
     return redirect(`${HOME}?wxcc=error`, clearCookie(COOKIE_STATE));
   }

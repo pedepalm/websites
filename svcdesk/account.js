@@ -79,7 +79,7 @@ function isLoggedInUser(user) {
 async function postJourneyEvent(action, user) {
   if (!isLoggedInUser(user)) return;
   try {
-    await fetch(JOURNEY_ENDPOINT, {
+    const response = await fetch(JOURNEY_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -92,6 +92,9 @@ async function postJourneyEvent(action, user) {
         lname: user.lname || ""
       })
     });
+    if (response.status === 401) {
+      setWxccAuthState(false);
+    }
   } catch {
     // Login and logout still complete if the journey post fails.
   }
@@ -221,6 +224,8 @@ function bindAccountChrome() {
       error: "Webex authorization failed."
     };
     if (messages[wxccStatus]) showAccountToast(messages[wxccStatus], 4200);
+    if (wxccStatus === "connected") setWxccAuthState(true);
+    if (wxccStatus === "disconnected") setWxccAuthState(false);
     const clean = new URL(window.location.href);
     clean.searchParams.delete("wxcc");
     window.history.replaceState({}, "", clean.pathname + clean.search + clean.hash);

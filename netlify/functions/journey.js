@@ -1,4 +1,4 @@
-const { loadAccessToken, looksLikeJwt } = require("../lib/wxcc-session");
+const { resolveAccessToken } = require("../lib/wxcc-session");
 
 const JOURNEY_URL = "https://api.wxcc-us1.cisco.com/publish/v1/api/event?workspaceId=6943034cbd0c8a694273e705";
 const EMPLOYEE_ID = /^\d{5}$/;
@@ -10,30 +10,10 @@ function header(event, name) {
   return Array.isArray(value) ? value.join("; ") : value;
 }
 
-function cookieValue(event, name) {
-  const raw = header(event, "cookie");
-  if (!raw) return "";
-  const parts = String(raw).split(";");
-  for (const part of parts) {
-    const [key, ...rest] = part.trim().split("=");
-    if (key === name) {
-      const value = rest.join("=");
-      try {
-        return decodeURIComponent(value);
-      } catch {
-        return value;
-      }
-    }
-  }
-  return "";
-}
-
 async function authorizationHeader(event) {
   const headerValue = header(event, "authorization");
   if (headerValue) return headerValue;
-  const raw = cookieValue(event, "wxcc_at");
-  if (!raw) return "";
-  const token = looksLikeJwt(raw) ? raw : (await loadAccessToken(raw));
+  const token = await resolveAccessToken(event);
   return token ? `Bearer ${token}` : "";
 }
 
@@ -58,8 +38,20 @@ function json(statusCode, payload) {
 }
 
 function newEventId() {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
-  return `${Date.now().toString(16)}-${Math.random().toString(16).slice(2)}`;
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  const bytes = new Uint8Array(16);
+  if (typeof crypto !== "undefined" && typeof crypto.getRandomValues === "function") {
+    crypto.getRandomValues(bytes);
+  } else {
+    const { randomBytes } = require("crypto");
+    bytes.set(randomBytes(16));
+  }
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
 function journeyPayload(action, user) {

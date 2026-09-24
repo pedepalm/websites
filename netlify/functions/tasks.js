@@ -1,4 +1,4 @@
-const { loadAccessToken, looksLikeJwt } = require("../lib/wxcc-session");
+const { resolveAccessToken } = require("../lib/wxcc-session");
 
 const WXCC_TASKS = "https://api.wxcc-us1.cisco.com/v1/tasks";
 const ORG_ID = "d06af121-6f1c-4724-822e-f602a2748cb9";
@@ -16,30 +16,10 @@ function query(event, name) {
   return params[name] || "";
 }
 
-function cookieValue(event, name) {
-  const raw = header(event, "cookie");
-  if (!raw) return "";
-  const parts = String(raw).split(";");
-  for (const part of parts) {
-    const [key, ...rest] = part.trim().split("=");
-    if (key === name) {
-      const value = rest.join("=");
-      try {
-        return decodeURIComponent(value);
-      } catch {
-        return value;
-      }
-    }
-  }
-  return "";
-}
-
 async function authorizationHeader(event) {
   const headerValue = header(event, "authorization");
   if (headerValue) return headerValue;
-  const raw = cookieValue(event, "wxcc_at");
-  if (!raw) return "";
-  const token = looksLikeJwt(raw) ? raw : (await loadAccessToken(raw));
+  const token = await resolveAccessToken(event);
   return token ? `Bearer ${token}` : "";
 }
 
