@@ -113,16 +113,34 @@ function journeyPayload(action, user, extras) {
       data: {
         Number: number,
         uiData: {
-          title: "Scheduled Callback",
+          title: "Immediate Callback",
           iconType: "calendar-day-bold",
-          subTitle: `${first} ${last} scheduled a callback`,
+          subTitle: `${first} ${last} initiated an immediate callback`,
           filterTags: ["Callback", "Immediate"]
         }
       }
     };
   }
 
-  if (action === "scheduled") {
+  const scheduledCopy = {
+    scheduled: {
+      title: "Scheduled Callback",
+      subTitle: `${first} ${last} scheduled a callback`,
+      filterTags: ["Callback", "Scheduled"]
+    },
+    cancelled: {
+      title: "Cancelled Scheduled Callback",
+      subTitle: `${first} ${last} cancelled a scheduled callback`,
+      filterTags: ["Callback", "Scheduled", "Cancelled"]
+    },
+    modified: {
+      title: "Modified Scheduled Callback",
+      subTitle: `${first} ${last} modified a scheduled callback`,
+      filterTags: ["Callback", "Scheduled", "Modified"]
+    }
+  }[action];
+
+  if (scheduledCopy) {
     const number = cleanText(extras.number, 20);
     const date = cleanText(extras.date, 32);
     const startTime = cleanText(extras.startTime, 16);
@@ -136,10 +154,10 @@ function journeyPayload(action, user, extras) {
         "Start Time": startTime,
         "End Time": endTime,
         uiData: {
-          title: "Scheduled Callback",
+          title: scheduledCopy.title,
           iconType: "calendar-day-bold",
-          subTitle: `${first} ${last} scheduled a callback`,
-          filterTags: ["Callback", "Scheduled"]
+          subTitle: scheduledCopy.subTitle,
+          filterTags: scheduledCopy.filterTags
         }
       }
     };

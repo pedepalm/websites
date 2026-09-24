@@ -78,7 +78,8 @@ function isLoggedInUser(user) {
 
 async function postJourneyEvent(action, user, extras) {
   if (!isLoggedInUser(user)) return;
-  const needsOauth = action === "product" || action === "immediate" || action === "scheduled";
+  const needsOauth = action === "product" || action === "immediate" || action === "scheduled"
+    || action === "cancelled" || action === "modified";
   if (needsOauth) {
     const connected = await refreshWxccAuthState();
     if (!connected) return;

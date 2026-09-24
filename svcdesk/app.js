@@ -576,7 +576,7 @@ scheduledForm?.addEventListener("submit", async (event) => {
     toast.hidden = false;
     toast.textContent = isEdit ? "Scheduled callback updated." : "Scheduled callback requested.";
     if (typeof window.publishSvcDeskJourney === "function") {
-      window.publishSvcDeskJourney("scheduled", {
+      window.publishSvcDeskJourney(isEdit ? "modified" : "scheduled", {
         number: toE164(schedNumber.value),
         date: schedDate.value,
         startTime: readStartTime(),
@@ -674,7 +674,7 @@ function renderCancelResults(items) {
     } else {
       primary.textContent = "Confirm deletion";
       keep.textContent = "Keep this callback";
-      primary.addEventListener("click", () => deleteScheduledCallback(item.id, primary));
+      primary.addEventListener("click", () => deleteScheduledCallback(item, primary));
     }
     keep.addEventListener("click", () => {
       cancelResults.hidden = true;
@@ -689,7 +689,8 @@ function renderCancelResults(items) {
   });
 }
 
-async function deleteScheduledCallback(id, button) {
+async function deleteScheduledCallback(item, button) {
+  const id = item?.id;
   const { headers } = authHeaders();
   button.disabled = true;
   button.textContent = "Deleting…";
@@ -704,6 +705,14 @@ async function deleteScheduledCallback(id, button) {
     closeCallbackModals();
     toast.hidden = false;
     toast.textContent = "Scheduled callback cancelled.";
+    if (typeof window.publishSvcDeskJourney === "function") {
+      window.publishSvcDeskJourney("cancelled", {
+        number: item.callbackNumber || toE164(cancelNumber.value),
+        date: item.scheduleDate || item.scheduledDate || "",
+        startTime: item.startTime || "",
+        endTime: item.endTime || ""
+      });
+    }
     window.setTimeout(() => {
       toast.hidden = true;
     }, 4200);
