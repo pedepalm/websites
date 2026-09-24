@@ -1,3 +1,4 @@
+/* Replacement hardware catalog used by devices.html and device.html. */
 const DEVICE_CATALOG = {
   "macbook-neo": {
     name: "MacBook Neo",

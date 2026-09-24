@@ -1,3 +1,4 @@
+/* Shared account chrome: Airtable login, Webex OAuth chip, and Journey (JDS) event posts. */
 const LOGIN_ENDPOINT = "/.netlify/functions/login";
 const OAUTH_ENDPOINT = "/.netlify/functions/wxcc-oauth";
 const JOURNEY_ENDPOINT = "/.netlify/functions/journey";

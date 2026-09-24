@@ -1,3 +1,4 @@
+/* Publishes login, product, and callback events to Webex Contact Center Journey (JDS). */
 const { resolveAccessToken } = require("../lib/wxcc-session");
 
 const JOURNEY_URL = "https://api.wxcc-us1.cisco.com/publish/v1/api/event?workspaceId=6943034cbd0c8a694273e705";

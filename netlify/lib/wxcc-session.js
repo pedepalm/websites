@@ -1,3 +1,4 @@
+/* Stores and refreshes Webex access tokens in Netlify Blobs; reads the wxcc_at session cookie. */
 const TOKEN_URL = "https://webexapis.com/v1/access_token";
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 const COOKIE_TOKEN = "wxcc_at";

@@ -1,3 +1,4 @@
+/* Home-page behavior: catalog filters, Cisco chat pop-out, and immediate/scheduled callbacks. */
 document.querySelector("#dismiss-banner")?.addEventListener("click", (event) => {
   event.preventDefault();
   const banner = document.querySelector("#sev-banner");

@@ -1,3 +1,4 @@
+/* Looks up a 5-digit employee id in Airtable and returns name/phone for the portal session. */
 const EMPLOYEE_ID = /^\d{5}$/;
 const AIRTABLE_BASE = "appgAU3E3SIB5Ma7l";
 const AIRTABLE_TABLE = "tbllwB3xBNiY1Hre2";

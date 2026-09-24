@@ -1,3 +1,4 @@
+/* Proxies WxCC immediate tasks and scheduled-callback GET/POST/PUT/DELETE for the browser. */
 const { resolveAccessToken } = require("../lib/wxcc-session");
 
 const WXCC_TASKS = "https://api.wxcc-us1.cisco.com/v1/tasks";

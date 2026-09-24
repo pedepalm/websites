@@ -1,3 +1,4 @@
+/* Webex OAuth for the service desk: authorize, token exchange, status, logout, and popup return. */
 const {
   COOKIE_TOKEN,
   newSessionId,
