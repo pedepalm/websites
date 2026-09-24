@@ -285,6 +285,15 @@ button.wxcc-link {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
+#imi-chatbutton,
+.chatbutton,
+.imichatbutton,
+#imi-chat-button,
+#tls_al_frm {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
 .card.hidden,
 .kb article.hidden { display: none; }
 .card h3 { margin: 0; font-size: 17px; }
