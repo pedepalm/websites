@@ -111,7 +111,6 @@ function openChatPopout() {
 }
 
 document.querySelector("#chat-open")?.addEventListener("click", openChatPopout);
-document.querySelector("#chat-popout")?.addEventListener("click", openChatPopout);
 
 const choiceModal = document.querySelector("#callback-choice-modal");
 const immediateModal = document.querySelector("#callback-immediate-modal");
