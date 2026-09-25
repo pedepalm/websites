@@ -53,17 +53,12 @@ body {
   background: var(--navy-deep);
   color: #e8eef5;
 }
-.brand { display: flex; align-items: center; gap: 12px; min-width: 220px; }
+.brand { display: flex; align-items: center; gap: 12px; min-width: 280px; }
 .brand-link { text-decoration: none; color: inherit; }
 .logo {
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  background: #f3b23a;
-  color: var(--navy-deep);
-  font-weight: 700;
-  border-radius: 8px;
+  height: 40px;
+  width: auto;
+  display: block;
 }
 .brand strong { display: block; font-size: 15px; letter-spacing: 0.04em; }
 .brand span { display: block; font-size: 12px; color: #9db0c5; }
