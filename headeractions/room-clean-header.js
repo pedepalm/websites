@@ -18,6 +18,7 @@ class RoomCleanHeader extends HTMLElement {
     this._notices = [];
     this._status = "";
     this._submitting = false;
+    this._submitted = false;
     this._onDocClick = (event) => {
       if (!this._menuOpen) return;
       const path = event.composedPath();
@@ -159,7 +160,8 @@ class RoomCleanHeader extends HTMLElement {
         }
         .cancel { background: #fff; border: 1px solid #c8c8c8; }
         .submit { background: #0a6dd9; border: 0; color: #fff; }
-        .submit:disabled { opacity: 0.6; cursor: default; }
+        .submit:disabled { background: #9e9e9e; opacity: 0.7; cursor: default; }
+        .icon:disabled { opacity: 0.35; cursor: default; }
         .dark .actions, .dark .dialog, .dark .menu { background: #1c1c1c; color: #f5f5f5; border-color: #3a3a3a; }
         .dark .menu button:hover { background: #2a2a2a; }
         .dark .row { background: #1c1c1c; }
@@ -218,6 +220,7 @@ class RoomCleanHeader extends HTMLElement {
     this._fields = loaded.fields;
     this._notices = loaded.notices;
     this._status = "";
+    this._submitted = false;
     this._modalOpen = true;
     this._paintModal();
   }
@@ -245,7 +248,9 @@ class RoomCleanHeader extends HTMLElement {
     if (!this._fields.length) {
       const empty = document.createElement("p");
       empty.className = "notice";
-      empty.textContent = "No room clean details are available on this task.";
+      empty.textContent = this._selectedTask
+        ? "No room clean details are available on this task."
+        : "Room Clean is available only during a live interaction.";
       body.appendChild(empty);
     }
     this._fields.forEach((field, index) => body.appendChild(this._fieldRow(field, index)));
@@ -260,13 +265,13 @@ class RoomCleanHeader extends HTMLElement {
     const cancel = document.createElement("button");
     cancel.className = "cancel";
     cancel.type = "button";
-    cancel.textContent = "Cancel";
+    cancel.textContent = this._submitted ? "OK" : "Cancel";
     cancel.addEventListener("click", () => this._closeModal());
     const submit = document.createElement("button");
     submit.className = "submit";
     submit.type = "button";
-    submit.textContent = this._submitting ? "Sending..." : "Submit";
-    submit.disabled = this._submitting;
+    submit.textContent = this._submitting ? "Sending..." : this._submitted ? "Sent" : "Submit";
+    submit.disabled = !this._canSubmit();
     submit.addEventListener("click", () => this._submit());
     footer.append(cancel, submit);
 
@@ -297,6 +302,7 @@ class RoomCleanHeader extends HTMLElement {
     pencil.type = "button";
     pencil.setAttribute("aria-label", field.editing ? `Done editing ${field.key}` : `Edit ${field.key}`);
     pencil.textContent = field.editing ? "OK" : "✎";
+    pencil.disabled = this._submitting || this._submitted;
     pencil.addEventListener("click", () => {
       field.editing = !field.editing;
       this._paintModal();
@@ -311,9 +317,17 @@ class RoomCleanHeader extends HTMLElement {
     if (mount) mount.replaceChildren();
   }
 
+  _canSubmit() {
+    return this._fields.length > 0 && !this._submitting && !this._submitted;
+  }
+
   async _submit() {
+    if (!this._canSubmit()) return;
     const payload = {};
-    for (const field of this._fields) payload[field.key] = field.value;
+    for (const field of this._fields) {
+      field.editing = false;
+      payload[field.key] = field.value;
+    }
     this._submitting = true;
     this._status = "";
     this._paintModal();
@@ -324,6 +338,7 @@ class RoomCleanHeader extends HTMLElement {
         body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error(`Submit failed (${response.status})`);
+      this._submitted = true;
       this._status = { ok: true, text: "Room Clean notification sent." };
     } catch (error) {
       const unreachable = !error.message || error.message === "Failed to fetch";
