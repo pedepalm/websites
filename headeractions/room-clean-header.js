@@ -111,23 +111,33 @@ class RoomCleanHeader extends HTMLElement {
         .dialog header, .dialog footer { padding: 16px 20px; }
         .dialog header { border-bottom: 1px solid #e6e6e6; }
         .dialog h2 { margin: 0; font-size: 18px; }
-        .body { overflow: auto; padding: 8px 20px 16px; }
-        .group { margin-top: 12px; }
-        .group h3 { margin: 0 0 8px; font-size: 13px; color: #555; }
+        .body { overflow: auto; padding: 8px 12px 16px; }
         .row {
           display: grid;
-          grid-template-columns: minmax(120px, 180px) 1fr auto;
+          grid-template-columns: minmax(120px, 180px) minmax(0, 1fr) auto;
           gap: 8px;
-          align-items: center;
-          margin-bottom: 8px;
+          align-items: start;
+          padding: 10px 8px;
+          background: #fff;
         }
-        .row span { overflow-wrap: anywhere; }
-        .row input {
+        .row.shade { background: rgba(0, 0, 0, 0.06); }
+        .row strong { padding-top: 4px; }
+        .value {
+          min-width: 0;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+          word-break: break-word;
+          padding-top: 4px;
+        }
+        .row input, .row textarea {
           width: 100%;
           box-sizing: border-box;
           padding: 6px 8px;
           border: 1px solid #bdbdbd;
           border-radius: 6px;
+          white-space: pre-wrap;
+          overflow-wrap: anywhere;
+          resize: vertical;
         }
         .icon {
           width: 32px;
@@ -152,8 +162,9 @@ class RoomCleanHeader extends HTMLElement {
         .submit:disabled { opacity: 0.6; cursor: default; }
         .dark .actions, .dark .dialog, .dark .menu { background: #1c1c1c; color: #f5f5f5; border-color: #3a3a3a; }
         .dark .menu button:hover { background: #2a2a2a; }
-        .dark .group h3 { color: #c8c8c8; }
-        .dark .row input { background: #111; color: #f5f5f5; border-color: #555; }
+        .dark .row { background: #1c1c1c; }
+        .dark .row.shade { background: rgba(255, 255, 255, 0.08); }
+        .dark .row input, .dark .row textarea { background: #111; color: #f5f5f5; border-color: #555; }
       </style>
       <div class="${dark}">
         <button class="actions" type="button" aria-haspopup="menu" aria-expanded="${this._menuOpen}">Actions</button>
@@ -222,31 +233,22 @@ class RoomCleanHeader extends HTMLElement {
     const dialog = document.createElement("div");
     dialog.className = "dialog";
     dialog.setAttribute("role", "dialog");
-    dialog.setAttribute("aria-label", "Room Clean");
+    dialog.setAttribute("aria-label", "Room Clean Notification");
 
     const header = document.createElement("header");
     const title = document.createElement("h2");
-    title.textContent = "Room Clean";
+    title.textContent = "Room Clean Notification";
     header.appendChild(title);
 
     const body = document.createElement("div");
     body.className = "body";
-    for (const name of VARIABLES) {
-      const group = document.createElement("section");
-      group.className = "group";
-      const heading = document.createElement("h3");
-      heading.textContent = name;
-      group.appendChild(heading);
-      const rows = this._fields.filter((field) => field.source === name);
-      if (!rows.length) {
-        const empty = document.createElement("p");
-        empty.className = "notice";
-        empty.textContent = this._notices.find((notice) => notice.source === name)?.message || "No fields.";
-        group.appendChild(empty);
-      }
-      for (const field of rows) group.appendChild(this._fieldRow(field));
-      body.appendChild(group);
+    if (!this._fields.length) {
+      const empty = document.createElement("p");
+      empty.className = "notice";
+      empty.textContent = "No room clean details are available on this task.";
+      body.appendChild(empty);
     }
+    this._fields.forEach((field, index) => body.appendChild(this._fieldRow(field, index)));
     if (this._status) {
       const status = document.createElement("p");
       status.className = `status ${this._status.ok ? "ok" : "error"}`;
@@ -273,14 +275,17 @@ class RoomCleanHeader extends HTMLElement {
     mount.replaceChildren(overlay);
   }
 
-  _fieldRow(field) {
+  _fieldRow(field, index) {
     const row = document.createElement("div");
-    row.className = "row";
+    row.className = index % 2 === 0 ? "row" : "row shade";
     const label = document.createElement("strong");
     label.textContent = field.key;
-    const value = document.createElement(field.editing ? "input" : "span");
+    const longText = field.key.toLowerCase() === "description" || field.value.length > 80;
+    const value = document.createElement(field.editing ? (longText ? "textarea" : "input") : "span");
+    value.className = "value";
     if (field.editing) {
       value.value = field.value;
+      if (longText) value.rows = Math.min(8, Math.max(3, Math.ceil(field.value.length / 48)));
       value.addEventListener("input", () => {
         field.value = value.value;
       });
@@ -319,9 +324,15 @@ class RoomCleanHeader extends HTMLElement {
         body: JSON.stringify(payload),
       });
       if (!response.ok) throw new Error(`Submit failed (${response.status})`);
-      this._status = { ok: true, text: "Room Clean request sent." };
+      this._status = { ok: true, text: "Room Clean notification sent." };
     } catch (error) {
-      this._status = { ok: false, text: error.message || "Submit failed." };
+      const unreachable = !error.message || error.message === "Failed to fetch";
+      this._status = {
+        ok: false,
+        text: unreachable
+          ? "Could not reach the submit service. Publish the Netlify function, set WEBEX_CONNECT_EVENT_URL, and allow pedepalm.netlify.app on the Contact Center content security policy."
+          : error.message,
+      };
     } finally {
       this._submitting = false;
       this._paintModal();

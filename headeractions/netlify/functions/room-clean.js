@@ -44,14 +44,14 @@ exports.handler = async (event) => {
 };
 
 function allowedOrigin(origin) {
-  if (!origin) return "https://desktop.wxcc-us1.cisco.com";
+  if (!origin) return "*";
   try {
-    const host = new URL(origin).hostname;
-    if (host === "localhost" || host.endsWith(".cisco.com") || host.endsWith(".webex.com")) return origin;
+    const url = new URL(origin);
+    if (url.protocol === "https:" || url.hostname === "localhost") return origin;
   } catch (_error) {
-    return "https://desktop.wxcc-us1.cisco.com";
+    return "*";
   }
-  return "https://desktop.wxcc-us1.cisco.com";
+  return "*";
 }
 
 function json(statusCode, headers, body) {
