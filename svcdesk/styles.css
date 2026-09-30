@@ -433,12 +433,32 @@ button.wxcc-link {
   margin: 18px 0 8px;
 }
 .choice-actions .btn { width: 100%; cursor: pointer; }
+.sms-choices {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 8px;
+}
+.sms-choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+}
+.sms-choice:has(input:checked) {
+  border-color: var(--teal);
+  background: var(--teal-soft);
+}
+.sms-choice input { accent-color: var(--teal); }
 .modal-card .hint { font-size: 12px; color: var(--muted); margin: 4px 0 0; }
 .form-error { color: var(--red); font-size: 13px; margin-top: 12px; }
 .modal-card input.invalid { border-color: var(--red); }
 #cb-submit:disabled,
 #sched-submit:disabled,
-#cancel-search:disabled { opacity: 0.5; cursor: not-allowed; }
+#cancel-search:disabled,
+#sms-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 .callback-result {
   border: 1px solid var(--line);
   border-radius: 10px;

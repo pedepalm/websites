@@ -845,6 +845,104 @@ function applyLoggedInCallbackDefaults(fields, afterFill) {
   window.requestAnimationFrame(run);
 }
 
+const SMS_ENDPOINT = "/.netlify/functions/sms";
+const smsModal = document.querySelector("#sms-modal");
+const smsForm = document.querySelector("#sms-form");
+const smsGreet = document.querySelector("#sms-greet");
+const smsError = document.querySelector("#sms-error");
+const smsSubmit = document.querySelector("#sms-submit");
+
+function showSmsError(message) {
+  if (!smsError) return;
+  smsError.hidden = !message;
+  smsError.textContent = message || "";
+}
+
+function selectedSmsType() {
+  return smsForm?.querySelector("input[name='sms-type']:checked")?.value || "";
+}
+
+function syncSmsSubmit() {
+  if (smsSubmit) smsSubmit.disabled = !selectedSmsType();
+}
+
+function openSmsModal() {
+  if (!smsModal || !smsForm) return;
+  smsForm.reset();
+  showSmsError("");
+  const user = typeof readSessionUser === "function" ? readSessionUser() : null;
+  const first = String(user?.fname || "").trim();
+  if (smsGreet) smsGreet.textContent = first ? `Hi ${first},` : "Hi,";
+  syncSmsSubmit();
+  smsModal.hidden = false;
+}
+
+function closeSmsModal() {
+  if (smsModal) smsModal.hidden = true;
+  smsForm?.reset();
+  showSmsError("");
+}
+
+function smsBodyFromSession() {
+  const type = selectedSmsType();
+  const body = { type, source: "sms" };
+  const user = typeof readSessionUser === "function" ? readSessionUser() : null;
+  if (!user || !/^\d{5}$/.test(String(user.employeeId || "").trim())) return body;
+  body.fname = String(user.fname || "").trim();
+  body.lname = String(user.lname || "").trim();
+  body.employeeId = String(user.employeeId || "").trim();
+  const phone = toE164(user.phone || "");
+  if (phone.length === 12) body.phone = phone;
+  return body;
+}
+
+document.querySelector("#sms-open")?.addEventListener("click", openSmsModal);
+document.querySelector("#sms-cancel")?.addEventListener("click", closeSmsModal);
+smsModal?.addEventListener("click", (event) => {
+  if (event.target === smsModal) closeSmsModal();
+});
+smsForm?.addEventListener("change", syncSmsSubmit);
+smsForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const type = selectedSmsType();
+  if (!type) {
+    showSmsError("Choose IT Support or Human Resources Support.");
+    return;
+  }
+  showSmsError("");
+  if (smsSubmit) {
+    smsSubmit.disabled = true;
+    smsSubmit.textContent = "Starting…";
+  }
+  try {
+    const response = await fetch(SMS_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify(smsBodyFromSession())
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || "Could not start the SMS thread.");
+    }
+    closeSmsModal();
+    if (toast) {
+      toast.hidden = false;
+      toast.textContent = "SMS thread requested. Watch your phone for a text.";
+      window.setTimeout(() => {
+        toast.hidden = true;
+      }, 4200);
+    }
+  } catch (error) {
+    showSmsError(error.message || "Could not start the SMS thread.");
+  } finally {
+    if (smsSubmit) smsSubmit.textContent = "Start texting";
+    syncSmsSubmit();
+  }
+});
+
 const queue = document.querySelector("#queue-count");
 if (queue) {
   window.setInterval(() => {
