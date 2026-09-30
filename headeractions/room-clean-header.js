@@ -150,7 +150,8 @@ class RoomCleanHeader extends HTMLElement {
         }
         .notice, .status { margin: 8px 0 0; font-size: 13px; }
         .status.error { color: #a12512; }
-        .status.ok { color: #0d6b2f; }
+        .status.ok { margin-top: 16px; font-size: 24px; font-weight: 700; color: #0d8a3a; text-align: center; }
+        .dark .status.ok { color: #3fd07a; }
         footer { display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid #e6e6e6; }
         .submit, .cancel {
           height: 36px;
