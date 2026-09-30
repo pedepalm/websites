@@ -885,7 +885,7 @@ function closeSmsModal() {
 
 function smsBodyFromSession() {
   const type = selectedSmsType();
-  const body = { type, source: "sms" };
+  const body = { routeTo: "svcdesk", type, source: "sms" };
   const user = typeof readSessionUser === "function" ? readSessionUser() : null;
   if (!user || !/^\d{5}$/.test(String(user.employeeId || "").trim())) return body;
   body.fname = String(user.fname || "").trim();

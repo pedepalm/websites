@@ -62,6 +62,7 @@ exports.handler = async (event) => {
     }
 
     const body = {
+      routeTo: "svcdesk",
       type,
       source: "sms"
     };
