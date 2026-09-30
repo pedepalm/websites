@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260925a">
+    <link rel="stylesheet" href="styles.css?v=20260930b">
 </head>
 <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -116,10 +116,23 @@
                         </button>
                     </div>
                 </article>
-                <article class="card it placeholder" data-card data-lane="it" aria-label="IT quick action placeholder"></article>
-                <article class="card hr placeholder" data-card data-lane="hr" aria-label="HR quick action placeholder"></article>
-                <article class="card hr placeholder" data-card data-lane="hr" aria-label="HR quick action placeholder"></article>
-                <article class="card hr placeholder" data-card data-lane="hr" aria-label="HR quick action placeholder"></article>
+                <article class="card it sms-action" data-card data-lane="it">
+                    <span class="chip it">SMS</span>
+                    <h3>Mobile Callback (Text)</h3>
+                    <p class="card-sub">On the Go! Start Texting</p>
+                    <p>On the Go? You can start an SMS thread with the service desk immediately.</p>
+                    <div class="circle-btn-wrap">
+                        <button class="circle-btn" type="button" id="sms-open" aria-label="Start a mobile text thread">
+                            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true">
+                                <rect x="7" y="2.5" width="10" height="19" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.7"></rect>
+                                <path d="M9.2 6.8h5.6c.6 0 1 .4 1 1v3.4c0 .6-.4 1-1 1h-2.2l-1.8 1.5c-.3.2-.6 0-.6-.3V12.2H9.2c-.6 0-1-.4-1-1V7.8c0-.6.4-1 1-1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path>
+                                <circle cx="10.6" cy="9.4" r="0.55" fill="currentColor"></circle>
+                                <circle cx="12" cy="9.4" r="0.55" fill="currentColor"></circle>
+                                <circle cx="13.4" cy="9.4" r="0.55" fill="currentColor"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </article>
             </div>
 
             <div class="section-head" id="catalog">

@@ -195,11 +195,25 @@ button.wxcc-link {
 }
 .wxcc-link:hover { color: #fff; border-color: #7f98b3; }
 .wxcc-status {
-  color: #9db0c5;
+  color: #ff6b6b;
+  font-size: 16px;
+  font-weight: 700;
+}
+.wxcc-status.on {
+  color: #8ee0c8;
   font-size: 11px;
   font-weight: 500;
 }
-.wxcc-status.on { color: #8ee0c8; }
+#wxcc-auth-needed {
+  color: #fff;
+  background: #b42318;
+  border-color: #b42318;
+}
+#wxcc-auth-needed:hover {
+  color: #fff;
+  background: #912018;
+  border-color: #912018;
+}
 .wxcc-chip [hidden] { display: none !important; }
 .section-head {
   display: flex;
@@ -283,6 +297,13 @@ button.wxcc-link {
 .kb article.hidden { display: none; }
 .card h3 { margin: 0; font-size: 17px; }
 .card p { margin: 0; color: var(--muted); font-size: 14px; flex: 1; }
+.card-sub {
+  margin: 0;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  flex: 0;
+}
 .card-meta { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .mono { font-family: var(--mono); font-size: 12px; }
 
