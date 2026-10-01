@@ -66,13 +66,16 @@ exports.handler = async (event) => {
       type,
       source: "sms"
     };
+    const phone = toE164(payload.phone);
+    if (!phone) {
+      return json(400, { error: "Enter a 10-digit mobile number." });
+    }
+    body.phone = phone;
     const employeeId = cleanText(payload.employeeId, 8);
     if (EMPLOYEE_ID.test(employeeId)) {
       body.fname = cleanText(payload.fname, 80);
       body.lname = cleanText(payload.lname, 80);
       body.employeeId = employeeId;
-      const phone = toE164(payload.phone);
-      if (phone) body.phone = phone;
     }
 
     const response = await fetch(hook, {

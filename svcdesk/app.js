@@ -851,6 +851,7 @@ const smsForm = document.querySelector("#sms-form");
 const smsGreet = document.querySelector("#sms-greet");
 const smsError = document.querySelector("#sms-error");
 const smsSubmit = document.querySelector("#sms-submit");
+const smsNumber = document.querySelector("#sms-number");
 
 function showSmsError(message) {
   if (!smsError) return;
@@ -863,16 +864,22 @@ function selectedSmsType() {
 }
 
 function syncSmsSubmit() {
-  if (smsSubmit) smsSubmit.disabled = !selectedSmsType();
+  const digits = normalizePhoneInput(smsNumber);
+  const phoneOk = isUsPhone(digits);
+  markPhoneField(smsNumber, digits !== "" && !phoneOk);
+  if (smsSubmit) smsSubmit.disabled = !(selectedSmsType() && phoneOk);
 }
 
 function openSmsModal() {
   if (!smsModal || !smsForm) return;
   smsForm.reset();
   showSmsError("");
+  smsNumber?.classList.remove("invalid");
+  smsNumber?.closest(".phone-field")?.classList.remove("invalid");
   const user = typeof readSessionUser === "function" ? readSessionUser() : null;
   const first = String(user?.fname || "").trim();
   if (smsGreet) smsGreet.textContent = first ? `Hi ${first},` : "Hi,";
+  applyLoggedInCallbackDefaults({ phone: smsNumber }, syncSmsSubmit);
   syncSmsSubmit();
   smsModal.hidden = false;
 }
@@ -886,13 +893,13 @@ function closeSmsModal() {
 function smsBodyFromSession() {
   const type = selectedSmsType();
   const body = { routeTo: "svcdesk", type, source: "sms" };
+  const phone = toE164(smsNumber?.value || "");
+  if (phone.length === 12) body.phone = phone;
   const user = typeof readSessionUser === "function" ? readSessionUser() : null;
   if (!user || !/^\d{5}$/.test(String(user.employeeId || "").trim())) return body;
   body.fname = String(user.fname || "").trim();
   body.lname = String(user.lname || "").trim();
   body.employeeId = String(user.employeeId || "").trim();
-  const phone = toE164(user.phone || "");
-  if (phone.length === 12) body.phone = phone;
   return body;
 }
 
@@ -901,12 +908,18 @@ document.querySelector("#sms-cancel")?.addEventListener("click", closeSmsModal);
 smsModal?.addEventListener("click", (event) => {
   if (event.target === smsModal) closeSmsModal();
 });
+smsNumber?.addEventListener("input", syncSmsSubmit);
 smsForm?.addEventListener("change", syncSmsSubmit);
 smsForm?.addEventListener("submit", async (event) => {
   event.preventDefault();
   const type = selectedSmsType();
+  syncSmsSubmit();
   if (!type) {
     showSmsError("Choose IT Support or Human Resources Support.");
+    return;
+  }
+  if (!isUsPhone(smsNumber?.value || "")) {
+    showSmsError("Enter a 10-digit mobile number.");
     return;
   }
   showSmsError("");
