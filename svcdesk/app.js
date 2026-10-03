@@ -16,10 +16,13 @@ const banner = document.querySelector("#sev-banner");
 
 let activeLane = "all";
 
+const isMobile = document.documentElement.classList.contains("is-mobile");
+
 function applyFilters() {
   cards.forEach((card) => {
     const laneOk = activeLane === "all" || card.dataset.lane === activeLane;
-    card.classList.toggle("hidden", !laneOk);
+    const hideMobileChat = isMobile && card.classList.contains("chat-action");
+    card.classList.toggle("hidden", !laneOk || hideMobileChat);
   });
 }
 
@@ -30,6 +33,7 @@ tabs.forEach((tab) => {
     applyFilters();
   });
 });
+applyFilters();
 
 function openModal(preset = {}) {
   if (!form || !modal) return;
@@ -110,7 +114,9 @@ function openChatPopout() {
   if (!popup) openCiscoChatWhenReady();
 }
 
-document.querySelector("#chat-open")?.addEventListener("click", openChatPopout);
+if (!isMobile) {
+  document.querySelector("#chat-open")?.addEventListener("click", openChatPopout);
+}
 
 const choiceModal = document.querySelector("#callback-choice-modal");
 const immediateModal = document.querySelector("#callback-immediate-modal");

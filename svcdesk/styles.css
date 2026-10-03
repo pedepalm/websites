@@ -661,21 +661,93 @@ button.wxcc-link {
 }
 .toast[hidden] { display: none; }
 
-@media (max-width: 900px) {
-  .grid,
-  .grid.four,
-  .ops,
-  .kb,
-  .product-grid,
-  .ticket,
-  .device-detail,
-  .spec-row {
-    grid-template-columns: 1fr;
-  }
-  .topbar { flex-wrap: wrap; }
-  .topbar-end { margin-left: 0; }
-  .nav { display: none; }
-  .hero { padding: 32px 16px 16px; }
-  .wrap { padding: 10px 16px 40px; }
-  .section-head { flex-direction: column; align-items: flex-start; }
+html.is-mobile .chat-action {
+  display: none !important;
+}
+
+html.is-mobile .grid,
+html.is-mobile .grid.four,
+html.is-mobile .kb,
+html.is-mobile .product-grid,
+html.is-mobile .ticket,
+html.is-mobile .device-detail,
+html.is-mobile .spec-row,
+html.is-mobile .choice-actions,
+html.is-mobile .sms-choices,
+html.is-mobile .time-row {
+  grid-template-columns: 1fr;
+}
+
+html.is-mobile .health {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+html.is-mobile .ops {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+html.is-mobile .ops .metric:last-child {
+  grid-column: 1 / -1;
+}
+
+html.is-mobile .topbar {
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 16px;
+}
+
+html.is-mobile .brand {
+  min-width: 0;
+}
+
+html.is-mobile .logo {
+  height: 32px;
+}
+
+html.is-mobile .nav {
+  order: 3;
+  width: 100%;
+  gap: 14px;
+}
+
+html.is-mobile .topbar-end {
+  margin-left: auto;
+}
+
+html.is-mobile .account-label small {
+  display: none;
+}
+
+html.is-mobile .hero {
+  padding: 24px 16px 12px;
+}
+
+html.is-mobile .hero h1 {
+  font-size: 28px;
+}
+
+html.is-mobile .wrap {
+  padding: 10px 16px 36px;
+}
+
+html.is-mobile .section-head {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+html.is-mobile .modal {
+  padding: 12px;
+  align-items: end;
+}
+
+html.is-mobile .modal-card {
+  width: 100%;
+}
+
+html.is-mobile .site-footer {
+  padding: 20px 16px;
+}
+
+html.is-mobile .site-footer .wrap {
+  flex-direction: column;
 }
