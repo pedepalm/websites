@@ -250,6 +250,26 @@ button.wxcc-link {
 }
 .card.it { border-top: 3px solid var(--teal); }
 .card.hr { border-top: 3px solid var(--amber); }
+.card.catalog-tile {
+  padding: 0;
+  overflow: hidden;
+  border-top: 0;
+}
+.card-banner {
+  background: var(--teal);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 10px 16px;
+}
+.card.catalog-tile h3,
+.card.catalog-tile p {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+.card.catalog-tile h3 { margin-top: 14px; }
+.card.catalog-tile p { padding-bottom: 16px; }
 .card.placeholder {
   min-height: 168px;
   background: #fbfcfe;
