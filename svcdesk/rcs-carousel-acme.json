@@ -1,0 +1,74 @@
+{
+  "channel": "rcs",
+  "from": "{{rcsAppId}}",
+  "to": [
+    {
+      "msisdn": ["{{msisdn}}"]
+    }
+  ],
+  "options": {
+    "smsFallback": true,
+    "smsSenderId": "{{senderid}}",
+    "text": "ACME Service Desk — reply IT for tech support or HR for People Support. https://pedepalm.netlify.app/svcdesk/"
+  },
+  "content": {
+    "type": "carousel",
+    "width": "MEDIUM",
+    "cards": [
+      {
+        "title": "ACME IT",
+        "description": "Password, VPN, laptop, or an outage. Routes to the IT assignment group and starts the SLA clock.",
+        "media": {
+          "url": "https://pedepalm.netlify.app/svcdesk/images/rcs-acme-it.jpg",
+          "fileSize": 77936,
+          "height": "MEDIUM"
+        },
+        "suggestions": [
+          {
+            "type": "reply",
+            "displayText": "Get IT help",
+            "postbackData": "it_help"
+          },
+          {
+            "type": "reply",
+            "displayText": "Replace a device",
+            "postbackData": "it_device"
+          },
+          {
+            "type": "openUrl",
+            "displayText": "Open IT portal",
+            "url": "https://pedepalm.netlify.app/svcdesk/",
+            "postbackData": "it_portal"
+          }
+        ]
+      },
+      {
+        "title": "ACME HR",
+        "description": "PTO, payroll, benefits, or a workplace concern. People Support cases stay need-to-know.",
+        "media": {
+          "url": "https://pedepalm.netlify.app/svcdesk/images/rcs-acme-hr.jpg",
+          "fileSize": 63099,
+          "height": "MEDIUM"
+        },
+        "suggestions": [
+          {
+            "type": "reply",
+            "displayText": "Get HR help",
+            "postbackData": "hr_help"
+          },
+          {
+            "type": "reply",
+            "displayText": "PTO or payroll",
+            "postbackData": "hr_pto"
+          },
+          {
+            "type": "openUrl",
+            "displayText": "Open HR portal",
+            "url": "https://pedepalm.netlify.app/svcdesk/",
+            "postbackData": "hr_portal"
+          }
+        ]
+      }
+    ]
+  }
+}
