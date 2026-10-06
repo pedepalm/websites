@@ -865,7 +865,15 @@ const smsNumber = document.querySelector("#sms-number");
 const smsQrOverlay = document.querySelector("#sms-qr-overlay");
 const smsQrCode = document.querySelector("#sms-qr-code");
 const smsQrHeading = document.querySelector("#sms-qr-heading");
+const smsPrompt = document.querySelector("#sms-prompt");
+const smsLoginNeeded = document.querySelector("#sms-login-needed");
+const smsModalCard = document.querySelector(".sms-modal-card");
 let smsQr = null;
+
+function smsUserIsLoggedIn() {
+  if (typeof readSessionUser !== "function" || typeof isLoggedInUser !== "function") return false;
+  return isLoggedInUser(readSessionUser());
+}
 
 function showSmsError(message) {
   if (!smsError) return;
@@ -878,10 +886,35 @@ function selectedSmsType() {
 }
 
 function syncSmsSubmit() {
+  const loggedIn = smsUserIsLoggedIn();
   const digits = normalizePhoneInput(smsNumber);
-  const phoneOk = isUsPhone(digits);
-  markPhoneField(smsNumber, digits !== "" && !phoneOk);
-  if (smsSubmit) smsSubmit.disabled = !(selectedSmsType() && phoneOk);
+  if (loggedIn && digits) markPhoneField(smsNumber, !isUsPhone(digits));
+  else markPhoneField(smsNumber, false);
+  if (smsSubmit) smsSubmit.disabled = !(loggedIn && selectedSmsType());
+}
+
+function applySmsAuthState() {
+  const loggedIn = smsUserIsLoggedIn();
+  const user = typeof readSessionUser === "function" ? readSessionUser() : null;
+  const first = String(user?.fname || "").trim();
+  if (smsGreet) smsGreet.textContent = loggedIn && first ? `Hi ${first},` : "Hi,";
+  if (smsLoginNeeded) smsLoginNeeded.hidden = loggedIn;
+  if (smsPrompt) smsPrompt.hidden = !loggedIn;
+  smsModalCard?.classList.toggle("sms-locked", !loggedIn);
+  smsForm?.querySelectorAll("input[name='sms-type']").forEach((input) => {
+    input.disabled = !loggedIn;
+  });
+  if (loggedIn) {
+    applyLoggedInCallbackDefaults({ phone: smsNumber }, syncSmsSubmit);
+  } else {
+    hideSmsQr();
+    if (smsNumber) smsNumber.value = "";
+    smsForm?.querySelectorAll("input[name='sms-type']").forEach((input) => {
+      input.checked = false;
+    });
+    showSmsError("");
+    syncSmsSubmit();
+  }
 }
 
 function openSmsModal() {
@@ -891,11 +924,7 @@ function openSmsModal() {
   showSmsError("");
   smsNumber?.classList.remove("invalid");
   smsNumber?.closest(".phone-field")?.classList.remove("invalid");
-  const user = typeof readSessionUser === "function" ? readSessionUser() : null;
-  const first = String(user?.fname || "").trim();
-  if (smsGreet) smsGreet.textContent = first ? `Hi ${first},` : "Hi,";
-  applyLoggedInCallbackDefaults({ phone: smsNumber }, syncSmsSubmit);
-  syncSmsSubmit();
+  applySmsAuthState();
   smsModal.hidden = false;
 }
 
@@ -949,12 +978,17 @@ smsModal?.addEventListener("click", (event) => {
 smsNumber?.addEventListener("input", syncSmsSubmit);
 smsForm?.addEventListener("change", (event) => {
   syncSmsSubmit();
+  if (!smsUserIsLoggedIn()) return;
   if (event.target?.name === "sms-type" && selectedSmsType()) {
     showSmsQr(selectedSmsType());
   }
 });
 smsForm?.addEventListener("submit", (event) => {
   event.preventDefault();
+  if (!smsUserIsLoggedIn()) {
+    applySmsAuthState();
+    return;
+  }
   const type = selectedSmsType();
   syncSmsSubmit();
   if (!type) {
@@ -962,6 +996,9 @@ smsForm?.addEventListener("submit", (event) => {
     return;
   }
   showSmsQr(type);
+});
+window.addEventListener("account-changed", () => {
+  if (smsModal && !smsModal.hidden) applySmsAuthState();
 });
 
 const queue = document.querySelector("#queue-count");

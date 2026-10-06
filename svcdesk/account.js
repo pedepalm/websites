@@ -71,6 +71,7 @@ function renderAccount(user) {
   if (accountName) accountName.textContent = "";
   if (accountUser) accountUser.hidden = true;
   if (accountGuest) accountGuest.hidden = false;
+  window.dispatchEvent(new CustomEvent("account-changed"));
 }
 
 function isLoggedInUser(user) {

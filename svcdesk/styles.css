@@ -472,6 +472,18 @@ button.wxcc-link {
 .sms-modal-card {
   position: relative;
 }
+#sms-number[readonly] {
+  background: #f4f7fa;
+  color: var(--ink);
+  cursor: default;
+}
+.sms-locked .sms-gated {
+  opacity: 0.45;
+  pointer-events: none;
+}
+.sms-locked #sms-prompt { display: none; }
+#sms-login-needed[hidden] { display: none !important; }
+.sms-locked #sms-login-needed { display: block; }
 .sms-qr-overlay {
   position: absolute;
   inset: 0;
