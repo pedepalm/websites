@@ -851,13 +851,21 @@ function applyLoggedInCallbackDefaults(fields, afterFill) {
   window.requestAnimationFrame(run);
 }
 
-const SMS_ENDPOINT = "/.netlify/functions/sms";
+const SMS_QR_NUMBER = "2142726003";
+const SMS_QR_MESSAGES = {
+  IT: "1:origin=webescalation:reasonForCalling==IT",
+  "Human Resources": "2:origin=webescalation:reasonForCalling==Human Resources"
+};
 const smsModal = document.querySelector("#sms-modal");
 const smsForm = document.querySelector("#sms-form");
 const smsGreet = document.querySelector("#sms-greet");
 const smsError = document.querySelector("#sms-error");
 const smsSubmit = document.querySelector("#sms-submit");
 const smsNumber = document.querySelector("#sms-number");
+const smsQrOverlay = document.querySelector("#sms-qr-overlay");
+const smsQrCode = document.querySelector("#sms-qr-code");
+const smsQrHeading = document.querySelector("#sms-qr-heading");
+let smsQr = null;
 
 function showSmsError(message) {
   if (!smsError) return;
@@ -878,6 +886,7 @@ function syncSmsSubmit() {
 
 function openSmsModal() {
   if (!smsModal || !smsForm) return;
+  hideSmsQr();
   smsForm.reset();
   showSmsError("");
   smsNumber?.classList.remove("invalid");
@@ -890,33 +899,61 @@ function openSmsModal() {
   smsModal.hidden = false;
 }
 
+function hideSmsQr() {
+  if (smsQrOverlay) smsQrOverlay.hidden = true;
+}
+
 function closeSmsModal() {
+  hideSmsQr();
   if (smsModal) smsModal.hidden = true;
   smsForm?.reset();
   showSmsError("");
 }
 
-function smsBodyFromSession() {
-  const type = selectedSmsType();
-  const body = { routeTo: "svcdesk", type, source: "sms" };
-  const phone = toE164(smsNumber?.value || "");
-  if (phone.length === 12) body.phone = phone;
-  const user = typeof readSessionUser === "function" ? readSessionUser() : null;
-  if (!user || !/^\d{5}$/.test(String(user.employeeId || "").trim())) return body;
-  body.fname = String(user.fname || "").trim();
-  body.lname = String(user.lname || "").trim();
-  body.employeeId = String(user.employeeId || "").trim();
-  return body;
+function smsUriForType(type) {
+  const message = SMS_QR_MESSAGES[type];
+  if (!message) return "";
+  return `sms:+1${SMS_QR_NUMBER}?body=${encodeURIComponent(message)}`;
+}
+
+function showSmsQr(type) {
+  const uri = smsUriForType(type);
+  if (!uri || !smsQrCode || typeof QRCode !== "function") {
+    showSmsError("Could not create the text QR code.");
+    return;
+  }
+  showSmsError("");
+  if (smsQrHeading) {
+    smsQrHeading.textContent = type === "Human Resources"
+      ? "Scan to text Human Resources Support"
+      : "Scan to text IT Support";
+  }
+  smsQrCode.innerHTML = "";
+  smsQr = new QRCode(smsQrCode, {
+    text: uri,
+    width: 220,
+    height: 220,
+    colorDark: "#10233d",
+    colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.M
+  });
+  if (smsQrOverlay) smsQrOverlay.hidden = false;
 }
 
 document.querySelector("#sms-open")?.addEventListener("click", openSmsModal);
 document.querySelector("#sms-cancel")?.addEventListener("click", closeSmsModal);
+document.querySelector("#sms-qr-back")?.addEventListener("click", hideSmsQr);
 smsModal?.addEventListener("click", (event) => {
   if (event.target === smsModal) closeSmsModal();
 });
 smsNumber?.addEventListener("input", syncSmsSubmit);
-smsForm?.addEventListener("change", syncSmsSubmit);
-smsForm?.addEventListener("submit", async (event) => {
+smsForm?.addEventListener("change", (event) => {
+  syncSmsSubmit();
+  if (event.target?.name === "sms-type" && selectedSmsType()) {
+    showSmsQr(selectedSmsType());
+  }
+});
+smsForm?.addEventListener("submit", (event) => {
   event.preventDefault();
   const type = selectedSmsType();
   syncSmsSubmit();
@@ -924,42 +961,7 @@ smsForm?.addEventListener("submit", async (event) => {
     showSmsError("Choose IT Support or Human Resources Support.");
     return;
   }
-  if (!isUsPhone(smsNumber?.value || "")) {
-    showSmsError("Enter a 10-digit mobile number.");
-    return;
-  }
-  showSmsError("");
-  if (smsSubmit) {
-    smsSubmit.disabled = true;
-    smsSubmit.textContent = "Starting…";
-  }
-  try {
-    const response = await fetch(SMS_ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json"
-      },
-      body: JSON.stringify(smsBodyFromSession())
-    });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      throw new Error(payload.error || "Could not start the SMS thread.");
-    }
-    closeSmsModal();
-    if (toast) {
-      toast.hidden = false;
-      toast.textContent = "SMS thread requested. Watch your phone for a text.";
-      window.setTimeout(() => {
-        toast.hidden = true;
-      }, 4200);
-    }
-  } catch (error) {
-    showSmsError(error.message || "Could not start the SMS thread.");
-  } finally {
-    if (smsSubmit) smsSubmit.textContent = "Start texting";
-    syncSmsSubmit();
-  }
+  showSmsQr(type);
 });
 
 const queue = document.querySelector("#queue-count");
