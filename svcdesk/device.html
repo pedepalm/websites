@@ -106,7 +106,7 @@
             </form>
         </div>
     </div>
-    <script src="account.js?v=20260924c"></script>
+    <script src="account.js?v=20261006d"></script>
     <script src="device-catalog.js?v=20260923q"></script>
     <script>
       (function renderDevice() {
@@ -135,8 +135,8 @@
             "<dl class=\"spec-list\">" + rows + "</dl>" +
           "</div>"
         );
-        if (typeof window.publishSvcDeskJourney === "function") {
-          window.publishSvcDeskJourney("product", { product: device.name });
+        if (typeof window.startProductDwellTracking === "function") {
+          window.startProductDwellTracking(device.name);
         }
       })();
     </script>

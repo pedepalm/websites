@@ -93,6 +93,7 @@ async function postJourneyEvent(action, user, extras) {
         "Content-Type": "application/json",
         Accept: "application/json"
       },
+      keepalive: action === "product",
       body: JSON.stringify({
         action,
         employeeId: user.employeeId,
@@ -113,11 +114,48 @@ function productNameFromPage() {
   return document.querySelector("#device-detail")?.dataset.productName || "";
 }
 
-function publishProductInterest(user) {
-  const product = productNameFromPage();
-  if (!product) return;
-  postJourneyEvent("product", user || readSessionUser(), { product });
+function formatTimeOnPage(seconds) {
+  return `${Math.max(1, Math.round(Number(seconds) || 1))} seconds`;
 }
+
+let productDwell = null;
+
+function publishProductInterest(user, extras) {
+  const product = cleanTextForJourney(extras && extras.product) || productNameFromPage();
+  if (!product) return;
+  const timeOnPage = extras && extras.timeOnPage
+    ? extras.timeOnPage
+    : formatTimeOnPage(1);
+  postJourneyEvent("product", user || readSessionUser(), { product, timeOnPage });
+}
+
+function startProductDwellTracking(productName) {
+  const product = productName || productNameFromPage();
+  if (!product || productDwell) return;
+  const started = Date.now();
+  let sent = false;
+  function send() {
+    if (sent) return;
+    sent = true;
+    const seconds = Math.min(120, Math.max(1, Math.round((Date.now() - started) / 1000)));
+    publishProductInterest(readSessionUser(), {
+      product,
+      timeOnPage: formatTimeOnPage(seconds)
+    });
+  }
+  productDwell = { send };
+  window.setTimeout(send, 120000);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") send();
+  });
+  window.addEventListener("pagehide", send);
+}
+
+function cleanTextForJourney(value) {
+  return String(value || "").trim();
+}
+
+window.startProductDwellTracking = startProductDwellTracking;
 
 function callbackJourneyUi(action, user) {
   const first = String(user?.fname || "").trim();
@@ -354,7 +392,7 @@ function bindAccountChrome() {
       showAccountToast("Login successful");
       if (isLoggedInUser(readSessionUser())) {
         postJourneyEvent("login", user);
-        publishProductInterest(user);
+        startProductDwellTracking();
       }
     } catch {
       showLoginError("");

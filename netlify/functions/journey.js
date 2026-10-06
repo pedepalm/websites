@@ -110,9 +110,19 @@ function journeyPayload(action, user, extras) {
   if (action === "product") {
     const product = cleanText(extras.product, 80);
     if (!product) return null;
+    const rawTime = String(extras.timeOnPage || "").trim();
+    const timeOnPage = /seconds/i.test(rawTime)
+      ? cleanText(rawTime, 40)
+      : Number.isFinite(parseInt(rawTime, 10))
+        ? `${parseInt(rawTime, 10)} seconds`
+        : "";
     return {
       ...base,
       data: {
+        fname: first,
+        lname: last,
+        product,
+        timeOnPage,
         uiData: uiData(extras, {
           title: "Product Interest",
           iconType: "Page Visit",
@@ -199,6 +209,7 @@ exports.handler = async (event) => {
     const ui = payload.uiData && typeof payload.uiData === "object" ? payload.uiData : {};
     const extras = {
       product: payload.product,
+      timeOnPage: payload.timeOnPage,
       number: payload.number,
       date: payload.date,
       startTime: payload.startTime,
