@@ -78,29 +78,39 @@ function isLoggedInUser(user) {
   return Boolean(user && EMPLOYEE_ID.test(String(user.employeeId || "").trim()));
 }
 
-async function postJourneyEvent(action, user, extras) {
+async function postJourneyEvent(action, user, extras, options) {
   if (!isLoggedInUser(user)) return;
   const needsOauth = action === "product" || action === "immediate" || action === "scheduled"
     || action === "cancelled" || action === "modified";
-  if (needsOauth) {
+  if (needsOauth && !options?.skipOauthCheck) {
     const connected = await refreshWxccAuthState();
     if (!connected) return;
+  } else if (needsOauth && options?.skipOauthCheck && wxccConnected === false) {
+    return;
   }
+  const body = JSON.stringify({
+    action,
+    employeeId: user.employeeId,
+    fname: user.fname || "",
+    lname: user.lname || "",
+    ...(extras || {})
+  });
   try {
+    if (options?.beacon && navigator.sendBeacon) {
+      const queued = navigator.sendBeacon(
+        JOURNEY_ENDPOINT,
+        new Blob([body], { type: "application/json" })
+      );
+      if (queued) return;
+    }
     const response = await fetch(JOURNEY_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Accept: "application/json"
       },
-      keepalive: action === "product",
-      body: JSON.stringify({
-        action,
-        employeeId: user.employeeId,
-        fname: user.fname || "",
-        lname: user.lname || "",
-        ...(extras || {})
-      })
+      keepalive: Boolean(options?.keepalive || action === "product"),
+      body
     });
     if (response.status === 401) {
       setWxccAuthState(false);
@@ -120,13 +130,18 @@ function formatTimeOnPage(seconds) {
 
 let productDwell = null;
 
-function publishProductInterest(user, extras) {
+function publishProductInterest(user, extras, options) {
   const product = cleanTextForJourney(extras && extras.product) || productNameFromPage();
   if (!product) return;
   const timeOnPage = extras && extras.timeOnPage
     ? extras.timeOnPage
     : formatTimeOnPage(1);
-  postJourneyEvent("product", user || readSessionUser(), { product, timeOnPage });
+  return postJourneyEvent(
+    "product",
+    user || readSessionUser(),
+    { product, timeOnPage },
+    options
+  );
 }
 
 function startProductDwellTracking(productName) {
@@ -134,21 +149,39 @@ function startProductDwellTracking(productName) {
   if (!product || productDwell) return;
   const started = Date.now();
   let sent = false;
-  function send() {
+  function send(leaving) {
     if (sent) return;
     sent = true;
     const seconds = Math.min(120, Math.max(1, Math.round((Date.now() - started) / 1000)));
     publishProductInterest(readSessionUser(), {
       product,
       timeOnPage: formatTimeOnPage(seconds)
+    }, {
+      skipOauthCheck: true,
+      keepalive: true,
+      beacon: Boolean(leaving)
     });
   }
   productDwell = { send };
-  window.setTimeout(send, 120000);
+  window.setTimeout(() => send(false), 120000);
   document.addEventListener("visibilitychange", () => {
-    if (document.visibilityState === "hidden") send();
+    if (document.visibilityState === "hidden") send(true);
   });
-  window.addEventListener("pagehide", send);
+  window.addEventListener("pagehide", () => send(true));
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest("a[href]");
+    if (!link || link.target === "_blank") return;
+    let next;
+    try {
+      next = new URL(link.href, window.location.href);
+    } catch {
+      return;
+    }
+    const sameDevicePage = next.pathname === window.location.pathname
+      && next.search === window.location.search;
+    if (sameDevicePage) return;
+    send(true);
+  }, true);
 }
 
 function cleanTextForJourney(value) {
@@ -203,7 +236,10 @@ window.publishSvcDeskJourney = function publishSvcDeskJourney(action, extras) {
   });
 };
 
+let wxccConnected = null;
+
 function setWxccAuthState(connected) {
+  wxccConnected = Boolean(connected);
   const needed = document.querySelector("#wxcc-auth-needed");
   const ready = document.querySelector("#wxcc-auth-ready");
   const label = document.querySelector("#wxcc-status-label");
