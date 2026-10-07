@@ -176,5 +176,43 @@ const DEVICE_CATALOG = {
       ["Wireless", "5G (sub-6 and mmWave), Wi-Fi 7, Bluetooth 6, Apple C2 modem"],
       ["Starting price", "$1,299"]
     ]
+  },
+  "thinkpad-x1-carbon": {
+    name: "ThinkPad X1 Carbon Gen 14",
+    family: "Laptop · Standard issue",
+    image: "images/thinkpad-x1-carbon.png",
+    summary: "Flagship 14-inch business ultrabook with TrackPoint and vPro options.",
+    specs: [
+      ["Chip", "Intel Core Ultra 5 / 7 / X7 Series 3 (Copilot+ PC)"],
+      ["Graphics", "Intel Graphics, or Intel Arc B390 on X7 models"],
+      ["Memory", "16GB to 64GB soldered LPDDR5X"],
+      ["Storage", "Up to 2TB M.2 PCIe 5.0 NVMe SSD"],
+      ["Display", "14-inch 16:10; WUXGA IPS 500 nits or 2.8K OLED 500 nits, 120Hz VRR"],
+      ["Battery", "58Wh; Rapid Charge to 80% in about 1 hour with 65W USB-C"],
+      ["Ports", "Three Thunderbolt 4, USB-A 5Gbps (Always On), HDMI 2.1, 3.5 mm jack"],
+      ["Wireless", "Wi-Fi 7, Bluetooth 5.4; optional 4G/5G WWAN and vPro"],
+      ["Camera", "5MP + IR, or up to 10MP + IR, privacy shutter"],
+      ["Input", "Backlit keyboard, TrackPoint, glass trackpad or haptic touchpad"],
+      ["Size / weight", "Starting at 2.15 lb"]
+    ]
+  },
+  "thinkpad-p1": {
+    name: "ThinkPad P1 Gen 9",
+    family: "Laptop · Workstation",
+    image: "images/thinkpad-p1.png",
+    summary: "High-end 16-inch business workstation with discrete NVIDIA RTX PRO graphics.",
+    specs: [
+      ["Chip", "Intel Core Ultra 7 / 9 / X7 / X9 Series 3 H-series, up to 16 cores and 5.1GHz"],
+      ["Graphics", "NVIDIA RTX PRO 1000 or 2000 Blackwell, 8GB GDDR7; Intel Arc B390 on some configs"],
+      ["Memory", "Up to 96GB LPCAMM2 LPDDR5X, upgradable"],
+      ["Storage", "Dual M.2; up to 8TB (4TB each), PCIe 5.0"],
+      ["Display", "16-inch 16:10; WUXGA IPS, 3.2K tandem OLED 120Hz, or WQUXGA IPS 800 nits"],
+      ["Battery", "90Wh; 140W USB-C GaN adapter"],
+      ["Ports", "Two Thunderbolt 5, one Thunderbolt 4, USB-A 10Gbps (Always On), HDMI 2.1, SD Express 7.0, 3.5 mm jack"],
+      ["Wireless", "Wi-Fi 7, Bluetooth 5.4; vPro on selected models; optional 5G WWAN"],
+      ["Camera", "5MP + IR, privacy shutter, Windows Hello"],
+      ["Input", "Backlit keyboard, TrackPoint, fingerprint in power button"],
+      ["Size / weight", "13.95 × 9.50 in, starting at 3.90 lb"]
+    ]
   }
 };

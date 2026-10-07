@@ -520,8 +520,7 @@ button.wxcc-link {
 .modal-card input.invalid { border-color: var(--red); }
 #cb-submit:disabled,
 #sched-submit:disabled,
-#cancel-search:disabled,
-#sms-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+#cancel-search:disabled { opacity: 0.5; cursor: not-allowed; }
 .callback-result {
   border: 1px solid var(--line);
   border-radius: 10px;

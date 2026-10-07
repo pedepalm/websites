@@ -860,7 +860,6 @@ const smsModal = document.querySelector("#sms-modal");
 const smsForm = document.querySelector("#sms-form");
 const smsGreet = document.querySelector("#sms-greet");
 const smsError = document.querySelector("#sms-error");
-const smsSubmit = document.querySelector("#sms-submit");
 const smsNumber = document.querySelector("#sms-number");
 const smsQrOverlay = document.querySelector("#sms-qr-overlay");
 const smsQrCode = document.querySelector("#sms-qr-code");
@@ -890,7 +889,6 @@ function syncSmsSubmit() {
   const digits = normalizePhoneInput(smsNumber);
   if (loggedIn && digits) markPhoneField(smsNumber, !isUsPhone(digits));
   else markPhoneField(smsNumber, false);
-  if (smsSubmit) smsSubmit.disabled = !(loggedIn && selectedSmsType());
 }
 
 function applySmsAuthState() {
@@ -970,10 +968,14 @@ function showSmsQr(type) {
 }
 
 document.querySelector("#sms-open")?.addEventListener("click", openSmsModal);
-document.querySelector("#sms-cancel")?.addEventListener("click", closeSmsModal);
 document.querySelector("#sms-qr-back")?.addEventListener("click", hideSmsQr);
 smsModal?.addEventListener("click", (event) => {
   if (event.target === smsModal) closeSmsModal();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || !smsModal || smsModal.hidden) return;
+  if (smsQrOverlay && !smsQrOverlay.hidden) hideSmsQr();
+  else closeSmsModal();
 });
 smsNumber?.addEventListener("input", syncSmsSubmit);
 smsForm?.addEventListener("change", (event) => {
