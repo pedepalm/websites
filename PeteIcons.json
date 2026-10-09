@@ -3,6 +3,50 @@
       "name": "meeting-summary-bold",
       "color": "grey"
     },
+    "Gift": {
+      "name": "gift-bold",
+      "color": "red"
+    },
+    "Secured": {
+      "name": "end-to-end-encryption-bold",
+      "color": "green"
+    },
+    "FloppyDisk": {
+      "name": "draft-bold",
+      "color": "grey"
+    },
+    "Car": {
+      "name": "drive-mode-bold",
+      "color": "green"
+    },
+    "PencilPad": {
+      "name": "edit-note-bold",
+      "color": "grey"
+    },
+    "Bullseye": {
+      "name": "campaign-management-bold",
+      "color": "blue"
+    },
+    "Location": {
+      "name": "location-bold",
+      "color": "blue"
+    },
+    "MobileDevice": {
+      "name": "phone-bold",
+      "color": "green"
+    },
+    "Laptop": {
+      "name": "laptop-bold",
+      "color": "black"
+    },
+    "Handshake": {
+      "name": "handshake-bold",
+      "color": "blue"
+    },
+    "Applause": {
+      "name": "applause-bold",
+      "color": "green"
+    },
     "Chat": {
       "name": "chat-filled",
       "color": "cobalt"
