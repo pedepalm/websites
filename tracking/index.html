@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<!-- Demo FedEx-style tracking page. Tracking number is the last URL path segment. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FedEx Tracking</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --fx-purple: #4d148c;
+      --fx-purple-deep: #3b0f6d;
+      --fx-orange: #ff6600;
+      --ink: #1a1a1a;
+      --muted: #5c5c5c;
+      --line: #d9d9d9;
+      --card: #ffffff;
+      --bg: #f2f2f2;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; }
+    body {
+      font-family: Inter, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100dvh;
+    }
+    .top {
+      background: var(--fx-purple);
+      color: #fff;
+      padding: calc(14px + env(safe-area-inset-top)) 18px 16px;
+    }
+    .wordmark {
+      font-weight: 800;
+      font-style: italic;
+      font-size: 28px;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+    .wordmark .x { color: var(--fx-orange); }
+    .top small {
+      display: block;
+      margin-top: 6px;
+      opacity: 0.85;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .wrap { padding: 16px 16px 32px; max-width: 520px; margin: 0 auto; }
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+    }
+    .kicker {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin: 0 0 6px;
+    }
+    .tn {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      word-break: break-all;
+      margin: 0;
+    }
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 12px 0 0;
+      color: var(--fx-purple);
+      font-weight: 700;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--fx-orange);
+      box-shadow: 0 0 0 4px rgba(255,102,0,0.18);
+    }
+    .deliver {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.15;
+      margin: 4px 0 0;
+    }
+    .deliver span { color: var(--fx-purple); }
+    .hint { color: var(--muted); font-size: 13px; margin: 8px 0 0; }
+
+    .hops {
+      overflow-x: auto;
+      padding: 8px 2px 4px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .hops-line {
+      display: flex;
+      align-items: flex-start;
+      min-width: 460px;
+      position: relative;
+    }
+    .hop {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      padding-top: 28px;
+    }
+    .rail {
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      top: 36px;
+      height: 4px;
+      background: var(--line);
+      z-index: 0;
+    }
+    .rail .fill {
+      height: 100%;
+      width: 25%;
+      background: var(--fx-purple);
+    }
+    .node {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      margin: 0 auto 8px;
+      background: var(--line);
+      position: relative;
+      z-index: 1;
+    }
+    .hop.done .node { background: var(--fx-purple); }
+    .hop.current .node {
+      background: var(--fx-orange);
+      box-shadow: 0 0 0 4px rgba(255,102,0,0.2);
+    }
+    .truck {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      transform: translateX(-50%);
+      color: var(--fx-purple);
+    }
+    .city {
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .when {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .scan { list-style: none; margin: 0; padding: 0; }
+    .scan li {
+      display: grid;
+      grid-template-columns: 18px 1fr;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .scan li:last-child { border-bottom: 0; }
+    .scan i {
+      width: 12px;
+      height: 12px;
+      margin-top: 4px;
+      border-radius: 50%;
+      background: var(--line);
+    }
+    .scan li.done i { background: var(--fx-purple); }
+    .scan li.current i { background: var(--fx-orange); }
+    .scan strong { display: block; font-size: 14px; }
+    .scan em {
+      font-style: normal;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .legal {
+      color: #8a8a8a;
+      font-size: 11px;
+      text-align: center;
+      margin: 8px 4px 0;
+    }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wordmark">FEDE<span class="x">X</span></div>
+    <small>Tracking</small>
+  </header>
+  <main class="wrap">
+    <section class="card">
+      <p class="kicker">Tracking number</p>
+      <h1 class="tn" id="tn"></h1>
+      <p class="status"><span class="dot"></span> On the way</p>
+    </section>
+    <section class="card">
+      <p class="kicker">Scheduled delivery</p>
+      <p class="deliver"><span id="deliver-day"></span></p>
+      <p class="hint" id="deliver-note"></p>
+    </section>
+    <section class="card">
+      <p class="kicker">Package progress</p>
+      <div class="hops">
+        <div class="hops-line" id="hops-line">
+          <div class="rail"><div class="fill"></div></div>
+        </div>
+      </div>
+    </section>
+    <section class="card">
+      <p class="kicker">Travel history</p>
+      <ol class="scan" id="scans"></ol>
+    </section>
+    <p class="legal">Demo tracking page for internal use. Not affiliated with FedEx.</p>
+  </main>
+  <script>
+    const CITIES = [
+      ["Memphis", "TN"], ["Indianapolis", "IN"], ["Oakland", "CA"],
+      ["Newark", "NJ"], ["Dallas", "TX"], ["Atlanta", "GA"],
+      ["Chicago", "IL"], ["Los Angeles", "CA"], ["Seattle", "WA"],
+      ["Denver", "CO"], ["Phoenix", "AZ"], ["Houston", "TX"],
+      ["Miami", "FL"], ["Boston", "MA"], ["Minneapolis", "MN"],
+      ["Kansas City", "MO"], ["Charlotte", "NC"], ["Portland", "OR"],
+      ["Detroit", "MI"], ["Salt Lake City", "UT"], ["Louisville", "KY"],
+      ["Columbus", "OH"], ["Baltimore", "MD"], ["Nashville", "TN"]
+    ];
+    const EVENTS = [
+      "Picked up",
+      "Departed FedEx location",
+      "Arrived at FedEx hub",
+      "At local FedEx facility",
+      "On FedEx vehicle for delivery"
+    ];
+
+    function trackingFromUrl() {
+      const parts = location.pathname.replace(/\/+$/, "").split("/");
+      let value = decodeURIComponent(parts[parts.length - 1] || "");
+      if (!value || /^tracking$/i.test(value) || /^index\.html$/i.test(value)) {
+        value = new URLSearchParams(location.search).get("tn") || "";
+      }
+      return value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+    }
+
+    function hashString(text) {
+      let hash = 2166136261;
+      for (let i = 0; i < text.length; i += 1) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 16777619);
+      }
+      return hash >>> 0;
+    }
+
+    function rng(seed) {
+      let state = seed || 1;
+      return function next() {
+        state = (Math.imul(1664525, state) + 1013904223) >>> 0;
+        return state / 4294967296;
+      };
+    }
+
+    function addBusinessDays(start, days) {
+      const date = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+      let added = 0;
+      while (added < days) {
+        date.setDate(date.getDate() + 1);
+        const weekday = date.getDay();
+        if (weekday !== 0 && weekday !== 6) added += 1;
+      }
+      return date;
+    }
+
+    function formatLong(date) {
+      return date.toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric"
+      });
+    }
+
+    function formatShort(date) {
+      return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+    }
+
+    function pickCities(random, count) {
+      const pool = CITIES.slice();
+      const picked = [];
+      while (picked.length < count && pool.length) {
+        picked.push(pool.splice(Math.floor(random() * pool.length), 1)[0]);
+      }
+      return picked;
+    }
+
+    function hopDates(today, delivery) {
+      const stamps = [new Date(today)];
+      const span = Math.max(1, Math.round((delivery - today) / 86400000));
+      for (let i = 1; i < 5; i += 1) {
+        const next = new Date(today);
+        next.setDate(today.getDate() + Math.round((span * i) / 4));
+        if (next > delivery) next.setTime(delivery.getTime());
+        stamps.push(next);
+      }
+      stamps[4] = new Date(delivery);
+      return stamps;
+    }
+
+    const tracking = trackingFromUrl();
+    const today = new Date();
+    const delivery = addBusinessDays(today, 4);
+    const random = rng(hashString(tracking || "FEDEX"));
+    const cities = pickCities(random, 5);
+    const dates = hopDates(today, delivery);
+    const current = 1;
+
+    document.title = (tracking || "Tracking") + " · FedEx";
+    document.querySelector("#tn").textContent = tracking || "Enter a tracking number in the URL";
+    document.querySelector("#deliver-day").textContent = formatLong(delivery);
+    document.querySelector("#deliver-note").textContent = tracking
+      ? "Estimated arrival is 4 business days from today. By end of day."
+      : "Open /tracking/Z3456434636 to load a demo number.";
+
+    const truckSvg = '<svg class="truck" width="26" height="18" viewBox="0 0 26 18" aria-hidden="true"><rect x="1" y="5" width="14" height="8" rx="1.5" fill="currentColor"/><path d="M15 8h6l3 4v3h-9V8z" fill="currentColor"/><circle cx="7" cy="15" r="2.2" fill="#1a1a1a"/><circle cx="20" cy="15" r="2.2" fill="#1a1a1a"/></svg>';
+
+    const line = document.querySelector("#hops-line");
+    cities.forEach((city, index) => {
+      const hop = document.createElement("div");
+      hop.className = "hop" + (index < current ? " done" : "") + (index === current ? " current" : "");
+      hop.innerHTML = (index === current ? truckSvg : "") +
+        '<div class="node"></div>' +
+        '<div class="city">' + city[0] + "<br>" + city[1] + "</div>" +
+        '<div class="when">' + formatShort(dates[index]) + "</div>";
+      line.appendChild(hop);
+    });
+
+    const scans = document.querySelector("#scans");
+    cities.forEach((city, index) => {
+      const item = document.createElement("li");
+      item.className = index < current ? "done" : (index === current ? "current" : "");
+      item.innerHTML = "<i></i><div><strong>" + EVENTS[index] + "</strong><em>" +
+        city[0] + ", " + city[1] + " · " + formatShort(dates[index]) +
+        (index > current ? " · Estimated" : "") + "</em></div>";
+      scans.appendChild(item);
+    });
+  </script>
+</body>
+</html>
