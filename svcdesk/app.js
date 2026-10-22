@@ -968,6 +968,7 @@ function showSmsQr(type) {
 }
 
 document.querySelector("#sms-open")?.addEventListener("click", openSmsModal);
+document.querySelector("#sms-cancel")?.addEventListener("click", closeSmsModal);
 document.querySelector("#sms-qr-back")?.addEventListener("click", hideSmsQr);
 smsModal?.addEventListener("click", (event) => {
   if (event.target === smsModal) closeSmsModal();
@@ -1001,6 +1002,120 @@ smsForm?.addEventListener("submit", (event) => {
 });
 window.addEventListener("account-changed", () => {
   if (smsModal && !smsModal.hidden) applySmsAuthState();
+  if (emailModal && !emailModal.hidden) applyEmailDefaults();
+});
+
+const EMAIL_ENDPOINT = "/.netlify/functions/email";
+const emailModal = document.querySelector("#email-modal");
+const emailForm = document.querySelector("#email-form");
+const emailAddress = document.querySelector("#email-address");
+const emailSubject = document.querySelector("#email-subject");
+const emailMessage = document.querySelector("#email-message");
+const emailError = document.querySelector("#email-error");
+const emailSubmit = document.querySelector("#email-submit");
+
+function showEmailError(message) {
+  if (!emailError) return;
+  emailError.hidden = !message;
+  emailError.textContent = message || "";
+}
+
+function selectedEmailReason() {
+  return emailForm?.querySelector("input[name='email-reason']:checked")?.value || "";
+}
+
+function applyEmailDefaults() {
+  const user = typeof readSessionUser === "function" ? readSessionUser() : null;
+  const loggedIn = typeof isLoggedInUser === "function" && isLoggedInUser(user);
+  if (emailAddress && loggedIn && user.email && !emailAddress.value) {
+    emailAddress.value = user.email;
+  }
+}
+
+function openEmailModal() {
+  if (!emailModal || !emailForm) return;
+  emailForm.reset();
+  showEmailError("");
+  applyEmailDefaults();
+  emailModal.hidden = false;
+  emailAddress?.focus();
+}
+
+function closeEmailModal() {
+  if (emailModal) emailModal.hidden = true;
+  emailForm?.reset();
+  showEmailError("");
+}
+
+document.querySelector("#email-open")?.addEventListener("click", openEmailModal);
+document.querySelector("#email-cancel")?.addEventListener("click", closeEmailModal);
+emailModal?.addEventListener("click", (event) => {
+  if (event.target === emailModal) closeEmailModal();
+});
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && emailModal && !emailModal.hidden) closeEmailModal();
+});
+emailForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const customerEmail = String(emailAddress?.value || "").trim();
+  const subject = String(emailSubject?.value || "").trim().slice(0, 60);
+  const reasonForCalling = selectedEmailReason();
+  const message = String(emailMessage?.value || "").trim().slice(0, 800);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+    showEmailError("Enter a valid email address.");
+    return;
+  }
+  if (!subject) {
+    showEmailError("Enter an email subject.");
+    return;
+  }
+  if (reasonForCalling !== "IT" && reasonForCalling !== "Human Resources") {
+    showEmailError("Choose Technical Support or Human Resources.");
+    return;
+  }
+  if (!message) {
+    showEmailError("Enter a message.");
+    return;
+  }
+  showEmailError("");
+  if (emailSubmit) {
+    emailSubmit.disabled = true;
+    emailSubmit.textContent = "Sending…";
+  }
+  try {
+    const response = await fetch(EMAIL_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json"
+      },
+      body: JSON.stringify({
+        customerEmail,
+        emailSubject: subject,
+        reasonForCalling,
+        message
+      })
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      throw new Error(payload.error || "Could not start the email thread.");
+    }
+    closeEmailModal();
+    if (toast) {
+      toast.hidden = false;
+      toast.textContent = "Email thread started.";
+      window.setTimeout(() => {
+        toast.hidden = true;
+      }, 4200);
+    }
+  } catch (error) {
+    showEmailError(error.message || "Could not start the email thread.");
+  } finally {
+    if (emailSubmit) {
+      emailSubmit.disabled = false;
+      emailSubmit.textContent = "Send";
+    }
+  }
 });
 
 const queue = document.querySelector("#queue-count");

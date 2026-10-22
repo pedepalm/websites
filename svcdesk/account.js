@@ -37,8 +37,9 @@ function readSessionUser() {
   const fname = sessionStorage.getItem("fname") || "";
   const lname = sessionStorage.getItem("lname") || "";
   const phone = sessionStorage.getItem("phone") || "";
+  const email = sessionStorage.getItem("email") || "";
   if (!employeeId) return null;
-  return { employeeId, fname, lname, phone };
+  return { employeeId, fname, lname, phone, email };
 }
 
 function storeSessionUser(user) {
@@ -46,6 +47,7 @@ function storeSessionUser(user) {
   sessionStorage.setItem("fname", user.fname || "");
   sessionStorage.setItem("lname", user.lname || "");
   sessionStorage.setItem("phone", user.phone || "");
+  sessionStorage.setItem("email", user.email || "");
 }
 
 function clearSessionUser() {
@@ -53,6 +55,7 @@ function clearSessionUser() {
   sessionStorage.removeItem("fname");
   sessionStorage.removeItem("lname");
   sessionStorage.removeItem("phone");
+  sessionStorage.removeItem("email");
 }
 
 function renderAccount(user) {
@@ -420,7 +423,8 @@ function bindAccountChrome() {
         employeeId: payload.employeeId || employeeId,
         fname: payload.fname || "",
         lname: payload.lname || "",
-        phone: payload.phone || ""
+        phone: payload.phone || "",
+        email: payload.email || ""
       };
       storeSessionUser(user);
       renderAccount(user);

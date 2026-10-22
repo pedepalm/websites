@@ -110,7 +110,8 @@ exports.handler = async (event) => {
         employeeId: field(fields, ["employeeid", "employeeId"]) || employeeId,
         fname: field(fields, ["fname"]),
         lname: field(fields, ["lname"]),
-        phone: field(fields, ["phone", "Phone", "mobile", "Mobile", "Phone Number"])
+        phone: field(fields, ["phone", "Phone", "mobile", "Mobile", "Phone Number"]),
+        email: field(fields, ["email", "Email", "e-mail"])
       })
     };
   } catch {
