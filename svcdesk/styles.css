@@ -236,7 +236,30 @@ button.wxcc-link {
 .tabs button.active { background: var(--navy); color: #fff; border-color: var(--navy); }
 
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.grid.four { grid-template-columns: repeat(3, 1fr); }
+.grid.four {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.grid.four .card {
+  padding: 12px;
+  gap: 8px;
+}
+.grid.four .card h3 {
+  font-size: 15px;
+  line-height: 1.25;
+}
+.grid.four .card p {
+  font-size: 13px;
+  line-height: 1.4;
+}
+.grid.four .circle-btn {
+  width: 56px;
+  height: 56px;
+}
+.grid.four .circle-btn-wrap,
+.grid.four .chat-widget-slot {
+  min-height: 56px;
+}
 .card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -255,7 +278,8 @@ button.wxcc-link {
   background: #fbfcfe;
 }
 .card.chat-action,
-.card.callback-action {
+.card.callback-action,
+.card.email-action {
   background: #fff;
 }
 .circle-btn-wrap {
