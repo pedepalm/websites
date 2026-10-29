@@ -37,7 +37,7 @@
     </div>
     <div class="main-nav">
       <div class="brand-row">
-        <img class="logo" src="https://www.cinemark.com/images/cinemarkLogoRt.png" alt="Cinemark">
+        <a class="logo-home" href="index.html"><img class="logo" src="https://www.cinemark.com/images/cinemarkLogoRt.png" alt="Cinemark"></a>
         <nav class="primary" aria-label="Primary">
           <span>Movies</span>
           <span>Theatres</span>
@@ -55,12 +55,12 @@
     <section class="featured" aria-label="Featured Movies">
       <div class="featured-head">
         <h1>Featured Movies</h1>
-        <div class="arrows">
-          <button type="button" id="prev" aria-label="Previous movies">‹</button>
-          <button type="button" id="next" aria-label="Next movies">›</button>
-        </div>
       </div>
-      <div class="scroller" id="scroller"></div>
+      <div class="rail">
+        <button class="edge prev" type="button" id="prev" aria-label="Previous movies">‹</button>
+        <div class="scroller" id="scroller"></div>
+        <button class="edge next" type="button" id="next" aria-label="Next movies">›</button>
+      </div>
     </section>
 
     <section class="genres" aria-label="Popular Genres">

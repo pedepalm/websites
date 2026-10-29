@@ -55,7 +55,7 @@ const GENRES = [
 ];
 
 const genreGrid = document.querySelector("#genre-grid");
-genreGrid.innerHTML = GENRES.map(([title, blurb, image]) => `
+if (genreGrid) genreGrid.innerHTML = GENRES.map(([title, blurb, image]) => `
   <article class="genre-card">
     <img src="${image}" alt="">
     <div>
@@ -67,28 +67,47 @@ genreGrid.innerHTML = GENRES.map(([title, blurb, image]) => `
 `).join("");
 
 const scroller = document.querySelector("#scroller");
-scroller.innerHTML = MOVIES.map(([title, poster, advance]) => `
+if (scroller) scroller.innerHTML = MOVIES.map(([title, poster, advance]) => {
+  const href = `movie.html?title=${encodeURIComponent(title)}&poster=${encodeURIComponent(poster)}`;
+  return `
   <article class="card${advance ? " has-advance" : ""}">
     <div class="advance"${advance ? "" : " hidden"}>Advance Tickets</div>
-    <div class="poster">
-      <img class="art" src="${poster}" alt="">
-      <img class="play" src="https://www.cinemark.com/images/videoOverlay.png" alt="">
-      <span class="heart" aria-hidden="true">♡</span>
-    </div>
-    <p class="title">${title}</p>
+    <a class="movie-open" href="${href}">
+      <div class="poster">
+        <img class="art" src="${poster}" alt="">
+        <img class="play" src="https://www.cinemark.com/images/videoOverlay.png" alt="">
+        <span class="heart" aria-hidden="true">♡</span>
+      </div>
+      <p class="title">${title}</p>
+    </a>
   </article>
-`).join("");
+`;
+}).join("");
+
+const movieName = document.querySelector("#movie-name");
+if (movieName) {
+  const params = new URLSearchParams(window.location.search);
+  const title = params.get("title") || "Clayface";
+  const poster = params.get("poster") || "https://www.cinemark.com/media/x4tfvaaf/mdclayfaceposter.jpg";
+  movieName.textContent = title;
+  document.title = `${title} Showtimes & Tickets`;
+  const image = document.querySelector("#movie-poster");
+  if (image) {
+    image.src = poster;
+    image.alt = `${title} poster`;
+  }
+}
 
 function scrollByCard(direction) {
   const card = scroller.querySelector(".card");
   const amount = (card ? card.getBoundingClientRect().width + 16 : 236) * 2;
   scroller.scrollBy({ left: direction * amount, behavior: "smooth" });
 }
-document.querySelector("#prev").addEventListener("click", () => scrollByCard(-1));
-document.querySelector("#next").addEventListener("click", () => scrollByCard(1));
+document.querySelector("#prev")?.addEventListener("click", () => scrollByCard(-1));
+document.querySelector("#next")?.addEventListener("click", () => scrollByCard(1));
 
 document.addEventListener("click", (event) => {
-  if (event.target.closest(".wxcc-dock, .arrows")) return;
+  if (event.target.closest(".wxcc-dock, .edge, .movie-open, .logo-home")) return;
   const link = event.target.closest("a");
   if (link) event.preventDefault();
 });
