@@ -92,10 +92,13 @@ if (showdates) {
   showdates.innerHTML = Array.from({ length: 7 }, (_, offset) => {
     const date = new Date(today);
     date.setDate(today.getDate() + offset);
+    const weekdays = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const pretty = `${weekdays[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
     const label = offset === 0
       ? `<span class="showdate-day">Today</span>`
       : `<span class="showdate-day">${dayNames[date.getDay()]}</span><span class="showdate-date">${date.getMonth() + 1}/${date.getDate()}</span>`;
-    return `<button type="button" class="showdate${offset === 0 ? " on" : ""}">${label}</button>`;
+    return `<button type="button" class="showdate${offset === 0 ? " on" : ""}" data-date="${pretty}">${label}</button>`;
   }).join("");
   showdates.addEventListener("click", (event) => {
     const chip = event.target.closest(".showdate");
@@ -117,6 +120,38 @@ if (seatTitle) {
   if (ratingEl) ratingEl.textContent = rating;
   if (timeEl) timeEl.textContent = showtime;
   document.title = `${title} Seats`;
+}
+
+document.querySelector(".add-cart")?.addEventListener("click", () => {
+  const params = new URLSearchParams(window.location.search);
+  const next = new URLSearchParams({
+    title: params.get("title") || "Clayface",
+    poster: params.get("poster") || "https://www.cinemark.com/media/x4tfvaaf/mdclayfaceposter.jpg",
+    date: params.get("date") || "",
+    time: params.get("time") || ""
+  });
+  window.location.href = `checkout.html?${next.toString()}`;
+});
+
+const checkoutTitle = document.querySelector("#checkout-title");
+if (checkoutTitle) {
+  const params = new URLSearchParams(window.location.search);
+  const title = params.get("title") || "Clayface";
+  checkoutTitle.textContent = title;
+  document.title = `${title} Checkout`;
+  const poster = document.querySelector("#checkout-poster");
+  if (poster) {
+    poster.src = params.get("poster") || "https://www.cinemark.com/media/x4tfvaaf/mdclayfaceposter.jpg";
+    poster.alt = `${title} poster`;
+  }
+  const dateEl = document.querySelector("#checkout-date");
+  const timeEl = document.querySelector("#checkout-time");
+  if (dateEl) dateEl.textContent = params.get("date") || "";
+  if (timeEl) timeEl.textContent = params.get("time") || "";
+  document.querySelector("#guest-checkout")?.addEventListener("click", () => {
+    const modal = document.querySelector("#phone-modal");
+    if (modal) modal.hidden = false;
+  });
 }
 
 const movieName = document.querySelector("#movie-name");
@@ -152,9 +187,13 @@ document.addEventListener("click", (event) => {
     const date = selected?.querySelector(".showdate-date")?.textContent.trim() || "";
     const when = date ? `${day} ${date}` : day;
     const theater = showtimeLink.closest(".theatre-block")?.querySelector("h3")?.textContent.replace("›", "").replace(/\s+/g, " ").trim() || "";
+    const poster = document.querySelector("#movie-poster")?.getAttribute("src") || "https://www.cinemark.com/media/x4tfvaaf/mdclayfaceposter.jpg";
     const params = new URLSearchParams({
       title,
       rating,
+      poster,
+      date: selected?.getAttribute("data-date") || "",
+      time,
       showtime: [theater, when, time].filter(Boolean).join(" · ")
     });
     showtimeLink.href = `seats.html?${params.toString()}`;
