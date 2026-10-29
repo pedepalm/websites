@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cinemark Theatres | Movie Times and Tickets</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="location-bar">
+      <div class="location">
+        <svg class="pin" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 2.5a7 7 0 0 0-7 7c0 5.2 7 12 7 12s7-6.8 7-12a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
+        </svg>
+        <span class="theater">Cinemark Allen 16 and XD</span>
+        <a class="change dead" href="#">Change</a>
+      </div>
+      <nav class="secondary" aria-label="Secondary">
+        <span>Gift Cards</span>
+        <span>Food &amp; Drink</span>
+        <span>Merchandise</span>
+        <span>Private Events</span>
+        <span>Movie News</span>
+        <span>Guest Services</span>
+        <span class="icon-btn" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.25" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15.2 15.2 20 20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </span>
+        <span class="cart" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M6 6h15l-1.6 8.2H8.2L6 6zm0 0L5 3H2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/></svg>
+          <span>0</span>
+        </span>
+      </nav>
+    </div>
+    <div class="main-nav">
+      <div class="brand-row">
+        <img class="logo" src="https://www.cinemark.com/images/cinemarkLogoRt.png" alt="Cinemark">
+        <nav class="primary" aria-label="Primary">
+          <span>Movies</span>
+          <span>Theatres</span>
+          <span>Movie Rewards</span>
+        </nav>
+      </div>
+      <div class="signin" aria-disabled="true">
+        <img src="https://www.cinemark.com/images/icon_guest.svg" alt="">
+        <span>Sign in</span> or <span>Create an Account</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="featured" aria-label="Featured Movies">
+      <div class="featured-head">
+        <h1>Featured Movies</h1>
+        <div class="arrows">
+          <button type="button" id="prev" aria-label="Previous movies">‹</button>
+          <button type="button" id="next" aria-label="Next movies">›</button>
+        </div>
+      </div>
+      <div class="scroller" id="scroller"></div>
+    </section>
+  </main>
+
+  <div class="wxcc-dock" id="wxcc-auth-bar">
+    <span class="wxcc-status" id="wxcc-status-label">Webex off</span>
+    <button class="wxcc-link" type="button" id="wxcc-auth-needed">Connect</button>
+    <a class="wxcc-link" id="wxcc-auth-ready" href="/.netlify/functions/wxcc-oauth?logout=1" hidden>Disconnect</a>
+  </div>
+  <div class="toast" id="toast" hidden role="status"></div>
+
+  <script src="demo.js"></script>
+</body>
+</html>
