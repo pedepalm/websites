@@ -62,8 +62,13 @@
         </div>
       </section>
       <section class="guest-fields" id="guest-fields" hidden>
-        <label for="phone">Phone number</label>
-        <input id="phone" type="tel" inputmode="tel" autocomplete="tel">
+        <div class="phone-pick">
+          <label for="phone">Phone number</label>
+          <input id="phone" type="tel" readonly autocomplete="off">
+          <ul class="phone-list" id="phone-list" hidden>
+            <li><button type="button" data-phone="+19723428062">+19723428062</button></li>
+          </ul>
+        </div>
         <label for="email">Email</label>
         <input id="email" type="email" autocomplete="email">
         <button class="btn-complete" type="button">Complete Purchase</button>

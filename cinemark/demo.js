@@ -152,6 +152,47 @@ if (checkoutTitle) {
     const fields = document.querySelector("#guest-fields");
     if (fields) fields.hidden = false;
   });
+
+  const phoneInput = document.querySelector("#phone");
+  const phoneList = document.querySelector("#phone-list");
+  const openPhoneList = () => {
+    if (phoneList) phoneList.hidden = false;
+  };
+  phoneInput?.addEventListener("focus", openPhoneList);
+  phoneInput?.addEventListener("click", openPhoneList);
+  phoneList?.addEventListener("click", (event) => {
+    const choice = event.target.closest("[data-phone]");
+    if (!choice || !phoneInput) return;
+    phoneInput.value = choice.getAttribute("data-phone") || "";
+    phoneList.hidden = true;
+  });
+  document.addEventListener("click", (event) => {
+    if (!phoneList || event.target.closest(".phone-pick")) return;
+    phoneList.hidden = true;
+  });
+
+  document.querySelector(".btn-complete")?.addEventListener("click", async () => {
+    const phone = phoneInput?.value.trim() || "";
+    const movieName = checkoutTitle.textContent.trim();
+    if (!phone) {
+      showToast("Select a phone number.");
+      return;
+    }
+    try {
+      const response = await fetch("/.netlify/functions/cinemark-purchase", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, movieName })
+      });
+      if (!response.ok) {
+        showToast("Purchase could not be sent.");
+        return;
+      }
+      showToast("Purchase sent.");
+    } catch {
+      showToast("Purchase could not be sent.");
+    }
+  });
 }
 
 const movieName = document.querySelector("#movie-name");
