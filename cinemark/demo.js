@@ -149,8 +149,8 @@ if (checkoutTitle) {
   if (dateEl) dateEl.textContent = params.get("date") || "";
   if (timeEl) timeEl.textContent = params.get("time") || "";
   document.querySelector("#guest-checkout")?.addEventListener("click", () => {
-    const modal = document.querySelector("#phone-modal");
-    if (modal) modal.hidden = false;
+    const fields = document.querySelector("#guest-fields");
+    if (fields) fields.hidden = false;
   });
 }
 

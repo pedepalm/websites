@@ -52,14 +52,23 @@
   </header>
 
   <main class="checkout">
-    <section class="account-box" aria-label="Account">
-      <h2>Have a Cinemark account?</h2>
-      <p>Sign in to use saved payment information. If you don't have an account, you can register for a Cinemark account.</p>
-      <div class="account-actions">
-        <button class="btn-signin" type="button">Sign In</button>
-        <button class="btn-guest" type="button" id="guest-checkout">Guest Checkout</button>
-      </div>
-    </section>
+    <div class="checkout-left">
+      <section class="account-box" aria-label="Account">
+        <h2>Have a Cinemark account?</h2>
+        <p>Sign in to use saved payment information. If you don't have an account, you can register for a Cinemark account.</p>
+        <div class="account-actions">
+          <button class="btn-signin" type="button">Sign In</button>
+          <button class="btn-guest" type="button" id="guest-checkout">Guest Checkout</button>
+        </div>
+      </section>
+      <section class="guest-fields" id="guest-fields" hidden>
+        <label for="phone">Phone number</label>
+        <input id="phone" type="tel" inputmode="tel" autocomplete="tel">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="email">
+        <button class="btn-complete" type="button">Complete Purchase</button>
+      </section>
+    </div>
 
     <section class="order" aria-label="Order">
       <div class="order-top">
@@ -79,15 +88,6 @@
       </div>
     </section>
   </main>
-
-  <div class="phone-modal" id="phone-modal" hidden>
-    <div class="phone-box" role="dialog" aria-labelledby="phone-heading">
-      <h2 id="phone-heading">Guest Checkout</h2>
-      <label for="phone">Phone number</label>
-      <input id="phone" type="tel" inputmode="tel" autocomplete="tel">
-      <button class="btn-complete" type="button">Complete Purchase</button>
-    </div>
-  </div>
 
   <div class="wxcc-dock" id="wxcc-auth-bar">
     <span class="wxcc-status" id="wxcc-status-label">Webex off</span>

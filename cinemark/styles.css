@@ -364,7 +364,7 @@ body:has(.seat-page) {
   line-height: 1.4;
 }
 .seat-frame {
-  width: min(60vw, calc((100vh - 230px) * 1024 / 725));
+  width: min(48vw, calc((100vh - 230px) * 0.8 * 1024 / 725));
   margin: 0 auto;
   background: #fafafa;
 }
@@ -455,33 +455,23 @@ body:has(.checkout) { min-height: auto; }
   font-weight: 700;
   font-size: 18px;
 }
-.phone-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.45);
-}
-.phone-modal[hidden] { display: none; }
-.phone-box {
-  width: min(420px, 100%);
+.checkout-left { display: flex; flex-direction: column; gap: 16px; }
+.guest-fields {
   background: #fff;
-  border-radius: 12px;
-  padding: 28px 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 28px 24px 24px;
 }
-.phone-box h2 { margin: 0 0 16px; font-size: 22px; }
-.phone-box label { display: block; font-weight: 600; margin-bottom: 8px; }
-.phone-box input {
+.guest-fields[hidden] { display: none; }
+.guest-fields label { display: block; font-weight: 600; margin-bottom: 8px; }
+.guest-fields input {
   width: 100%;
   font: inherit;
   font-size: 18px;
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 .btn-complete {
   width: 100%;
