@@ -105,6 +105,20 @@ if (showdates) {
   });
 }
 
+const seatTitle = document.querySelector("#seat-title");
+if (seatTitle) {
+  const params = new URLSearchParams(window.location.search);
+  const title = params.get("title") || "Clayface";
+  const rating = params.get("rating") || "R";
+  const showtime = params.get("showtime") || "";
+  seatTitle.textContent = title;
+  const ratingEl = document.querySelector("#seat-rating");
+  const timeEl = document.querySelector("#seat-time");
+  if (ratingEl) ratingEl.textContent = rating;
+  if (timeEl) timeEl.textContent = showtime;
+  document.title = `${title} Seats`;
+}
+
 const movieName = document.querySelector("#movie-name");
 if (movieName) {
   const params = new URLSearchParams(window.location.search);
@@ -128,6 +142,24 @@ document.querySelector("#prev")?.addEventListener("click", () => scrollByCard(-1
 document.querySelector("#next")?.addEventListener("click", () => scrollByCard(1));
 
 document.addEventListener("click", (event) => {
+  const showtimeLink = event.target.closest(".times a");
+  if (showtimeLink) {
+    const title = document.querySelector("#movie-name")?.textContent.trim() || "Clayface";
+    const rating = document.querySelector("#movie-rating")?.textContent.trim() || "R";
+    const time = showtimeLink.textContent.trim();
+    const selected = document.querySelector("#showdates .showdate.on");
+    const day = selected?.querySelector(".showdate-day")?.textContent.trim() || "Today";
+    const date = selected?.querySelector(".showdate-date")?.textContent.trim() || "";
+    const when = date ? `${day} ${date}` : day;
+    const theater = showtimeLink.closest(".theatre-block")?.querySelector("h3")?.textContent.replace("›", "").replace(/\s+/g, " ").trim() || "";
+    const params = new URLSearchParams({
+      title,
+      rating,
+      showtime: [theater, when, time].filter(Boolean).join(" · ")
+    });
+    showtimeLink.href = `seats.html?${params.toString()}`;
+    return;
+  }
   if (event.target.closest(".wxcc-dock, .edge, .movie-open, .logo-home")) return;
   const link = event.target.closest("a");
   if (link) event.preventDefault();
