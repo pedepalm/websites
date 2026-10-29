@@ -27,10 +27,49 @@ const MOVIES = [
   ["Fjord", "https://www.cinemark.com/media/pcaly2kb/mdfjordposter.jpg", false]
 ];
 
+const GENRES = [
+  ["Action Movies", "From explosive blockbusters to high-octane thrillers, experience nonstop action.", "https://www.cinemark.com/media/5m0lqukf/actiongenrejohnwicklsmstill.png"],
+  ["Animation Movies", "See the latest hits from Disney, Pixar, DreamWorks and more.", "https://www.cinemark.com/media/cc5joczq/smfrozen2animationgenre.jpg"],
+  ["Anime Movies", "From Studio Ghibli classics to the latest anime premieres.", "https://www.cinemark.com/media/4egdxs5w/lg-ponyo-still.jpg"],
+  ["Classics Movies", "Relive the magic of Cinema’s greatest moments.", "https://www.cinemark.com/media/75969718/sm_still_woz_2.jpg"],
+  ["Comedy Movies", "From witty banter to outrageous moments, comedy hits are even better on the big screen.", "https://www.cinemark.com/media/u5vfacjm/comedygenrenapoleonsmstill.png"],
+  ["Concert Events", "Feel the energy of live music on the big screen.", "https://www.cinemark.com/media/76003554/small-bts-yet-to-come-still.jpg"],
+  ["Crime Movies", "Unravel gripping mysteries and high-stakes crime.", "https://www.cinemark.com/media/75968755/01-la-confidential-1250.jpg"],
+  ["Documentary Movies", "Explore real stories, bold perspectives, and eye-opening journeys.", "https://www.cinemark.com/media/75980720/truman__tennessee_an_intimate_conversation_still_small.jpg"],
+  ["Drama Movies", "Experience powerful performances and unforgettable stories.", "https://www.cinemark.com/media/75993194/downton_abbey_une_nouvelle_ere_vod_small.jpg"],
+  ["Fantasy Movies", "Explore new war movies playing now and upcoming releases coming soon.", "https://www.cinemark.com/media/75971603/03-lord-of-the-rings-1250.jpg"],
+  ["Fathom Events", "Fathom brings unforgettable experiences to the big screen.", "https://www.cinemark.com/media/j4xpi3aa/fathomentertainments.jpg"],
+  ["Faith Movies", "Watch inspiring faith-based films to the big screen.", "https://www.cinemark.com/media/bfrlpewy/sm-thechosen1-still-2.jpg"],
+  ["Family & Kids Movies", "Make movie night magical with fun for all ages.", "https://www.cinemark.com/media/lfrjw2dn/lgliloandstitchstill2.jpg"],
+  ["Horror Movies", "New horror movies bring gripping plots, shocking twists, and unforgettable scares.", "https://www.cinemark.com/media/75988002/scream_still_small.jpg"],
+  ["Indian Movies", "Vibrant stories. Unforgettable music. Big-screen magic.", "https://www.cinemark.com/media/oxdpx4fh/pushpa_2_the_rule_still_small.jpg"],
+  ["Musical Movies", "Musical movies are best experienced on the big screen.", "https://www.cinemark.com/media/75976984/400-pwp-musicals-banner.jpg"],
+  ["Romance Movies", "From first kisses to forever moments—see love stories unfold on the big screen.", "https://www.cinemark.com/media/3zafhoua/romancegenrethenotebooksmstill.png"],
+  ["Science Fiction Movies", "From dystopian futures to interstellar odysseys, discover the latest sci-fi release.", "https://www.cinemark.com/media/3tsnjzxr/scifigenrealiensmstill.png"],
+  ["Películas subtituladas en español", "¡Ve muchas películas nuevas dobladas EN ESPAÑOL!", "https://www.cinemark.com/media/lgwb1rur/sm-radical-still.jpg"],
+  ["Sports Movies & Events", "Witness powerful stories of grit, glory, and comeback victories.", "https://www.cinemark.com/media/75969657/lg_still_rocky_2.jpg"],
+  ["Thriller Movies", "Uncover twists and tension with the latest thrillers.", "https://www.cinemark.com/media/75996721/jaws_3d_vod_small.jpg"],
+  ["Western Movies", "Step into the frontier with the newest Western movies.", "https://www.cinemark.com/media/cpypqqep/00-horizon-kevin-costner-hero.jpg"],
+  ["War Movies", "Explore new war movies playing now and upcoming releases coming soon.", "https://www.cinemark.com/media/75963884/lg_still_1917.jpg"],
+  ["Foreign Movies", "Find foreign films now playing in theaters near you.", "https://www.cinemark.com/media/75964447/lg_still_parasite_2.jpg"]
+];
+
+const genreGrid = document.querySelector("#genre-grid");
+genreGrid.innerHTML = GENRES.map(([title, blurb, image]) => `
+  <article class="genre-card">
+    <img src="${image}" alt="">
+    <div>
+      <h3>${title}</h3>
+      <p>${blurb}</p>
+      <span class="more">Learn More</span>
+    </div>
+  </article>
+`).join("");
+
 const scroller = document.querySelector("#scroller");
 scroller.innerHTML = MOVIES.map(([title, poster, advance]) => `
   <article class="card${advance ? " has-advance" : ""}">
-    ${advance ? '<div class="advance">Advance Tickets</div>' : ""}
+    <div class="advance"${advance ? "" : " hidden"}>Advance Tickets</div>
     <div class="poster">
       <img class="art" src="${poster}" alt="">
       <img class="play" src="https://www.cinemark.com/images/videoOverlay.png" alt="">
