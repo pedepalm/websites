@@ -215,7 +215,7 @@ a, button, span { -webkit-tap-highlight-color: transparent; }
 }
 
 .showtime-page {
-  max-width: 980px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 28px 28px 72px;
 }
@@ -277,31 +277,63 @@ a, button, span { -webkit-tap-highlight-color: transparent; }
   cursor: default;
 }
 .showtime-block h2 { margin: 0 0 14px; font-size: 28px; }
-.dates { display: flex; gap: 8px; margin-bottom: 22px; }
-.dates span {
+.dates {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  overflow-x: auto;
+}
+.showdate {
+  min-width: 76px;
   border: 1px solid var(--line);
   background: #fff;
-  border-radius: 6px;
-  padding: 8px 14px;
-  font-weight: 700;
+  border-radius: 4px;
+  padding: 8px 10px 7px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--ink);
+  font: inherit;
 }
-.dates .on { border-color: var(--primary); color: var(--primary); }
-.theater-block {
+.showdate.on {
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: inset 0 0 0 1px var(--primary);
+}
+.showdate-day, .showdate-date { display: block; font-weight: 700; line-height: 1.25; }
+.theatre-block {
   border-top: 1px solid var(--line);
-  padding-top: 16px;
+  padding: 18px 0 8px;
 }
-.theater-block h3 { margin: 0 0 4px; font-size: 20px; }
-.theater-block .addr { margin: 0 0 14px; color: var(--muted); }
-.format { margin-bottom: 14px; }
-.format strong { display: block; margin-bottom: 8px; }
+.theatre-block h3 { margin: 0; font-size: 22px; }
+.theatre-block h3 a { color: inherit; text-decoration: none; }
+.chev { color: var(--primary); }
+.theatre-meta { margin: 4px 0 12px; color: var(--muted); }
+.theatre-meta span + span { margin-left: 14px; }
+.format { margin-bottom: 16px; }
+.format-icons { display: flex; align-items: center; gap: 12px; margin: 0 0 8px; }
+.format-icons img { height: 22px; width: auto; }
+.format-icons .dbox { height: 34px; }
+.format-icons .screenx { height: 18px; }
+.format-label { margin: 0 0 8px; font-weight: 700; }
+.amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+  color: var(--muted);
+  font-size: 14px;
+}
 .times { display: flex; flex-wrap: wrap; gap: 8px; }
-.times span {
+.times a {
   border: 1px solid var(--primary);
   color: var(--primary);
   border-radius: 4px;
   padding: 8px 12px;
   font-weight: 700;
   background: #fff;
+  text-decoration: none;
 }
 
 .genres {

@@ -84,6 +84,27 @@ if (scroller) scroller.innerHTML = MOVIES.map(([title, poster, advance]) => {
 `;
 }).join("");
 
+const showdates = document.querySelector("#showdates");
+if (showdates) {
+  const dayNames = ["Sun", "Mon", "Tues", "Wed", "Thurs", "Fri", "Sat"];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  showdates.innerHTML = Array.from({ length: 7 }, (_, offset) => {
+    const date = new Date(today);
+    date.setDate(today.getDate() + offset);
+    const label = offset === 0
+      ? `<span class="showdate-day">Today</span>`
+      : `<span class="showdate-day">${dayNames[date.getDay()]}</span><span class="showdate-date">${date.getMonth() + 1}/${date.getDate()}</span>`;
+    return `<button type="button" class="showdate${offset === 0 ? " on" : ""}">${label}</button>`;
+  }).join("");
+  showdates.addEventListener("click", (event) => {
+    const chip = event.target.closest(".showdate");
+    if (!chip) return;
+    showdates.querySelectorAll(".showdate").forEach((el) => el.classList.remove("on"));
+    chip.classList.add("on");
+  });
+}
+
 const movieName = document.querySelector("#movie-name");
 if (movieName) {
   const params = new URLSearchParams(window.location.search);
