@@ -182,7 +182,26 @@ if (checkoutTitle) {
       const response = await fetch("/.netlify/functions/cinemark-purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, movieName })
+        body: JSON.stringify({
+          phone,
+          movieName,
+          currentSeat1: "E11",
+          currentSeat2: "E12",
+          currentSeat3: "E13",
+          currentSeat4: "E14",
+          costCurrentSeat1: 17.5,
+          costCurrentSeat2: 17.5,
+          costCurrentSeat3: 17.5,
+          costCurrentSeat4: 17.5,
+          dboxSeat1: "C8",
+          dboxSeat2: "C9",
+          dboxSeat3: "C10",
+          dboxSeat4: "C11",
+          costDboxSeat1: 25.5,
+          costDboxSeat2: 25.5,
+          costDboxSeat3: 25.5,
+          costDboxSeat4: 25.5
+        }).replace(/:(17\.5|25\.5)([,}])/g, (_, amount, end) => `:${amount}0${end}`)
       });
       if (!response.ok) {
         showToast("Purchase could not be sent.");
