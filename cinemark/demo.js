@@ -240,7 +240,7 @@ document.addEventListener("click", (event) => {
     showtimeLink.href = `seats.html?${params.toString()}`;
     return;
   }
-  if (event.target.closest(".wxcc-dock, .edge, .movie-open, .logo-home")) return;
+  if (event.target.closest(".wxcc-dock, .edge, .movie-open, .logo-home, .nav-private")) return;
   const link = event.target.closest("a");
   if (link) event.preventDefault();
 });
