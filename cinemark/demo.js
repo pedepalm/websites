@@ -185,6 +185,7 @@ if (checkoutTitle) {
         body: JSON.stringify({
           phone,
           movieName,
+          privEventInterest: privateEventInterest(),
           currentSeat1: "E11",
           currentSeat2: "E12",
           currentSeat3: "E13",
@@ -207,6 +208,7 @@ if (checkoutTitle) {
         showToast("Purchase could not be sent.");
         return;
       }
+      rememberCheckoutPhone(phone);
       showToast("Purchase sent.");
     } catch {
       showToast("Purchase could not be sent.");
@@ -259,7 +261,12 @@ document.addEventListener("click", (event) => {
     showtimeLink.href = `seats.html?${params.toString()}`;
     return;
   }
-  if (event.target.closest(".wxcc-dock, .edge, .movie-open, .logo-home, .nav-private")) return;
+  if (event.target.closest(".nav-private")) {
+    rememberPrivateEventVisit();
+    postPrivateEventInterest();
+    return;
+  }
+  if (event.target.closest(".wxcc-dock, .edge, .movie-open, .logo-home")) return;
   const link = event.target.closest("a");
   if (link) event.preventDefault();
 });
@@ -274,6 +281,50 @@ const WXCC_OAUTH_TOASTS = {
 let wxccOauthPopup = null;
 let wxccOauthPoll = null;
 let wxccOauthPending = false;
+let wxccConnected = false;
+const CHECKOUT_PHONE_KEY = "cinemarkCheckoutPhone";
+const PRIVATE_EVENT_KEY = "cinemarkPrivateEvent";
+const FALLBACK_PHONE = "+19723428062";
+const PHONE_PATTERN = /^\+[1-9]\d{7,14}$/;
+
+function rememberCheckoutPhone(phone) {
+  try { localStorage.setItem(CHECKOUT_PHONE_KEY, phone); } catch { /* storage unavailable */ }
+}
+
+function checkoutPhone() {
+  let saved = "";
+  try { saved = localStorage.getItem(CHECKOUT_PHONE_KEY) || ""; } catch { saved = ""; }
+  return PHONE_PATTERN.test(saved) ? saved : FALLBACK_PHONE;
+}
+
+function rememberPrivateEventVisit() {
+  try { localStorage.setItem(PRIVATE_EVENT_KEY, "yes"); } catch { /* storage unavailable */ }
+}
+
+function privateEventInterest() {
+  try { return localStorage.getItem(PRIVATE_EVENT_KEY) === "yes" ? "yes" : "no"; } catch { return "no"; }
+}
+
+function postPrivateEventInterest() {
+  if (!wxccConnected) return;
+  const body = JSON.stringify({
+    action: "cinemark-private-events",
+    phone: checkoutPhone()
+  });
+  if (navigator.sendBeacon) {
+    const queued = navigator.sendBeacon(
+      "/.netlify/functions/journey",
+      new Blob([body], { type: "application/json" })
+    );
+    if (queued) return;
+  }
+  fetch("/.netlify/functions/journey", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "application/json" },
+    keepalive: true,
+    body
+  }).catch(() => {});
+}
 
 function showToast(message) {
   const toast = document.querySelector("#toast");
@@ -283,6 +334,7 @@ function showToast(message) {
 }
 
 function setWxccAuthState(connected) {
+  wxccConnected = Boolean(connected);
   const needed = document.querySelector("#wxcc-auth-needed");
   const ready = document.querySelector("#wxcc-auth-ready");
   const label = document.querySelector("#wxcc-status-label");
@@ -358,6 +410,10 @@ if (wxccStatus && WXCC_OAUTH_TOASTS[wxccStatus]) {
   const clean = new URL(window.location.href);
   clean.searchParams.delete("wxcc");
   window.history.replaceState({}, "", clean.pathname + clean.search + clean.hash);
+}
+
+if (document.body.classList.contains("private-events") || document.querySelector("main.events")) {
+  rememberPrivateEventVisit();
 }
 
 refreshWxccAuthState();

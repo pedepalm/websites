@@ -1,8 +1,9 @@
-/* Publishes login, product, and callback events to Webex Contact Center Journey (JDS). */
+/* Publishes login, product, callback, and Cinemark private-event events to Webex Contact Center Journey (JDS). */
 const { resolveAccessToken } = require("../lib/wxcc-session");
 
 const JOURNEY_URL = "https://api.wxcc-us1.cisco.com/publish/v1/api/event?workspaceId=6943034cbd0c8a694273e705";
 const EMPLOYEE_ID = /^\d{5}$/;
+const PHONE = /^\+[1-9]\d{7,14}$/;
 
 function header(event, name) {
   const headers = event.headers || {};
@@ -191,6 +192,32 @@ function journeyPayload(action, user, extras) {
     return { ...base, data };
   }
 
+  if (action === "cinemark-private-events") {
+    const phone = cleanText(extras.phone, 20);
+    if (!PHONE.test(phone)) return null;
+    return {
+      id: newEventId(),
+      specversion: "1.0",
+      type: "Web",
+      source: "CinemarkPrivateEvents",
+      identity: phone,
+      identitytype: "phone",
+      datacontenttype: "application/json",
+      data: {
+        fname: "Guest",
+        lname: "User",
+        websiteLocation: "PrivateEvents",
+        timeOnPage: "12 seconds",
+        uiData: {
+          title: "Cinemark Private Event Interest",
+          iconType: "Bullseye",
+          subTitle: phone,
+          filterTags: ["Cinemark", "Event"]
+        }
+      }
+    };
+  }
+
   return null;
 }
 
@@ -214,6 +241,7 @@ exports.handler = async (event) => {
       date: payload.date,
       startTime: payload.startTime,
       endTime: payload.endTime,
+      phone: payload.phone,
       title: payload.title || ui.title,
       subTitle: payload.subTitle || ui.subTitle,
       iconType: payload.iconType || ui.iconType,
@@ -225,7 +253,7 @@ exports.handler = async (event) => {
       fname: String(payload.fname || "").trim(),
       lname: String(payload.lname || "").trim()
     };
-    if (!EMPLOYEE_ID.test(user.employeeId)) {
+    if (action !== "cinemark-private-events" && !EMPLOYEE_ID.test(user.employeeId)) {
       return json(400, { error: "Missing employee id." });
     }
 
