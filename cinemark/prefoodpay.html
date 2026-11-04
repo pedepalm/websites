@@ -52,7 +52,7 @@
   </header>
 
   <main class="prepay">
-    <h1>Pre-pay for Food</h1>
+    <h1 id="prepay-title">Pre-pay Order # 7654321</h1>
     <section class="guest-fields" aria-label="Pre-pay for food">
       <div class="pay-wallets">
         <button class="pay-wallet pay-apple" type="button">
@@ -90,9 +90,14 @@
   </main>
 
   <script>
-    const digits = (window.location.search.match(/(\d{4})/) || [])[1] || "1234";
+    const query = window.location.search.replace(/^\?/, "");
+    const digits = (query.match(/^(\d{4})/) || [])[1] || "1234";
+    const order = (query.match(/(\d{7})$/) || [])[1] || "7654321";
     const cardNumber = document.querySelector("#card-number");
+    const title = document.querySelector("#prepay-title");
     if (cardNumber) cardNumber.value = ".... .... .... " + digits;
+    if (title) title.textContent = "Pre-pay Order # " + order;
+    document.title = "Pre-pay Order # " + order;
     document.querySelector(".prepay")?.addEventListener("click", (event) => {
       event.preventDefault();
     });
