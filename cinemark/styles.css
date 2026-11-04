@@ -398,6 +398,7 @@ body:has(.seat-page) {
 .add-cart:hover { background: var(--primary-dark); }
 
 body:has(.checkout) { min-height: auto; }
+body:has(.prepay) { min-height: auto; }
 .checkout {
   max-width: 1100px;
   margin: 0 auto;
@@ -743,8 +744,69 @@ body:has(.checkout) { min-height: auto; }
   .card { flex-basis: 160px; width: 160px; }
   .edge { top: 154px; }
 }
+.prepay {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 36px 28px 72px;
+}
+.prepay h1 {
+  margin: 0 0 18px;
+  font-size: 28px;
+}
+.pay-wallets {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+.pay-wallet {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 600;
+  font-size: 18px;
+  cursor: default;
+}
+.pay-wallet svg { width: 22px; height: 22px; flex: none; }
+.pay-apple {
+  background: #000;
+  color: #fff;
+  border: 0;
+}
+.pay-paypal {
+  background: #ffc439;
+  color: #003087;
+  border: 0;
+}
+.pay-paypal .pal { color: #009cde; }
+.pay-venmo {
+  background: #008cff;
+  color: #fff;
+  border: 0;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.pay-gpay {
+  background: #fff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+}
+.pay-note {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
+}
+
 @media (max-width: 640px) {
-  .location-bar, .main-nav, .featured, .genres, .showtime-page, .seat-heading, .checkout, .events { padding-left: 14px; padding-right: 14px; }
+  .location-bar, .main-nav, .featured, .genres, .showtime-page, .seat-heading, .checkout, .events, .prepay { padding-left: 14px; padding-right: 14px; }
   .checkout { grid-template-columns: 1fr; }
   .facts { flex-wrap: wrap; gap: 14px 22px; }
   .movie-title-row h1 { font-size: 28px; }
