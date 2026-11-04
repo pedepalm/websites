@@ -8,6 +8,17 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    (function () {
+      var phone = /Android.+Mobile|iPhone|iPod|Windows Phone|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+      var narrow = window.matchMedia("(max-width: 767px)");
+      function sync() {
+        document.documentElement.classList.toggle("is-mobile", phone || narrow.matches);
+      }
+      sync();
+      if (narrow.addEventListener) narrow.addEventListener("change", sync);
+    })();
+  </script>
 </head>
 <body>
   <header class="site-header">

@@ -815,3 +815,93 @@ body:has(.prepay) { min-height: auto; }
   .theater { font-size: 13px; }
   .signin span:last-child, .signin { font-size: 13px; }
 }
+
+/* Phone layout. These rules apply only after the page marks itself as a phone. */
+html.is-mobile body {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+html.is-mobile .location-bar,
+html.is-mobile .main-nav,
+html.is-mobile .brand-row,
+html.is-mobile .primary {
+  flex-wrap: wrap;
+}
+html.is-mobile .location-bar,
+html.is-mobile .main-nav {
+  row-gap: 8px;
+}
+html.is-mobile .location {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+html.is-mobile .theater {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+html.is-mobile .secondary {
+  flex: 0 1 auto;
+  min-width: 0;
+  gap: 12px;
+}
+html.is-mobile .signin {
+  white-space: normal;
+}
+html.is-mobile .movie-title-row {
+  flex-wrap: wrap;
+}
+html.is-mobile .watch {
+  white-space: normal;
+  padding-top: 0;
+}
+html.is-mobile body:has(.seat-page) {
+  height: auto;
+  min-height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+html.is-mobile .seat-heading h1 {
+  flex: 1 1 100%;
+  font-size: 22px;
+}
+html.is-mobile .seat-meta { font-size: 15px; }
+html.is-mobile .seat-frame {
+  width: min(640px, calc(100vw - 28px));
+}
+html.is-mobile .seat-page { padding-bottom: 28px; }
+html.is-mobile .seat-actions {
+  justify-content: stretch;
+  padding-bottom: 8px;
+}
+html.is-mobile .add-cart { width: 100%; }
+html.is-mobile .toast {
+  width: calc(100% - 28px);
+  max-width: 420px;
+  text-align: center;
+  bottom: 64px;
+}
+html.is-mobile .genres,
+html.is-mobile .showtime-page,
+html.is-mobile .checkout,
+html.is-mobile .prepay,
+html.is-mobile .events {
+  padding-bottom: 88px;
+}
+
+@media (max-width: 767px) {
+  .hero-poster img { width: min(220px, 62vw); }
+  .synopsis { font-size: 15px; }
+  .showtime-block h2 { font-size: 22px; }
+  .theatre-block h3 { font-size: 18px; }
+  .read-more { margin-left: 0; }
+  .genre-card p { min-height: 0; }
+  .checkout { gap: 24px; padding-top: 20px; }
+  .account-box, .guest-fields { padding: 20px 16px; }
+  .order-top h1 { font-size: 22px; }
+  .prepay h1 { font-size: 24px; line-height: 1.25; }
+  .times a { padding: 10px 14px; }
+  .events-copy h2 { font-size: 22px; }
+  .card { flex-basis: 148px; width: 148px; }
+  .edge { top: 145px; width: 36px; height: 36px; font-size: 22px; }
+}
