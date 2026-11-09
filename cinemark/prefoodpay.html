@@ -112,6 +112,9 @@
     document.querySelector(".prepay")?.addEventListener("click", (event) => {
       event.preventDefault();
     });
+    document.querySelector(".btn-complete")?.addEventListener("click", (event) => {
+      event.currentTarget.classList.add("is-sent");
+    });
   </script>
 </body>
 </html>

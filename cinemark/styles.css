@@ -517,6 +517,11 @@ body:has(.prepay) { min-height: auto; }
   padding: 16px 28px;
   font-size: 18px;
 }
+.btn-complete.is-sent,
+.btn-complete.is-sent:hover {
+  background: #9a9a9a;
+  color: #fff;
+}
 
 .genres {
   max-width: 1280px;
