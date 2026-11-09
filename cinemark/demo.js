@@ -171,7 +171,8 @@ if (checkoutTitle) {
     phoneList.hidden = true;
   });
 
-  document.querySelector(".btn-complete")?.addEventListener("click", async () => {
+  document.querySelector(".btn-complete")?.addEventListener("click", async (event) => {
+    event.currentTarget.classList.add("is-sent");
     const phone = phoneInput?.value.trim() || "";
     const movieName = checkoutTitle.textContent.trim();
     const interest = privateEventInterest();
