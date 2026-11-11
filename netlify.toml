@@ -23,3 +23,16 @@
   to = "/.netlify/functions/tasks"
   status = 200
   force = true
+
+# Apple Messages for Business test entry. The business ID is a public Message Us identifier.
+[[redirects]]
+  from = "/ambtest/urn:biz:349a2f11-5ad9-4085-81d3-1cdc331e6bd9"
+  to = "https://bcrw.apple.com/urn:biz:349a2f11-5ad9-4085-81d3-1cdc331e6bd9"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/ambtest/urn%3Abiz%3A349a2f11-5ad9-4085-81d3-1cdc331e6bd9"
+  to = "https://bcrw.apple.com/urn:biz:349a2f11-5ad9-4085-81d3-1cdc331e6bd9"
+  status = 302
+  force = true
