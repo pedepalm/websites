@@ -204,8 +204,6 @@ function journeyPayload(action, user, extras) {
       .slice(0, 3);
     if (!visits.length) return null;
     const data = {
-      fname: "Guest",
-      lname: "User",
       uiData: {
         title: "Customer Breadcrumb Website Click",
         iconType: "Bullseye",
@@ -215,8 +213,8 @@ function journeyPayload(action, user, extras) {
     };
     visits.forEach((visit, index) => {
       const slot = index + 1;
-      data[`websiteLocation${slot}`] = visit.location;
-      data[`timeOnPage${slot}`] = `${visit.seconds} seconds`;
+      data[`location ${slot}`] = visit.location;
+      data[`location ${slot} time`] = `${visit.seconds} seconds`;
     });
     return {
       id: newEventId(),
