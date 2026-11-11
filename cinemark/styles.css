@@ -688,13 +688,24 @@ body:has(.prepay) { min-height: auto; }
   line-height: 1.3;
   font-weight: 700;
 }
-.events-copy a,
-.events-card a {
+.events-copy a {
   color: #d00;
   font-weight: 700;
   text-decoration: none;
   pointer-events: none;
   cursor: default;
+}
+.events-card { position: relative; }
+.events-card a {
+  color: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+.events-card a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
 }
 .events-grid {
   display: grid;
@@ -733,6 +744,33 @@ body:has(.prepay) { min-height: auto; }
   text-align: left;
 }
 .events-faq p { font-size: 15px; text-align: left; }
+.event-detail { max-width: 800px; }
+.event-hero {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 400 / 156;
+  object-fit: cover;
+  border-radius: 4px;
+  background: #111;
+}
+.event-detail h1 {
+  margin: 18px 0 12px;
+  font-size: 30px;
+  line-height: 1.2;
+}
+.event-detail p {
+  margin: 0 0 1em;
+  font-size: 16px;
+  line-height: 1.5;
+}
+.event-back {
+  display: inline-block;
+  margin: 18px 0 14px;
+  color: #d00;
+  font-weight: 700;
+  text-decoration: none;
+}
 
 @media (max-width: 991px) {
   .events-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -740,6 +778,7 @@ body:has(.prepay) { min-height: auto; }
 @media (max-width: 767px) {
   .events-title { font-size: 20px; line-height: 50px; white-space: normal; }
   .events-grid { grid-template-columns: 1fr; }
+  .event-detail h1 { font-size: 24px; }
 }
 
 @media (max-width: 900px) {

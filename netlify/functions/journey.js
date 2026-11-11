@@ -195,6 +195,29 @@ function journeyPayload(action, user, extras) {
   if (action === "cinemark-private-events") {
     const phone = cleanText(extras.phone, 20);
     if (!PHONE.test(phone)) return null;
+    const visits = (Array.isArray(extras.visits) ? extras.visits : [])
+      .map((visit) => ({
+        location: cleanText(visit && visit.location, 80),
+        seconds: Math.max(0, parseInt(visit && visit.seconds, 10) || 0)
+      }))
+      .filter((visit) => visit.location && visit.seconds > 0)
+      .slice(0, 3);
+    if (!visits.length) return null;
+    const data = {
+      fname: "Guest",
+      lname: "User",
+      uiData: {
+        title: "Customer Breadcrumb Website Click",
+        iconType: "Bullseye",
+        subTitle: `${phone} Private Events`,
+        filterTags: ["Cinemark", "Event"]
+      }
+    };
+    visits.forEach((visit, index) => {
+      const slot = index + 1;
+      data[`websiteLocation${slot}`] = visit.location;
+      data[`timeOnPage${slot}`] = `${visit.seconds} seconds`;
+    });
     return {
       id: newEventId(),
       specversion: "1.0",
@@ -203,18 +226,7 @@ function journeyPayload(action, user, extras) {
       identity: phone,
       identitytype: "phone",
       datacontenttype: "application/json",
-      data: {
-        fname: "Guest",
-        lname: "User",
-        websiteLocation: "PrivateEvents",
-        timeOnPage: "12 seconds",
-        uiData: {
-          title: "Cinemark Private Event Interest",
-          iconType: "Bullseye",
-          subTitle: phone,
-          filterTags: ["Cinemark", "Event"]
-        }
-      }
+      data
     };
   }
 
@@ -242,6 +254,7 @@ exports.handler = async (event) => {
       startTime: payload.startTime,
       endTime: payload.endTime,
       phone: payload.phone,
+      visits: Array.isArray(payload.visits) ? payload.visits : [],
       title: payload.title || ui.title,
       subTitle: payload.subTitle || ui.subTitle,
       iconType: payload.iconType || ui.iconType,
