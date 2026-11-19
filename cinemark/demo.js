@@ -213,10 +213,15 @@ if (checkoutTitle) {
       rememberCheckoutPhone(phone);
       if (visits.length) postPrivateEventInterest(phone, visits);
       const offer = document.querySelector("#apple-offer");
-      const banner = offer?.querySelector(".apple-business-chat-banner-container");
-      if (banner) banner.setAttribute("data-apple-business-intent-id", phone);
+      const banner = document.querySelector("#apple-offer-banner");
+      if (banner) {
+        const url = new URL("https://bcrw.apple.com/urn:biz:349a2f11-5ad9-4085-81d3-1cdc331e6bd9");
+        url.searchParams.set("biz-intent-id", phone);
+        url.searchParams.set("biz-group-id", "support");
+        url.searchParams.set("body", "I would only like to receive free and special offers before my movie");
+        banner.href = url.toString();
+      }
       if (offer) offer.hidden = false;
-      window.appleBusinessChat?.refresh?.();
       showToast("Purchase sent.");
     } catch {
       showToast("Purchase could not be sent.");

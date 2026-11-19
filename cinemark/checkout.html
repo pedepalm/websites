@@ -8,7 +8,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
-  <script src="https://static.cdn-apple.com/businesschat/start-chat-button/2/index.js"></script>
   <script>
     (function () {
       var phone = /Android.+Mobile|iPhone|iPod|Windows Phone|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
@@ -87,18 +86,12 @@
         <input id="card" type="text" value="**** **** **** 1234" readonly autocomplete="off">
         <button class="btn-complete" type="button">Complete Purchase</button>
         <div class="apple-offer" id="apple-offer" hidden>
-          <div class="apple-business-chat-banner-container"
-               data-apple-business-id="349a2f11-5ad9-4085-81d3-1cdc331e6bd9"
-               data-apple-business-intent-id="+19723428062"
-               data-apple-business-group-id="support"
-               data-apple-business-body="I would only like to receive free and special offers before my movie"
-               data-apple-banner-cta="Tap to get free or special offers before the show"
-               data-apple-banner-background-color="#111111"
-               data-apple-banner-text-color="#ffffff"
-               data-apple-banner-icon-background-color="#34c759"
-               data-apple-banner-icon-color="#ffffff"
-               data-apple-banner-scale="2">
-          </div>
+          <a class="apple-offer-banner" id="apple-offer-banner" href="https://bcrw.apple.com/urn:biz:349a2f11-5ad9-4085-81d3-1cdc331e6bd9">
+            <span class="apple-offer-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48"><path d="M24 6c-9.4 0-17 6.6-17 14.8 0 4.7 2.5 8.9 6.4 11.6-.2 1.6-.8 3.8-1.8 5.6 2.4-.4 4.6-1.4 6.3-2.6 1.9.7 4 1.1 6.1 1.1 9.4 0 17-6.6 17-14.8S33.4 6 24 6z"/></svg>
+            </span>
+            <span class="apple-offer-copy">Tap to get free or special offers before the show</span>
+          </a>
         </div>
       </section>
     </div>

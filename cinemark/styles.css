@@ -523,7 +523,39 @@ body:has(.prepay) { min-height: auto; }
   color: #fff;
 }
 .apple-offer {
-  margin-top: 16px;
+  margin-top: 14px;
+}
+.apple-offer-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: #111;
+  color: #fff;
+  text-decoration: none;
+}
+.apple-offer-icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: 14px;
+  background: #34c759;
+}
+.apple-offer-icon svg {
+  width: 36px;
+  height: 36px;
+  fill: #fff;
+}
+.apple-offer-copy {
+  min-width: 0;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.25;
 }
 
 .genres {
