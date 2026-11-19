@@ -274,7 +274,7 @@ document.addEventListener("click", (event) => {
     showtimeLink.href = `seats.html?${params.toString()}`;
     return;
   }
-  if (event.target.closest(".nav-private, .events-card a, .event-back")) return;
+  if (event.target.closest(".nav-private, .events-card a, .event-back, .apple-offer-banner")) return;
   if (event.target.closest(".wxcc-dock, .edge, .movie-open, .logo-home")) return;
   const link = event.target.closest("a");
   if (link) event.preventDefault();
