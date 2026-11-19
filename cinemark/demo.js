@@ -219,7 +219,7 @@ if (checkoutTitle) {
         url.searchParams.set("biz-intent-id", phone);
         url.searchParams.set("biz-group-id", "support");
         url.searchParams.set("body", "I would only like to receive free and special offers before my movie");
-        banner.href = url.toString();
+        banner.href = url.toString().replace(/\+/g, "%20");
       }
       if (offer) offer.hidden = false;
       showToast("Purchase sent.");
