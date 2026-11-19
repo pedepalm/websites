@@ -522,6 +522,9 @@ body:has(.prepay) { min-height: auto; }
   background: #9a9a9a;
   color: #fff;
 }
+.apple-offer {
+  margin-top: 16px;
+}
 
 .genres {
   max-width: 1280px;

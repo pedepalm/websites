@@ -212,6 +212,11 @@ if (checkoutTitle) {
       }
       rememberCheckoutPhone(phone);
       if (visits.length) postPrivateEventInterest(phone, visits);
+      const offer = document.querySelector("#apple-offer");
+      const banner = offer?.querySelector(".apple-business-chat-banner-container");
+      if (banner) banner.setAttribute("data-apple-business-intent-id", phone);
+      if (offer) offer.hidden = false;
+      window.appleBusinessChat?.refresh?.();
       showToast("Purchase sent.");
     } catch {
       showToast("Purchase could not be sent.");

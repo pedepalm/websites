@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
+  <script src="https://static.cdn-apple.com/businesschat/start-chat-button/2/index.js"></script>
   <script>
     (function () {
       var phone = /Android.+Mobile|iPhone|iPod|Windows Phone|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
@@ -85,6 +86,16 @@
         <label for="card">Credit card</label>
         <input id="card" type="text" value="**** **** **** 1234" readonly autocomplete="off">
         <button class="btn-complete" type="button">Complete Purchase</button>
+        <div class="apple-offer" id="apple-offer" hidden>
+          <div class="apple-business-chat-banner-container"
+               data-apple-business-id="349a2f11-5ad9-4085-81d3-1cdc331e6bd9"
+               data-apple-business-intent-id="+19723428062"
+               data-apple-business-group-id="support"
+               data-apple-business-body="I would only like to receive free and special offers before my movie"
+               data-apple-banner-cta="Offers before your movie"
+               data-apple-banner-context="Tap to get free or specials before the show">
+          </div>
+        </div>
       </section>
     </div>
 
