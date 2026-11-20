@@ -1035,7 +1035,7 @@ body.android-splash { min-height: 100vh; }
   display: block;
   width: 96px;
   height: 96px;
-  margin: 0 0 20px;
+  margin: 0 auto 20px;
 }
 .android-message p {
   margin: 0;
