@@ -176,13 +176,7 @@ if (checkoutTitle) {
   document.querySelector("#guest-checkout")?.addEventListener("click", () => {
     const fields = document.querySelector("#guest-fields");
     if (fields) fields.hidden = false;
-    if (!orderId) {
-      orderId = newOrderId();
-      const orderLine = document.querySelector("#order-id-line");
-      const orderEl = document.querySelector("#order-id");
-      if (orderEl) orderEl.textContent = orderId;
-      if (orderLine) orderLine.hidden = false;
-    }
+    if (!orderId) orderId = newOrderId();
   });
 
   const phoneInput = document.querySelector("#phone");
@@ -247,6 +241,10 @@ if (checkoutTitle) {
     }
     button.classList.remove("is-working");
     button.classList.add("is-sent");
+    const orderLine = document.querySelector("#order-id-line");
+    const orderEl = document.querySelector("#order-id");
+    if (orderEl) orderEl.textContent = orderId;
+    if (orderLine) orderLine.hidden = false;
     if (later) later.hidden = false;
   });
 

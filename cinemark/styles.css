@@ -461,6 +461,11 @@ body:has(.prepay) { min-height: auto; }
   font-weight: 700;
   font-size: 18px;
 }
+#order-id-line {
+  margin-top: 8px;
+  font-weight: 700;
+  font-size: 22px;
+}
 .checkout-left { display: flex; flex-direction: column; gap: 16px; }
 .guest-fields {
   background: #fff;
@@ -543,6 +548,8 @@ body:has(.prepay) { min-height: auto; }
 .btn-later.is-sent:hover {
   background: #9a9a9a;
   color: #fff;
+  cursor: default;
+  pointer-events: none;
 }
 .btn-later {
   width: 100%;
@@ -554,6 +561,7 @@ body:has(.prepay) { min-height: auto; }
   padding: 16px 28px;
   font-size: 18px;
   font-weight: 700;
+  cursor: pointer;
 }
 .apple-offer {
   margin-top: 14px;
