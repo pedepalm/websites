@@ -296,7 +296,7 @@ if (checkoutTitle) {
       if (visits.length) postPrivateEventInterest(phone, visits);
       button.classList.remove("is-working");
       button.classList.add("is-sent");
-      showToast("Purchase sent.");
+      showToast("Starting Demo... purchase sent.");
     } catch {
       button.classList.remove("is-working");
       showToast("Purchase could not be sent.");

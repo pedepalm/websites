@@ -465,6 +465,7 @@ body:has(.prepay) { min-height: auto; }
   margin-top: 8px;
   font-weight: 700;
   font-size: 22px;
+  color: var(--primary);
 }
 .checkout-left { display: flex; flex-direction: column; gap: 16px; }
 .guest-fields {
