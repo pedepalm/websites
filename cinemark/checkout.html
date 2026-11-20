@@ -84,15 +84,20 @@
         <input id="email" type="email" autocomplete="email">
         <label for="card">Credit card</label>
         <input id="card" type="text" value="**** **** **** 1234" readonly autocomplete="off">
-        <button class="btn-complete" type="button">Complete Purchase</button>
+        <button class="btn-complete" type="button">Complete Purchase<span class="btn-wait" aria-hidden="true"></span></button>
         <div class="apple-offer" id="apple-offer" hidden>
-          <a class="apple-offer-banner" id="apple-offer-banner" href="https://bcrw.apple.com/urn:biz:349a2f11-5ad9-4085-81d3-1cdc331e6bd9">
+          <a class="apple-offer-banner" id="apple-offer-banner" hidden href="https://bcrw.apple.com/urn:biz:349a2f11-5ad9-4085-81d3-1cdc331e6bd9">
             <span class="apple-offer-icon" aria-hidden="true">
               <svg viewBox="0 0 48 48"><path d="M24 6c-9.4 0-17 6.6-17 14.8 0 4.7 2.5 8.9 6.4 11.6-.2 1.6-.8 3.8-1.8 5.6 2.4-.4 4.6-1.4 6.3-2.6 1.9.7 4 1.1 6.1 1.1 9.4 0 17-6.6 17-14.8S33.4 6 24 6z"/></svg>
             </span>
             <span class="apple-offer-copy">Tap to get free or special offers before the show</span>
           </a>
+          <div class="apple-offer-qr" id="apple-offer-qr" hidden>
+            <canvas id="apple-offer-canvas" aria-label="QR code that opens Apple Messages"></canvas>
+            <p>Scan with an iPhone camera.</p>
+          </div>
         </div>
+        <button class="btn-later" type="button" id="btn-later" hidden>press when 2 hours before movie<span class="btn-wait" aria-hidden="true"></span></button>
       </section>
     </div>
 
@@ -106,6 +111,7 @@
         </div>
       </div>
       <div class="order-lines">
+        <div class="order-line" id="order-id-line" hidden><span>Order</span><span id="order-id"></span></div>
         <div class="order-line"><span>4 tickets</span><span>$70</span></div>
         <p class="order-seats">E12, E13, E14, E15</p>
         <div class="order-line"><span>Online ticket fee</span><span>$7.96</span></div>
@@ -122,6 +128,7 @@
   </div>
   <div class="toast" id="toast" hidden role="status"></div>
 
+  <script src="qrcode.js"></script>
   <script src="demo.js"></script>
 </body>
 </html>

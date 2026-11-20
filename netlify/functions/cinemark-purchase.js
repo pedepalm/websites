@@ -2,6 +2,7 @@
    The webhook address is read from CINEMARK_PURCHASE_WEBHOOK so it is not stored in source. */
 
 const PHONE = /^\+[1-9]\d{7,14}$/;
+const ORDER_ID = /^\d{7}$/;
 
 const PURCHASE_DETAILS = {
   currentSeat1: "E11",
@@ -65,8 +66,11 @@ exports.handler = async (event) => {
     const phone = String(payload.phone || "").trim();
     const movieName = String(payload.movieName || "").replace(/[\u0000-\u001F]/g, "").trim().slice(0, 200);
     const privEventInterest = payload.privEventInterest === "yes" ? "yes" : "no";
+    const orderid = String(payload.orderid || "").trim();
+    const abcuserid = String(payload.abcuserid || "").replace(/[\u0000-\u001F]/g, "").trim().slice(0, 200);
     if (!PHONE.test(phone)) return json(400, { error: "Select a phone number." });
     if (!movieName) return json(400, { error: "Movie name is missing." });
+    if (!ORDER_ID.test(orderid)) return json(400, { error: "Order id is missing." });
 
     const response = await fetch(hook, {
       method: "POST",
@@ -74,7 +78,7 @@ exports.handler = async (event) => {
         "Content-Type": "application/json",
         Accept: "application/json"
       },
-      body: JSON.stringify({ phone, movieName, privEventInterest, ...PURCHASE_DETAILS }).replace(/:(17\.5|25\.5)([,}])/g, (_, amount, end) => `:${amount}0${end}`)
+      body: JSON.stringify({ phone, movieName, privEventInterest, orderid, abcuserid, ...PURCHASE_DETAILS }).replace(/:(17\.5|25\.5)([,}])/g, (_, amount, end) => `:${amount}0${end}`)
     });
     if (!response.ok) return json(502, { error: "Could not send the purchase." });
     return json(200, { ok: true });

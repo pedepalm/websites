@@ -133,6 +133,29 @@ document.querySelector(".add-cart")?.addEventListener("click", () => {
   window.location.href = `checkout.html?${next.toString()}`;
 });
 
+function newOrderId() {
+  const bytes = new Uint32Array(1);
+  crypto.getRandomValues(bytes);
+  return String(bytes[0] % 10000000).padStart(7, "0");
+}
+
+function messagesUrl(phone) {
+  const url = new URL("https://bcrw.apple.com/urn:biz:349a2f11-5ad9-4085-81d3-1cdc331e6bd9");
+  url.searchParams.set("biz-intent-id", phone);
+  url.searchParams.set("biz-group-id", "support");
+  url.searchParams.set("body", "I would only like to receive free and special offers before my movie");
+  return url.toString().replace(/\+/g, "%20");
+}
+
+function deviceKind() {
+  const agent = navigator.userAgent || "";
+  if (/Android/i.test(agent)) return "android";
+  if (/iPhone|iPad|iPod/i.test(agent)) return "ios";
+  if (/Macintosh/i.test(agent) && navigator.maxTouchPoints > 1) return "ios";
+  if (/Windows|Macintosh/i.test(agent)) return "desktop";
+  return "other";
+}
+
 const checkoutTitle = document.querySelector("#checkout-title");
 if (checkoutTitle) {
   const params = new URLSearchParams(window.location.search);
@@ -148,9 +171,18 @@ if (checkoutTitle) {
   const timeEl = document.querySelector("#checkout-time");
   if (dateEl) dateEl.textContent = params.get("date") || "";
   if (timeEl) timeEl.textContent = params.get("time") || "";
+  let orderId = "";
+  let abcuserid = "";
   document.querySelector("#guest-checkout")?.addEventListener("click", () => {
     const fields = document.querySelector("#guest-fields");
     if (fields) fields.hidden = false;
+    if (!orderId) {
+      orderId = newOrderId();
+      const orderLine = document.querySelector("#order-id-line");
+      const orderEl = document.querySelector("#order-id");
+      if (orderEl) orderEl.textContent = orderId;
+      if (orderLine) orderLine.hidden = false;
+    }
   });
 
   const phoneInput = document.querySelector("#phone");
@@ -172,14 +204,63 @@ if (checkoutTitle) {
   });
 
   document.querySelector(".btn-complete")?.addEventListener("click", async (event) => {
-    event.currentTarget.classList.add("is-sent");
+    const button = event.currentTarget;
+    if (button.classList.contains("is-sent") || button.classList.contains("is-working")) return;
     const phone = phoneInput?.value.trim() || "";
-    const movieName = checkoutTitle.textContent.trim();
-    const visits = topEventVisits(3);
     if (!phone) {
       showToast("Select a phone number.");
       return;
     }
+    const offer = document.querySelector("#apple-offer");
+    const banner = document.querySelector("#apple-offer-banner");
+    const qr = document.querySelector("#apple-offer-qr");
+    const canvas = document.querySelector("#apple-offer-canvas");
+    const later = document.querySelector("#btn-later");
+    button.classList.add("is-working");
+    try {
+      const response = await fetch("/.netlify/functions/cinemark-identity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone })
+      });
+      const data = response.ok ? await response.json() : {};
+      const lookupOk = Boolean(data.lookupOk);
+      abcuserid = lookupOk ? String(data.abcuserid || "") : "";
+      const link = messagesUrl(phone);
+      const kind = deviceKind();
+      if (banner) banner.hidden = true;
+      if (qr) qr.hidden = true;
+      if (lookupOk && !abcuserid && kind === "ios" && banner && offer) {
+        banner.href = link;
+        banner.hidden = false;
+        offer.hidden = false;
+      } else if (lookupOk && !abcuserid && kind === "desktop" && canvas && qr && offer && window.CinemarkQr) {
+        window.CinemarkQr.draw(canvas, link);
+        qr.hidden = false;
+        offer.hidden = false;
+      } else if (offer) {
+        offer.hidden = true;
+      }
+    } catch {
+      abcuserid = "";
+      if (offer) offer.hidden = true;
+    }
+    button.classList.remove("is-working");
+    button.classList.add("is-sent");
+    if (later) later.hidden = false;
+  });
+
+  document.querySelector("#btn-later")?.addEventListener("click", async (event) => {
+    const button = event.currentTarget;
+    if (button.classList.contains("is-sent") || button.classList.contains("is-working")) return;
+    const phone = phoneInput?.value.trim() || "";
+    const movieName = checkoutTitle.textContent.trim();
+    const visits = topEventVisits(3);
+    if (!phone || !orderId) {
+      showToast("Purchase could not be sent.");
+      return;
+    }
+    button.classList.add("is-working");
     try {
       const response = await fetch("/.netlify/functions/cinemark-purchase", {
         method: "POST",
@@ -188,6 +269,8 @@ if (checkoutTitle) {
           phone,
           movieName,
           privEventInterest: visits.length ? "yes" : "no",
+          orderid: orderId,
+          abcuserid,
           currentSeat1: "E11",
           currentSeat2: "E12",
           currentSeat3: "E13",
@@ -207,23 +290,17 @@ if (checkoutTitle) {
         }).replace(/:(17\.5|25\.5)([,}])/g, (_, amount, end) => `:${amount}0${end}`)
       });
       if (!response.ok) {
+        button.classList.remove("is-working");
         showToast("Purchase could not be sent.");
         return;
       }
       rememberCheckoutPhone(phone);
       if (visits.length) postPrivateEventInterest(phone, visits);
-      const offer = document.querySelector("#apple-offer");
-      const banner = document.querySelector("#apple-offer-banner");
-      if (banner) {
-        const url = new URL("https://bcrw.apple.com/urn:biz:349a2f11-5ad9-4085-81d3-1cdc331e6bd9");
-        url.searchParams.set("biz-intent-id", phone);
-        url.searchParams.set("biz-group-id", "support");
-        url.searchParams.set("body", "I would only like to receive free and special offers before my movie");
-        banner.href = url.toString().replace(/\+/g, "%20");
-      }
-      if (offer) offer.hidden = false;
+      button.classList.remove("is-working");
+      button.classList.add("is-sent");
       showToast("Purchase sent.");
     } catch {
+      button.classList.remove("is-working");
       showToast("Purchase could not be sent.");
     }
   });

@@ -517,14 +517,60 @@ body:has(.prepay) { min-height: auto; }
   padding: 16px 28px;
   font-size: 18px;
 }
+.btn-complete.is-working,
+.btn-later.is-working {
+  pointer-events: none;
+}
+.btn-wait { display: none; }
+.is-working .btn-wait {
+  display: inline-block;
+  width: 1.4em;
+  text-align: left;
+}
+.is-working .btn-wait::after {
+  content: "";
+  animation: btn-wait 1s steps(4, end) infinite;
+}
+@keyframes btn-wait {
+  0% { content: ""; }
+  25% { content: "."; }
+  50% { content: ".."; }
+  75% { content: "..."; }
+}
 .btn-complete.is-sent,
-.btn-complete.is-sent:hover {
+.btn-complete.is-sent:hover,
+.btn-later.is-sent,
+.btn-later.is-sent:hover {
   background: #9a9a9a;
   color: #fff;
+}
+.btn-later {
+  width: 100%;
+  margin-top: 14px;
+  background: #34c759;
+  color: #fff;
+  border: 0;
+  border-radius: 28px;
+  padding: 16px 28px;
+  font-size: 18px;
+  font-weight: 700;
 }
 .apple-offer {
   margin-top: 14px;
 }
+.apple-offer-qr {
+  text-align: center;
+}
+.apple-offer-qr canvas {
+  width: min(100%, 280px);
+  height: auto;
+}
+.apple-offer-qr p {
+  margin: 8px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+.apple-offer-banner[hidden] { display: none; }
 .apple-offer-banner {
   display: flex;
   align-items: center;
