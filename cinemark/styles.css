@@ -1023,6 +1023,20 @@ html.is-mobile .events {
   padding-bottom: 88px;
 }
 
+body.android-splash { min-height: 100vh; }
+.android-splash .main-nav { justify-content: flex-start; }
+.android-message {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 48px 28px 64px;
+}
+.android-message p {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
 @media (max-width: 767px) {
   .hero-poster img { width: min(220px, 62vw); }
   .synopsis { font-size: 15px; }
