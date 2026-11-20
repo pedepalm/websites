@@ -1031,6 +1031,12 @@ body.android-splash { min-height: 100vh; }
   margin: 0 auto;
   padding: 48px 28px 64px;
 }
+.android-logo {
+  display: block;
+  width: 96px;
+  height: 96px;
+  margin: 0 0 20px;
+}
 .android-message p {
   margin: 0;
   font-size: 28px;
